@@ -82,7 +82,7 @@ jobs:
         flutter-version-file: pubspec.yaml
         architecture: x64
     - run: flutter pub get
-    - run: flutter build web --base-href /flutter-guesstheword/ --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }}
+    - run: flutter build web --base-href /flutter-onerukudaily/ --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }}
     - run: flutter build appbundle --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
     # - run: flutter build apk --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
 
@@ -103,19 +103,19 @@ jobs:
     - name: Attach Website
       uses: actions/upload-artifact@v3
       with:
-        name: Web-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        name: Web-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
         path: build/web
 
     # - name: Attach APK
     #   uses: actions/upload-artifact@v3
     #   with:
-    #     name: APK-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+    #     name: APK-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
     #     path: build/app/outputs/flutter-apk/app-release.apk
 
     - name: Attach AppBundle
       uses: actions/upload-artifact@v3
       with:
-        name: AppBundle-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        name: AppBundle-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
         path: build/app/outputs/bundle/release/app-release.aab
 
   build-linux:
@@ -179,7 +179,7 @@ jobs:
     - name: Attach Linux Bundle
       uses: actions/upload-artifact@v3
       with:
-        name: Linux-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        name: Linux-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
         path: build/linux/x64/release/bundle
 
   build-windows:
@@ -228,7 +228,7 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
-        flutter-version: '3.22.0'
+        flutter-version: '3.22.1'
         architecture: x64
     - run: flutter pub get
     - run: flutter config --enable-windows-desktop
@@ -237,7 +237,7 @@ jobs:
     - name: Attach Windows Bundle
       uses: actions/upload-artifact@v3
       with:
-        name: Win-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        name: Win-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
         path: build/windows/x64/runner/Release
 
   build-macos:
@@ -295,5 +295,5 @@ jobs:
     - name: Attach Windows Bundle
       uses: actions/upload-artifact@v3
       with:
-        name: Mac-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        name: Mac-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
         path: build/macos/Build/Products/Release
