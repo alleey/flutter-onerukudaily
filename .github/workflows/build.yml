@@ -1,0 +1,299 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+      - "!main"
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+permissions:
+  contents: write
+
+jobs:
+  build-web-android:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+    - name: Read meta data
+      id: metadata
+      uses: actions/github-script@v6
+      env:
+        LINK_DONATE: ${{ secrets.LINK_DONATE }}
+        LINK_FEEDBACK: ${{ secrets.LINK_FEEDBACK }}
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          let latestTag;
+          try {
+            latestTag = execSync('git describe --abbrev=0 --tags').toString().trim();
+          } catch (error) {
+            console.log('No tags found, using default version 0.0.1');
+            latestTag = 'v0.0.1';
+          }
+          const version = latestTag.startsWith('v') ? latestTag.substring(1) : latestTag;
+          const linkDonate = process.env.LINK_DONATE;
+          const linkFeedback = process.env.LINK_FEEDBACK;
+          console.log(`Tag: ${latestTag} -> Version: ${version}`);
+          core.setOutput('value', version)
+          core.setOutput('link_donate', linkDonate)
+          core.setOutput('link_feedback', linkFeedback)
+
+    - name: Write metadata to file
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const version = '${{ steps.metadata.outputs.value }}';
+          const link_donate = '${{ steps.metadata.outputs.link_donate }}';
+          const link_feedback = '${{ steps.metadata.outputs.link_feedback }}';
+          fs.writeFileSync('assets/metadata.json', JSON.stringify({ version, link_donate, link_feedback }));
+          console.log(`${version} written to assets/metadata.json`);
+
+    - name: Decode and save keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > android/app/keystore.jks
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+
+    - name: Build Web and Android
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version-file: pubspec.yaml
+        architecture: x64
+    - run: flutter pub get
+    - run: flutter build web --base-href /flutter-guesstheword/ --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }}
+    - run: flutter build appbundle --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
+    # - run: flutter build apk --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
+
+    # - name: Sign APK
+    #   run: |
+    #     zip -d build/app/outputs/flutter-apk/app-release.apk META-INF/\*
+    #     jarsigner -verbose -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/keystore.jks \
+    #       -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD \
+    #       build/app/outputs/flutter-apk/app-release.apk $KEY_ALIAS
+
+    - name: Sign AppBundle
+      run: |
+        zip -d build/app/outputs/bundle/release/app-release.aab META-INF/\*
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/keystore.jks \
+          -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD \
+          build/app/outputs/bundle/release/app-release.aab $KEY_ALIAS
+
+    - name: Attach Website
+      uses: actions/upload-artifact@v3
+      with:
+        name: Web-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        path: build/web
+
+    # - name: Attach APK
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: APK-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+    #     path: build/app/outputs/flutter-apk/app-release.apk
+
+    - name: Attach AppBundle
+      uses: actions/upload-artifact@v3
+      with:
+        name: AppBundle-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        path: build/app/outputs/bundle/release/app-release.aab
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+    - name: Install flutter dependencies
+      run: sudo apt-get install -y -f clang cmake ninja-build libgtk-3-dev
+
+    - name: Install app dependencies
+      run: sudo apt-get install -y -f libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-bad1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev
+
+
+    - name: Read meta data
+      id: metadata
+      uses: actions/github-script@v6
+      env:
+        LINK_DONATE: ${{ secrets.LINK_DONATE }}
+        LINK_FEEDBACK: ${{ secrets.LINK_FEEDBACK }}
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          let latestTag;
+          try {
+            latestTag = execSync('git describe --abbrev=0 --tags').toString().trim();
+          } catch (error) {
+            console.log('No tags found, using default version 0.0.1');
+            latestTag = 'v0.0.1';
+          }
+          const version = latestTag.startsWith('v') ? latestTag.substring(1) : latestTag;
+          const { LINK_DONATE, LINK_FEEDBACK } = process.env
+          console.log(`Tag:${latestTag} -> Version:${version}`);
+          core.setOutput('value', version)
+          core.setOutput('link_donate', LINK_DONATE)
+          core.setOutput('link_feedback', LINK_FEEDBACK)
+
+    - name: Write metadata to file
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const version = '${{ steps.metadata.outputs.value }}';
+          const link_donate = '${{ steps.metadata.outputs.link_donate }}';
+          const link_feedback = '${{ steps.metadata.outputs.link_feedback }}';
+          fs.writeFileSync('assets/metadata.json', JSON.stringify({ version, link_donate, link_feedback }));
+          console.log(`${version} written to assets/metadata.json`);
+
+    - name: Build Linux
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version-file: pubspec.yaml
+        architecture: x64
+    - run: flutter pub get
+    - run: flutter config --enable-linux-desktop
+    - run: flutter build linux --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }}
+
+    - name: Attach Linux Bundle
+      uses: actions/upload-artifact@v3
+      with:
+        name: Linux-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        path: build/linux/x64/release/bundle
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+
+    - name: Read meta data
+      id: metadata
+      uses: actions/github-script@v6
+      env:
+        LINK_DONATE: ${{ secrets.LINK_DONATE }}
+        LINK_FEEDBACK: ${{ secrets.LINK_FEEDBACK }}
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          let latestTag;
+          try {
+            latestTag = execSync('git describe --abbrev=0 --tags').toString().trim();
+          } catch (error) {
+            console.log('No tags found, using default version 0.0.1');
+            latestTag = 'v0.0.1';
+          }
+          const version = latestTag.startsWith('v') ? latestTag.substring(1) : latestTag;
+          const { LINK_DONATE, LINK_FEEDBACK } = process.env
+          console.log(`Tag:${latestTag} -> Version:${version}`);
+          core.setOutput('value', version)
+          core.setOutput('link_donate', LINK_DONATE)
+          core.setOutput('link_feedback', LINK_FEEDBACK)
+
+    - name: Write metadata to file
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const version = '${{ steps.metadata.outputs.value }}';
+          const link_donate = '${{ steps.metadata.outputs.link_donate }}';
+          const link_feedback = '${{ steps.metadata.outputs.link_feedback }}';
+          fs.writeFileSync('assets/metadata.json', JSON.stringify({ version, link_donate, link_feedback }));
+          console.log(`${version} written to assets/metadata.json`);
+
+    - name: Build Windows
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version: '3.22.0'
+        architecture: x64
+    - run: flutter pub get
+    - run: flutter config --enable-windows-desktop
+    - run: flutter build windows --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }}
+
+    - name: Attach Windows Bundle
+      uses: actions/upload-artifact@v3
+      with:
+        name: Win-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        path: build/windows/x64/runner/Release
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+
+    - name: Read meta data
+      id: metadata
+      uses: actions/github-script@v6
+      env:
+        LINK_DONATE: ${{ secrets.LINK_DONATE }}
+        LINK_FEEDBACK: ${{ secrets.LINK_FEEDBACK }}
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          let latestTag;
+          try {
+            latestTag = execSync('git describe --abbrev=0 --tags').toString().trim();
+          } catch (error) {
+            console.log('No tags found, using default version 0.0.1');
+            latestTag = 'v0.0.1';
+          }
+          const version = latestTag.startsWith('v') ? latestTag.substring(1) : latestTag;
+          const { LINK_DONATE, LINK_FEEDBACK } = process.env
+          console.log(`Tag:${latestTag} -> Version:${version}`);
+          core.setOutput('value', version)
+          core.setOutput('link_donate', LINK_DONATE)
+          core.setOutput('link_feedback', LINK_FEEDBACK)
+
+    - name: Write metadata to file
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const version = '${{ steps.metadata.outputs.value }}';
+          const link_donate = '${{ steps.metadata.outputs.link_donate }}';
+          const link_feedback = '${{ steps.metadata.outputs.link_feedback }}';
+          fs.writeFileSync('assets/metadata.json', JSON.stringify({ version, link_donate, link_feedback }));
+          console.log(`${version} written to assets/metadata.json`);
+
+    - name: Build Macos
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version-file: pubspec.yaml
+        architecture: x64
+    - run: flutter pub get
+    - run: flutter config --enable-macos-desktop
+    - run: flutter build macos --release --build-name=${{ steps.extract_version.outputs.value }} --build-number=${{ github.run_number }}
+
+    - name: Attach Windows Bundle
+      uses: actions/upload-artifact@v3
+      with:
+        name: Mac-guesstheword-${{ github.ref_name }}-${{ github.sha }}
+        path: build/macos/Build/Products/Release
