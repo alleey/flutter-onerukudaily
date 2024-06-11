@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -14,8 +13,7 @@ class TimeService {
       return;
     }
     tz.initializeTimeZones();
-    localTimezone = await FlutterNativeTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(localTimezone));
+    tz.setLocalLocation(tz.getLocation(tz.local.name));
   }
 
   tz.TZDateTime timeAfter(Duration duration)
