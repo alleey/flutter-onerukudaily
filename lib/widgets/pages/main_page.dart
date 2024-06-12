@@ -15,12 +15,9 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  SettingsAwareBuilder(
-      builder: (context, settingsNotifier) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ValueListenableBuilder(
-          valueListenable: settingsNotifier,
-          builder: (context, settings, child) =>  _buildContents(context, settings)
-        ),
+      builder: (context, settingsNotifier) => ValueListenableBuilder(
+        valueListenable: settingsNotifier,
+        builder: (context, settings, child) =>  _buildContents(context, settings)
       ),
     );
   }
@@ -34,9 +31,10 @@ class MainPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         title: const Text(Constants.appTitle),
-        backgroundColor: scheme.page.background,
-        foregroundColor: scheme.page.text,
+        backgroundColor: scheme.page.defaultButton.background,
+        foregroundColor: scheme.page.defaultButton.text,
       ),
       body: Container(
         width: double.infinity,
@@ -55,6 +53,7 @@ class MainPage extends StatelessWidget {
 
   Widget _buildGrid(BuildContext context, AppSettings settings) {
 
+    final pageScheme = settings.currentScheme.page;
     final scheme = settings.currentScheme.page.defaultButton;
     final currentRuku = AppDataService().currentRukuIndex - 1;
 
@@ -71,10 +70,11 @@ class MainPage extends StatelessWidget {
           extra: Padding(
             padding: const EdgeInsets.only(left: 10, right: 10, top: 3),
             child: PercentageBar(
+              direction: TextDirection.rtl,
               height: 20,
               value: currentRuku.toDouble() / Ruku.lastRukuIndex.toDouble(),
-              foregroundColor: scheme.background,
-              backgroundColor: scheme.foreground,
+              foregroundColor: pageScheme.text,
+              backgroundColor: pageScheme.background,
               onGenerateLabel: (value) => "$currentRuku/${Ruku.lastRukuIndex}",
             ),
           )
@@ -143,7 +143,7 @@ class MainPage extends StatelessWidget {
                         title,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: button.foreground,
+                          color: button.text,
                           fontSize: fontSize
                         ),
                       ),

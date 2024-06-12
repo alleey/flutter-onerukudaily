@@ -36,13 +36,6 @@ class _ColorSchemePickerState extends State<ColorSchemePicker> {
   void initState() {
     super.initState();
     focusSelectedTheme();
-    // if (selectedThemeIndex >= 0) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     if (mounted) {
-    //       _focusNodes[selectedThemeIndex].requestFocus();
-    //     }
-    //   });
-    // }
   }
 
   @override

@@ -8,21 +8,25 @@ class AppSettings {
   final String theme;
   final String locale;
   final ReaderSettings readerSettings;
+  final bool allowMultipleReminders;
 
   AppSettings({
     this.theme = "default",
     this.locale = "en",
+    this.allowMultipleReminders = false,
     ReaderSettings? readerSettings,
   }) : readerSettings = readerSettings ?? ReaderSettings();
 
   AppSettings copyWith({
     String? theme,
     String? locale,
+    bool? allowMultipleReminders,
     ReaderSettings? readerSettings,
   }) {
     return AppSettings(
       theme: theme ?? this.theme,
       locale: locale ?? this.locale,
+      allowMultipleReminders: allowMultipleReminders ?? this.allowMultipleReminders,
       readerSettings: readerSettings ?? this.readerSettings,
     );
   }
@@ -31,6 +35,7 @@ class AppSettings {
     return AppSettings(
       theme: json['theme'] as String,
       locale: json['locale'] as String,
+      allowMultipleReminders: (json['allowMultipleReminders'] ?? false) as bool,
       readerSettings: ReaderSettings.fromJson(json['readerSettings'] as Map<String, dynamic>),
     );
   }
@@ -39,6 +44,7 @@ class AppSettings {
     return {
       'theme': theme,
       'locale': locale,
+      'allowMultipleReminders': allowMultipleReminders,
       'readerSettings': readerSettings.toJson(),
     };
   }

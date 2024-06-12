@@ -196,13 +196,13 @@ class ButtonDialogAction extends DialogAction {
       autofocus: autofocus,
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonTheme.background,
-        foregroundColor: buttonTheme.foreground,
+        foregroundColor: buttonTheme.text,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
         padding: EdgeInsets.zero,
       ).copyWith(
-        overlayColor: StateDependentColor(buttonTheme.foreground),
+        overlayColor: StateDependentColor(buttonTheme.text),
       ),
       onPressed: () {
         onAction((result) => Navigator.of(context, rootNavigator: true).pop(result));
@@ -210,7 +210,7 @@ class ButtonDialogAction extends DialogAction {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           fontSize: bodyFontSize,
-            color: buttonTheme.foreground,
+            color: buttonTheme.text,
         ),
         child: builder(context, settingsProvider),
       )),

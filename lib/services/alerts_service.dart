@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import '../common/layout_constants.dart';
 import '../models/app_settings.dart';
@@ -119,10 +120,7 @@ class AlertsService {
 
   // Returns a function that can be used to dismiss the popup.
   //
-  VoidCallback popup(BuildContext context, {
-    required String title,
-    required String message,
-  }) {
+  VoidCallback popup(BuildContext context, { required String title, required String message }) {
     return popupDialog(
       context,
       title: (context, settingsProvider) {
@@ -153,18 +151,16 @@ class AlertsService {
     );
   }
 
-
   Future<TimeOfDay?> timePicker(BuildContext context, {
     required TimeOfDay initialTime,
     required List<TimeOfDay> selectedTimes,
   }) {
 
-
     TimeOfDay? selectedTime;
     return actionDialog<TimeOfDay>(
       context,
-      title: (_, schemeNotifier) => DefaultDialogTitle(
-        builder: (context, changeNotifier) => const Text("Set Reminder Time")
+      title: (_, settingsProvider) => DefaultDialogTitle(
+        builder: (context, settingsProvider) => const Text("Set Reminder Time")
       ),
       contents: (_,__) => Padding(
         padding: const EdgeInsets.all(8.0),
@@ -184,6 +180,66 @@ class AlertsService {
             builder: (_,__) => const Text("OK", textAlign: TextAlign.center),
             onAction: (close) {
               close(selectedTime);
+            },
+          ),
+        ),
+
+        Expanded(
+          child: ButtonDialogAction(
+            autofocus: true,
+            isDefault: true,
+            builder: (_,__) => const Text("Cancel", textAlign: TextAlign.center),
+            onAction: (close) => close(null),
+          ),
+        ),
+
+      ],
+    );
+  }
+
+
+  Future<Color?> colorPicker(BuildContext context, {
+    required Color pickerColor,
+  }) {
+
+    Color? selected;
+    return actionDialog<Color>(
+      context,
+      title: (_, settingsProvider) => DefaultDialogTitle(
+        builder: (context, settingsProvider) => const Text("Select Color")
+      ),
+      contents: (_,settingsProvider) {
+        final scheme = settingsProvider.value.currentScheme;
+        return Theme(
+          data: ThemeData(
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(
+                color: scheme.dialog.text,
+              ),
+              bodyLarge: TextStyle(
+                color: scheme.dialog.text,
+              ),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: MaterialPicker(
+              pickerColor: pickerColor,
+              onColorChanged: (value) {
+                selected = value;
+              }
+            ),
+          ),
+        );
+      },
+      actions: (_,__) => [
+
+        Expanded(
+          child: ButtonDialogAction(
+            isDefault: false,
+            builder: (_,__) => const Text("OK", textAlign: TextAlign.center),
+            onAction: (close) {
+              close(selected);
             },
           ),
         ),

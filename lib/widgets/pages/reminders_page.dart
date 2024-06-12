@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/notification_bloc.dart';
+import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
 import '../../common/time_of_day_extensions.dart';
@@ -33,12 +34,9 @@ class _RemindersPageState extends State<RemindersPage> {
   @override
   Widget build(BuildContext context) {
     return  SettingsAwareBuilder(
-      builder: (context, settingsNotifier) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ValueListenableBuilder(
-          valueListenable: settingsNotifier,
-          builder: (context, settings, child) =>  _buildContents(context, settings)
-        ),
+      builder: (context, settingsNotifier) => ValueListenableBuilder(
+        valueListenable: settingsNotifier,
+        builder: (context, settings, child) =>  _buildContents(context, settings)
       ),
     );
   }
@@ -51,9 +49,10 @@ class _RemindersPageState extends State<RemindersPage> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Reminders'),
-        backgroundColor: scheme.page.background,
-        foregroundColor: scheme.page.text,
+        backgroundColor: scheme.page.defaultButton.background,
+        foregroundColor: scheme.page.defaultButton.text,
       ),
       body: BlocBuilder<NotificationBloc, NotificationBlocState>(
 
@@ -93,7 +92,7 @@ class _RemindersPageState extends State<RemindersPage> {
         Text(
           "Use the Add reminder button to set up to ${Constants.maxReminders} daily reminders.",
           style: TextStyle(
-            color: scheme.foreground
+            color: scheme.text
           ),
         ),
         const Spacer(),
@@ -109,14 +108,14 @@ class _RemindersPageState extends State<RemindersPage> {
 
     final layout = context.layout;
     final iconSize = layout.get<double>(AppLayoutConstants.reminderIconSizeKey);
-    final scheme = settings.currentScheme.page.button;
+    final scheme = settings.currentScheme.page;
 
     return Column(
       children: [
         Text(
           "You'll receive a daily reminder to read a Ruku at the following times.",
           style: TextStyle(
-            color: scheme.foreground
+            color: scheme.text
           ),
         ),
         Expanded(
@@ -129,20 +128,48 @@ class _RemindersPageState extends State<RemindersPage> {
               return ListTile(
                 title: Text(schedule.toAmPmFormat()),
                 subtitle: Text(schedule.to24HourFormat()),
-                leading: Icon(Icons.alarm, size: iconSize),
+                leading: Icon(
+                  Icons.alarm,
+                  size: iconSize,
+                  color: scheme.defaultButton.background,
+                ),
                 trailing: IconButton(
+                  color: scheme.defaultButton.text,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     context.notificationBloc.add(RemoveReminderEvent(schedule));
                   },
                 ),
-                textColor: scheme.foreground,
-                tileColor: scheme.background,
-                iconColor: scheme.icon,
+                textColor: scheme.text,
+                tileColor: scheme.defaultButton.background,
+                iconColor: scheme.defaultButton.icon,
               );
             },
           ),
         ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Expanded(
+              child: FittedBox(
+                alignment: AlignmentDirectional.centerStart,
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "Multiple Ruku per day?",
+                ),
+              ),
+            ),
+            Switch(
+              activeColor: scheme.defaultButton.background,
+              value: settings.allowMultipleReminders,
+              onChanged: (value) {
+                context.settingsBloc.save(settings: settings.copyWith(allowMultipleReminders: value));
+              }
+            )
+          ]
+        ),
+
         if (state.reminders.length < Constants.maxReminders)
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -152,7 +179,7 @@ class _RemindersPageState extends State<RemindersPage> {
           Text(
             "Reminder limit reached",
             style: TextStyle(
-              color: scheme.foreground
+              color: scheme.defaultButton.text
             ),
           ),
       ],

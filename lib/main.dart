@@ -20,6 +20,7 @@ import 'widgets/pages/main_page.dart';
 import 'widgets/pages/reminders_page.dart';
 import 'widgets/pages/ruku_reader_page.dart';
 import 'widgets/pages/settings_page.dart';
+import 'widgets/settings_aware_builder.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -125,6 +126,15 @@ class InitialRouteHandler extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return  SettingsAwareBuilder(
+      builder: (context, settingsNotifier) => ValueListenableBuilder(
+        valueListenable: settingsNotifier,
+        builder: (context, settings, child) =>  _buildContents(context, settings)
+      ),
+    );
+  }
+
+  Widget _buildContents(BuildContext context, AppSettings settings) {
     return BlocBuilder<NotificationBloc, NotificationBlocState>(
       builder: (context, state) {
 
@@ -134,12 +144,16 @@ class InitialRouteHandler extends StatelessWidget {
           });
         }
 
-        return const Scaffold(
-          body: Center(
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: LoadingIndicator(message: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ")
-            )
+        final scheme = settings.currentScheme;
+        return Scaffold(
+          body: Container(
+            color: scheme.page.background,
+            child: const Center(
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: LoadingIndicator(message: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ")
+              )
+            ),
           )
         );
       }

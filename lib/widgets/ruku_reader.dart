@@ -28,7 +28,7 @@ class RukuReader extends StatelessWidget {
 
   Widget _buildLayout(BuildContext context, Ruku ruku, ReaderSettings config) {
     return Container(
-      color: Colors.white,
+      color: config.colorScheme.background,
       padding: const EdgeInsets.all(10),
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -54,18 +54,15 @@ class RukuReader extends StatelessWidget {
     var ayaNumber = ruku.firstAya;
     List<InlineSpan> ayatList = [];
 
-    var colorText = Colors.black;
-    var colorBg = Colors.white;
     final fontSize = settings.fontSize;
 
     ruku.ayat.forEachIndexed((index, aya) {
 
+      var ayaColorScheme = settings.colorScheme.aya;
       if (ayaNumber == ruku.sajdaAya) {
-        colorBg = Colors.green.shade700;
-        colorText = Colors.yellow;
-      } else {
-        colorText = ayaNumber % 2 == 0 ? Colors.black : Colors.black;
-        colorBg = ayaNumber % 2 == 0 ? Colors.white : const Color.fromARGB(255, 229, 235, 238);
+        ayaColorScheme = settings.colorScheme.ayaSajda;
+      } else if (ayaNumber % 2 == 1) {
+        ayaColorScheme = settings.colorScheme.ayaOdd;
       }
 
       if (settings.ayaPerLine && index > 0) {
@@ -74,8 +71,6 @@ class RukuReader extends StatelessWidget {
             style: TextStyle(
               fontSize: fontSize,
               fontFamily: settings.font,
-              color: colorText,
-              backgroundColor: colorBg,
             ),
           )
         );
@@ -92,8 +87,8 @@ class RukuReader extends StatelessWidget {
           style: TextStyle(
             fontSize: fontSize,
             fontFamily: settings.font,
-            color: colorText,
-            backgroundColor: colorBg,
+            color: ayaColorScheme.text,
+            backgroundColor: ayaColorScheme.background,
           ),
         )
       );
@@ -122,7 +117,7 @@ class RukuReader extends StatelessWidget {
         TextSpan(
             text: "\uFD3F",
             style: TextStyle(
-              color: Colors.deepOrange,
+              color: settings.colorScheme.markers,
               fontSize: settings.fontSize,
               fontFamily: settings.font,
               fontWeight: FontWeight.bold,
@@ -132,7 +127,7 @@ class RukuReader extends StatelessWidget {
         TextSpan(
             text: settings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ayaNumber) : ayaNumber.toString(),
             style: TextStyle(
-              color: Colors.deepOrange,
+              color: settings.colorScheme.markers,
               fontSize: settings.fontSize - 2,
               fontFamily: settings.font,
               fontWeight: FontWeight.bold,
@@ -142,7 +137,7 @@ class RukuReader extends StatelessWidget {
         TextSpan(
             text: "\uFD3E",
             style: TextStyle(
-              color: Colors.deepOrange,
+              color: settings.colorScheme.markers,
               fontSize: settings.fontSize,
               fontFamily: settings.font,
               fontWeight: FontWeight.bold,

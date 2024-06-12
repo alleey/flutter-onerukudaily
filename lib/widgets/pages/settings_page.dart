@@ -5,8 +5,11 @@ import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
 import '../../models/app_settings.dart';
+import '../../models/reader_color_scheme.dart';
 import '../../models/ruku.dart';
+import '../../services/alerts_service.dart';
 import '../../services/asset_service.dart';
+import '../../utils/conversion.dart';
 import '../color_scheme_picker.dart';
 import '../common/responsive_layout.dart';
 import '../dialogs/app_dialog.dart';
@@ -38,12 +41,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return  SettingsAwareBuilder(
-      builder: (context, settingsNotifier) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ValueListenableBuilder(
-          valueListenable: settingsNotifier,
-          builder: (context, settings, child) =>  _buildContents(context, settings)
-        ),
+      builder: (context, settingsNotifier) => ValueListenableBuilder(
+        valueListenable: settingsNotifier,
+        builder: (context, settings, child) =>  _buildContents(context, settings)
       ),
     );
   }
@@ -58,9 +58,10 @@ class _SettingsPageState extends State<SettingsPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: scheme.page.background,
-          foregroundColor: scheme.page.text,
-          title: const Text(Constants.appTitle),
+          centerTitle: true,
+          title: const Text("Settings"),
+          backgroundColor: scheme.page.defaultButton.background,
+          foregroundColor: scheme.page.defaultButton.text,
         ),
         body: Container(
           color: scheme.page.background,
@@ -73,6 +74,28 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.all(5.0),
               child: Column(
                 children: [
+                  Container(
+                    color: scheme.page.button.background,
+                    child: TabBar(
+                      labelColor: scheme.page.text,
+                      dividerColor: scheme.page.background,
+                      indicatorColor: scheme.page.text,
+                      unselectedLabelColor: scheme.page.text.withOpacity(.5),
+                      tabs: const [
+                        Tab(icon: Icon(Icons.settings), text: 'General'),
+                        Tab(icon: Icon(Icons.book_online), text: 'Reader'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: TabBarView(
+                      children: [
+                        _buildGeneralSettings(context, settings),
+                        _buildReaderSettings(context, settings),
+                      ]
+                    ),
+                  ),
                   ButtonDialogAction(
                     isDefault: true,
                     onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
@@ -83,25 +106,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         SizedBox(width: 5),
                         Text("Restore Defaults"),
                       ],
-                    ),
-                  ),
-                  TabBar(
-                    labelColor: scheme.page.text,
-                    dividerColor: scheme.page.defaultButton.background,
-                    indicatorColor: scheme.page.defaultButton.foreground,
-                    unselectedLabelColor: scheme.page.text.withOpacity(.5),
-                    tabs: const [
-                      Tab(icon: Icon(Icons.settings), text: 'General'),
-                      Tab(icon: Icon(Icons.book_online), text: 'Reader'),
-                    ],
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: TabBarView(
-                      children: [
-                        _buildGeneralSettings(context, settings),
-                        _buildReaderSettings(context, settings),
-                      ]
                     ),
                   ),
                   if (_sampleRuku != null)
@@ -147,191 +151,251 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _buildReaderSettings(BuildContext context, AppSettings settings) {
 
-
-    return _buildReaderSettingsPage1(context, settings);
-  }
-
-  Widget _buildReaderSettingsPage1(BuildContext context, AppSettings settings) {
-
     final scheme = settings.currentScheme;
+    final buttonScheme = scheme.page.button;
     final readerSettings = settings.readerSettings;
+
     final fonts = Constants.fonts.toList();
     fonts.sort();
 
     return SingleChildScrollView(
       child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Text Size",
-                ),
-                Slider(
+        children: [
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Text Size",
+              ),
+              Slider(
+                activeColor: scheme.page.text,
+                value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
+                min: Constants.minReaderFontSize,
+                max: Constants.maxReaderFontSize,
+                onChanged: (value) {
+                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
+                }
+              )
+            ]
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Numbers Arabic",
+              ),
+              Switch(
+                activeColor: scheme.page.text,
+                value: readerSettings.showArabicNumerals,
+                onChanged: (value) {
+                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
+                }
+              )
+            ]
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Numbers before Ayat",
+              ),
+              Switch(
+                activeColor: scheme.page.text,
+                value: readerSettings.numberBeforeAya,
+                onChanged: (value) {
+                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
+                }
+              )
+            ]
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+            [
+              const Text(
+                "Aya/Line",
+              ),
+              Switch(
                   activeColor: scheme.page.text,
-                  value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
-                  min: Constants.minReaderFontSize,
-                  max: Constants.maxReaderFontSize,
+                  value: readerSettings.ayaPerLine,
                   onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
-                  }
-                )
-              ]
-            ),
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
+                })
+            ]
+          ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Numbers Arabic",
-                ),
-                Switch(
-                  activeColor: scheme.page.text,
-                  value: readerSettings.showArabicNumerals,
-                  onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
-                  }
-                )
-              ]
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Font",
+              ),
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: DropdownButton<String>(
+                    value: readerSettings.font,
+                    style: TextStyle(
+                      color: buttonScheme.text
+                    ),
+                    dropdownColor: scheme.page.background,
+                    items: fonts.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        alignment: Alignment.centerRight,
+                        value: value,
+                        child: Text(
+                          "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(fontFamily: value),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? value) {
+                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
+                    }),
+              )
+            ]
+          ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Numbers before Ayat",
-                ),
-                Switch(
-                  activeColor: scheme.page.text,
-                  value: readerSettings.numberBeforeAya,
-                  onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
-                  }
-                )
-              ]
-            ),
+          Divider(color: scheme.page.text, indent: 50, endIndent: 50),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:
-              [
-                const Text(
-                  "Aya/Line",
-                ),
-                Switch(
-                    activeColor: scheme.page.text,
-                    value: readerSettings.ayaPerLine,
-                    onChanged: (value) {
-                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
-                  })
-              ]
-            ),
-
-            // TEXT SIZE
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Font",
-                ),
-                Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: DropdownButton<String>(
-                      value: readerSettings.font,
-                      style: TextStyle(
-                        color: scheme.page.text
-                      ),
-                      dropdownColor: scheme.page.background,
-                      items: fonts.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          alignment: Alignment.centerRight,
-                          value: value,
-                          child: Text(
-                            "قُلْ هُوَ اللَّهُ أَحَدٌ",
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(fontFamily: value),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (String? value) {
-                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
-                      }),
-                )
-              ]
-            ),
-
-
-          ],
-        ),
-    );
-  }
-}
-
-
-class PagedContainer extends StatefulWidget {
-  final List<Widget> widgets;
-
-  const PagedContainer({super.key, required this.widgets});
-
-  @override
-  _PagedContainerState createState() => _PagedContainerState();
-}
-
-class _PagedContainerState extends State<PagedContainer> {
-  late PageController _pageController;
-  int _currentPage = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        PageView(
-          controller: _pageController,
-          onPageChanged: (int page) {
-            setState(() {
-              _currentPage = page;
-            });
-          },
-          children: widget.widgets.map((widget) {
-            return IntrinsicHeight(
-              child: widget,
-            );
-          }).toList(),
-        ),
-        SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(widget.widgets.length, (index) {
-            return GestureDetector(
-              onTap: () {
-                _pageController.animateToPage(index,
-                    duration: Duration(milliseconds: 300), curve: Curves.easeIn);
-              },
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 4),
-                width: _currentPage == index ? 12 : 8,
-                height: _currentPage == index ? 12 : 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _currentPage == index ? Colors.blue : Colors.grey,
+          Row(
+            children:
+            [
+              const Text("Background"),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.background,
+                  (scheme, newColor) => scheme.copyWith(background: newColor)
                 ),
               ),
-            );
-          }),
+            ]
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+            [
+              const Text("Aya (even)"),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.aya.text,
+                  (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(text: newColor))
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.aya.background,
+                  (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(background: newColor))
+                ),
+              ),
+            ]
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+            [
+              const Text("Aya (odd)"),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.ayaOdd.text,
+                  (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(text: newColor))
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.ayaOdd.background,
+                  (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(background: newColor))
+                ),
+              ),
+            ]
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+            [
+              const Text("Aya (sajda)"),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.ayaSajda.text,
+                  (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(text: newColor))
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.ayaSajda.background,
+                  (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(background: newColor))
+                ),
+              ),
+            ]
+          ),
+
+          Row(
+            children:
+            [
+              const Text("Markers"),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(3),
+                child: _buildColorPicker(context, settings,
+                  readerSettings.colorScheme.markers,
+                  (scheme, newColor) => scheme.copyWith(markers: newColor)
+                ),
+              ),
+            ]
+          ),
+
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColorPicker(
+    BuildContext context,
+    AppSettings settings,
+    Color initialColor,
+    ReaderColorScheme Function(ReaderColorScheme scheme, Color newColor) updateFunction)
+  {
+    return TextButton(
+      style: TextButton.styleFrom(
+        backgroundColor: initialColor,
+        side: BorderSide(
+          color: initialColor.inverse(),
+          width: 1
         ),
-      ],
+      ),
+      onPressed: () async {
+        final newColor = await AlertsService().colorPicker(context, pickerColor: initialColor);
+        if (newColor != null) {
+          if (context.mounted) {
+            context.settingsBloc.save(
+              settings: settings.copyWith(
+                readerSettings: settings.readerSettings.copyWith(
+                  colorScheme: updateFunction(settings.readerSettings.colorScheme, newColor)
+                )
+              )
+            );
+          }
+        }
+      },
+      child: const Text(" ")
     );
   }
 }
+

@@ -32,28 +32,26 @@ class LoadingIndicator extends StatelessWidget {
     final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     final scheme = settings.currentScheme;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            textAlign: TextAlign.center,
-            message,
-            style: TextStyle(
-              color: scheme.page.text,
-              fontSize: titleFontSize,
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          textAlign: TextAlign.center,
+          message,
+          style: TextStyle(
+            color: scheme.page.text,
+            fontSize: titleFontSize,
           ),
-          const SizedBox(height: 16), // Spacer
-          SizedBox(
-            width: MediaQuery.of(context).size.width / 3,
-            child: LinearProgressIndicator(
-              color: scheme.page.text,
-              backgroundColor: scheme.page.background,
-            ),
-          )
-        ],
-      ),
+        ),
+        const SizedBox(height: 16), // Spacer
+        SizedBox(
+          width: MediaQuery.of(context).size.width / 3,
+          child: LinearProgressIndicator(
+            color: scheme.page.text,
+            backgroundColor: scheme.page.background,
+          ),
+        )
+      ],
     );
   }
 }

@@ -61,9 +61,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         borderRadius: BorderRadius.all(Radius.circular(4.0)),
       ),
       backgroundColor: scheme.button.background,
-      foregroundColor: scheme.button.foreground,
+      foregroundColor: scheme.button.text,
       selectedForegroundColor: scheme.button.background,
-      selectedBackgroundColor: scheme.button.foreground,
+      selectedBackgroundColor: scheme.button.text,
       textStyle: TextStyle(
         fontSize: bodyFontSize
       )
@@ -115,7 +115,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   segments: List.generate(6, (index) =>
                     ButtonSegment<int>(
                       label: FittedBox(
-                        fit: BoxFit.contain,
+                        fit: BoxFit.scaleDown,
                         child: Text('$index')
                       ),
                       value: index,
@@ -137,7 +137,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   segments: List.generate(6, (index) =>
                     ButtonSegment<int>(
                       label: FittedBox(
-                        fit: BoxFit.contain,
+                        fit: BoxFit.scaleDown,
                         child: Text('${index + 6}')
                       ),
                       value: index + 6,
@@ -163,7 +163,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               segments: List.generate(6, (index) =>
                 ButtonSegment<int>(
                   label: FittedBox(
-                    fit: BoxFit.contain,
+                    fit: BoxFit.scaleDown,
                     child: Text('${index * 10}')
                   ),
                   value: index * 10,

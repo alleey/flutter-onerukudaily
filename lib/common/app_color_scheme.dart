@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_ruku_daily/utils/conversion.dart';
 
 ////////////////////////////////////////////
 
@@ -22,80 +23,80 @@ sealed class AppColorSchemes {
 
   static AppColorScheme defaultScheme() {
     final palette = ColorPalette(
-      _fromHex("114232"),
-      _fromHex("87a922"),
-      _fromHex("fcdc2a"),
-      _fromHex("f7f6bb")
+      ColorExtensions.fromHex("114232"),
+      ColorExtensions.fromHex("87a922"),
+      ColorExtensions.fromHex("fcdc2a"),
+      ColorExtensions.fromHex("f7f6bb")
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme1() {
     final palette = ColorPalette(
-      _fromHex("151515"),
-      _fromHex("a91d3a"),
-      _fromHex("c73659"),
-      _fromHex("eeeeee"),
+      ColorExtensions.fromHex("151515"),
+      ColorExtensions.fromHex("a91d3a"),
+      ColorExtensions.fromHex("c73659"),
+      ColorExtensions.fromHex("eeeeee"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme2() {
     final palette = ColorPalette(
-      _fromHex("f5dad2"),
-      _fromHex("fcffe0"),
-      _fromHex("bacd92"),
-      _fromHex("75a47f"),
+      ColorExtensions.fromHex("f5dad2"),
+      ColorExtensions.fromHex("fcffe0"),
+      ColorExtensions.fromHex("bacd92"),
+      ColorExtensions.fromHex("75a47f"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme3() {
     final palette = ColorPalette(
-      _fromHex("c40c0c"),
-      _fromHex("ff6500"),
-      _fromHex("ff8a08"),
-      _fromHex("ffc100"),
+      ColorExtensions.fromHex("c40c0c"),
+      ColorExtensions.fromHex("ff6500"),
+      ColorExtensions.fromHex("ff8a08"),
+      ColorExtensions.fromHex("ffc100"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme4() {
     final palette = ColorPalette(
-      _fromHex("12372a"),
-      _fromHex("436850"),
-      _fromHex("adbc9f"),
-      _fromHex("fbfada"),
+      ColorExtensions.fromHex("12372a"),
+      ColorExtensions.fromHex("436850"),
+      ColorExtensions.fromHex("adbc9f"),
+      ColorExtensions.fromHex("fbfada"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme5() {
     final palette = ColorPalette(
-      _fromHex("f8f4ec"),
-      _fromHex("ff9bd2"),
-      _fromHex("d63484"),
-      _fromHex("402b3a"),
+      ColorExtensions.fromHex("f8f4ec"),
+      ColorExtensions.fromHex("ff9bd2"),
+      ColorExtensions.fromHex("d63484"),
+      ColorExtensions.fromHex("402b3a"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme6() {
     final palette = ColorPalette(
-      _fromHex("dcf2f1"),
-      _fromHex("7fc7d9"),
-      _fromHex("365486"),
-      _fromHex("0f1035"),
+      ColorExtensions.fromHex("dcf2f1"),
+      ColorExtensions.fromHex("7fc7d9"),
+      ColorExtensions.fromHex("365486"),
+      ColorExtensions.fromHex("0f1035"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme7() {
     final palette = ColorPalette(
-      _fromHex("32012F"),
-      _fromHex("524C42"),
-      _fromHex("E2DFD0"),
-      _fromHex("F97300"),
+      ColorExtensions.fromHex("32012F"),
+      ColorExtensions.fromHex("524C42"),
+      ColorExtensions.fromHex("E2DFD0"),
+      ColorExtensions.fromHex("F97300"),
     );
     return AppColorScheme.fromPalette(palette);
   }
@@ -127,26 +128,26 @@ class ColorPalette {
 }
 
 class AppButtonColorScheme {
-  final Color foreground;
   final Color background;
+  final Color text;
   final Color overlay;
   final Color icon;
 
   AppButtonColorScheme({
-    required this.foreground,
     required this.background,
+    required this.text,
     this.overlay = Colors.transparent,
     Color? icon,
-  }) : icon = icon ?? foreground;
+  }) : icon = icon ?? text;
 
   AppButtonColorScheme copyWith({
-    Color? foreground,
+    Color? text,
     Color? background,
     Color? overlay,
     Color? icon,
   }) {
     return AppButtonColorScheme(
-      foreground: foreground ?? this.foreground,
+      text: text ?? this.text,
       background: background ?? this.background,
       overlay: overlay ?? this.overlay,
       icon: icon ?? this.icon,
@@ -166,11 +167,12 @@ class AppDialogColorScheme {
   AppDialogColorScheme({
     required this.background,
     required this.text,
-    required this.textHighlight,
+    Color? textHighlight,
     required this.button,
     AppButtonColorScheme? defaultButton,
     this.surfaceTintColor = Colors.transparent,
-  }) : defaultButton = defaultButton ?? button;
+  }) : defaultButton = defaultButton ?? button,
+       textHighlight = textHighlight ?? text;
 
   AppDialogColorScheme copyWith({
     Color? surfaceTintColor,
@@ -192,27 +194,32 @@ class AppDialogColorScheme {
 }
 
 class AppPageColorScheme {
-  final Color text;
   final Color background;
+  final Color text;
+  final Color textHighlight;
   final AppButtonColorScheme button;
   final AppButtonColorScheme defaultButton;
 
   AppPageColorScheme({
-    required this.text,
     required this.background,
+    required this.text,
+    Color? textHighlight,
     required this.button,
     AppButtonColorScheme? defaultButton,
     Color? icon,
-  }) : defaultButton = defaultButton ?? button;
+  }) : defaultButton = defaultButton ?? button,
+       textHighlight = textHighlight ?? text;
 
   AppPageColorScheme copyWith({
     Color? text,
+    Color? textHighlight,
     Color? background,
     AppButtonColorScheme? button,
     AppButtonColorScheme? defaultButton,
   }) {
     return AppPageColorScheme(
       text: text ?? this.text,
+      textHighlight: textHighlight ?? this.textHighlight,
       background: background ?? this.background,
       button: button ?? this.button,
       defaultButton: defaultButton ?? this.defaultButton,
@@ -238,26 +245,20 @@ class AppColorScheme {
     return AppColorScheme(
       palette: palette,
       dialog: AppDialogColorScheme(
-        background: palette.color1,
-        text: palette.color4,
-        textHighlight: palette.color3,
-        button: AppButtonColorScheme(foreground: palette.color1, background: palette.color4),
-        defaultButton: AppButtonColorScheme(foreground: palette.color1, background: palette.color3),
+        background: palette.color2,
+        text: palette.color1,
+        textHighlight: palette.color2,
+        button: AppButtonColorScheme(text: palette.color3, background: palette.color4),
+        defaultButton: AppButtonColorScheme(text: palette.color2, background: palette.color4),
         surfaceTintColor: palette.color4,
       ),
       page: AppPageColorScheme(
-        background: palette.color1,
+        background: palette.color2,
         text: palette.color4,
-        button: AppButtonColorScheme(foreground: palette.color3, background: palette.color2),
-        defaultButton: AppButtonColorScheme(foreground: palette.color1, background: palette.color3),
+        textHighlight: palette.color3,
+        button: AppButtonColorScheme(text: palette.color4, background: palette.color1),
+        defaultButton: AppButtonColorScheme(text: palette.color3, background: palette.color1),
       )
     );
   }
-
-}
-
-Color _fromHex(String hex) {
-  hex = hex.replaceFirst('#', '');
-  hex = hex.length == 6 ? 'ff$hex' : hex;
-  return Color(int.parse(hex, radix: 16));
 }

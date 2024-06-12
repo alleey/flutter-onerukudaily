@@ -24,6 +24,7 @@ class RukuReaderPage extends StatefulWidget {
 class _RukuReaderPageState extends State<RukuReaderPage> {
 
   var settings = AppSettings();
+  Ruku? _rukuRead;
 
   @override
   void initState() {
@@ -36,12 +37,9 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
   @override
   Widget build(BuildContext context) {
     return SettingsAwareBuilder(
-      builder: (context, settingsNotifier) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ValueListenableBuilder(
-          valueListenable: settingsNotifier,
-          builder: (context, settings, child) =>  _buildContents(context, settings)
-        ),
+      builder: (context, settingsNotifier) => ValueListenableBuilder(
+        valueListenable: settingsNotifier,
+        builder: (context, settings, child) =>  _buildContents(context, settings)
       ),
     );
   }
@@ -52,46 +50,69 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     final layout = context.layout;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text(Constants.appTitle),
-      ),
-      body: BlocConsumer<ReaderBloc, ReaderBlocState>(
-        listener: (context, state) {
+      appBar: _rukuRead == null ? null :
+        AppBar(
+          centerTitle: true,
+          title: _buildSuraName(_rukuRead!, settings),
+          backgroundColor: scheme.page.background,
+          foregroundColor: scheme.page.text,
+          actions: [
+            IconButton(
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.lightGreen,
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, KnownRouteNames.settings);
+              },
+            )
+          ],
+        ),
+      body: Container(
+        color: scheme.page.background,
+        child: BlocConsumer<ReaderBloc, ReaderBlocState>(
+          listener: (context, state) {
 
-          log("reader listener: $state");
-          if (state is RukuIndexExhaustedState) {
-            //_buildCompletionAlert(context).show();
-          }
-        },
-        builder: (context, state) {
+            log("reader listener: $state");
+            if (state is RukuIndexExhaustedState) {
+              //_buildCompletionAlert(context).show();
+            }
+            if (state is RukuAvailableState) {
+              setState(() {
+                _rukuRead = state.ruku;
+              });
+            }
 
-          log("reader builder: $state");
-          if (state is RukuAvailableState) {
 
-            return Column(
-              children: [
-                _buildHeader(context, state.ruku, settings),
-                Expanded(
-                  child: RukuReader(
-                    key: ObjectKey(state.ruku.index),
-                    ruku: state.ruku,
-                    settings: settings.readerSettings,
-                    scrollFooter: _buildScrollFooter(context, state.ruku, settings),
+          },
+          builder: (context, state) {
+
+            log("reader builder: $state");
+            if (_rukuRead != null) {
+
+              return Column(
+                children: [
+                  Expanded(
+                    child: RukuReader(
+                      key: ObjectKey(_rukuRead!.index),
+                      ruku: _rukuRead!,
+                      settings: settings.readerSettings,
+                      scrollFooter: _buildScrollFooter(context, _rukuRead!, settings),
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
+                ],
+              );
+            }
 
-          return const Center(child: LoadingIndicator(message: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"));
-        }
+            return const Center(child: LoadingIndicator(message: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"));
+          }
+        ),
       ),
     );
   }
 
   Widget _buildCompletionAlert(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
     // return Alert(
     //   context: context,
     //   type: AlertType.success,
@@ -117,51 +138,57 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     // );
   }
 
-  Widget _buildHeader(BuildContext context, Ruku ruku, AppSettings config) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          color: Colors.black,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Text(
-                ruku.sura.name,
-                style: TextStyle(
-                  color: ruku.sura.isMakki ? Color.fromARGB(255, 236, 209, 38) : const Color.fromARGB(255, 147, 223, 60),
-                  fontSize: 48,
-                  fontFamily: config.readerSettings.font,
-                ),
-                textAlign: TextAlign.center,
-                textDirection: TextDirection.rtl,
-              ),
-              Positioned(
-                  left: 10,
-                  child: Text(
-                    "#${config.readerSettings.showArabicNumerals
-                        ? ConversionUtils.toArabicNumeral(ruku.index)
-                        : ruku.index.toString()}", // ركوع
-                    style: TextStyle(
-                        color: Colors.lightGreen,
-                        fontSize: 32,
-                        fontFamily: config.readerSettings.font),
-                  )),
-              Positioned(
-                  right: 0,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.settings,
-                      color: Colors.lightGreen,
-                    ),
-                    onPressed: () {
-                      Navigator.pushNamed(context, KnownRouteNames.settings);
-                    },
-                  )),
-            ],
-          ),
-        ),
-      ],
+  // Widget _buildHeader(BuildContext context, Ruku ruku, AppSettings config) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.stretch,
+  //     children: [
+  //       Container(
+  //         color: Colors.black,
+  //         child: Stack(
+  //           alignment: Alignment.center,
+  //           children: [
+  //             _buildSuraName(ruku, config),
+  //             Positioned(
+  //                 left: 10,
+  //                 child: _buildRukuNumber(config, ruku)),
+  //             Positioned(
+  //                 right: 0,
+  //                 child: IconButton(
+  //                   icon: const Icon(
+  //                     Icons.settings,
+  //                     color: Colors.lightGreen,
+  //                   ),
+  //                   onPressed: () {
+  //                     Navigator.pushNamed(context, KnownRouteNames.settings);
+  //                   },
+  //                 )
+  //               ),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  // Widget _buildRukuNumber(AppSettings config, Ruku ruku) {
+  //   return Text(
+  //     "#${config.readerSettings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ruku.index) : ruku.index.toString()}", // ركوع
+  //     style: TextStyle(
+  //         color: Colors.lightGreen,
+  //         fontSize: 32,
+  //         fontFamily: config.readerSettings.font),
+  //   );
+  // }
+
+  Widget _buildSuraName(Ruku ruku, AppSettings config) {
+    return Text(
+      "${ruku.sura.name} - #${config.readerSettings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ruku.index) : ruku.index.toString()}" ,
+      style: TextStyle(
+        color: ruku.sura.isMakki ? Color.fromARGB(255, 236, 209, 38) : const Color.fromARGB(255, 147, 223, 60),
+        fontSize: 48,
+        fontFamily: config.readerSettings.font,
+      ),
+      textDirection: TextDirection.rtl,
     );
   }
 
