@@ -90,6 +90,11 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState>
   }
 }
 
-extension SettingsContextExtensions on BuildContext {
+extension SettingsBlocExtensions on SettingsBloc {
+  void save({ required AppSettings settings, bool reload = true})
+    => add(WriteSettingsBlocEvent(settings: settings, reload: reload));
+}
+
+extension SettingsContextBuildContextExtensions on BuildContext {
   SettingsBloc get settingsBloc => BlocProvider.of<SettingsBloc>(this);
 }

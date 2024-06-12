@@ -76,7 +76,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                   child: RukuReader(
                     key: ObjectKey(state.ruku.index),
                     ruku: state.ruku,
-                    settings: settings,
+                    settings: settings.readerSettings,
                     scrollFooter: _buildScrollFooter(context, state.ruku, settings),
                   ),
                 ),
@@ -131,7 +131,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                 style: TextStyle(
                   color: ruku.sura.isMakki ? Color.fromARGB(255, 236, 209, 38) : const Color.fromARGB(255, 147, 223, 60),
                   fontSize: 48,
-                  fontFamily: config.font,
+                  fontFamily: config.readerSettings.font,
                 ),
                 textAlign: TextAlign.center,
                 textDirection: TextDirection.rtl,
@@ -139,13 +139,13 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               Positioned(
                   left: 10,
                   child: Text(
-                    "#${config.showArabicNumerals
+                    "#${config.readerSettings.showArabicNumerals
                         ? ConversionUtils.toArabicNumeral(ruku.index)
                         : ruku.index.toString()}", // ركوع
                     style: TextStyle(
                         color: Colors.lightGreen,
                         fontSize: 32,
-                        fontFamily: config.font),
+                        fontFamily: config.readerSettings.font),
                   )),
               Positioned(
                   right: 0,

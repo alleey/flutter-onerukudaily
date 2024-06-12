@@ -6,11 +6,30 @@ class Constants {
   static const String appTitle = "1 Ruku Everyday";
 
   static const int maxReminders = 5;
+  static const double minReaderFontSize = 16;
+  static const double maxReaderFontSize = 48;
 
   static const List<String> locales = ['en'];
 
   static const List<String> fonts = [
-    "Cairo", "Lateef", "Mirza", "Rakkas"
+    "Amiri",
+    "Baloo_Bhaijaan",
+    "Cairo",
+    "Changa",
+    "El_Messiri",
+    "Harmattan",
+    "Jomhuria",
+    "Katibeh",
+    "Lalezar",
+    "Lateef",
+    "Lemonada",
+    "Mada",
+    "Markazi_Text",
+    "Mirza",
+    "Rakkas",
+    "Reem_Kufi",
+    "Scheherazade",
+    "Tajawal",
   ];
 }
 

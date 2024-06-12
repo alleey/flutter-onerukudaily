@@ -2,66 +2,52 @@
 // dart pub run build_runner build
 
 import '../common/app_color_scheme.dart';
+import 'reader_settings.dart';
 
 class AppSettings {
-  final bool showArabicNumerals;
-  final double fontSize;
-  final String font;
   final String theme;
   final String locale;
+  final ReaderSettings readerSettings;
 
   AppSettings({
-    this.fontSize = 36,
-    this.showArabicNumerals = false,
-    this.font = "Lateef",
     this.theme = "default",
     this.locale = "en",
-  });
+    ReaderSettings? readerSettings,
+  }) : readerSettings = readerSettings ?? ReaderSettings();
 
   AppSettings copyWith({
-      double? fontSize,
-      bool? showArabicNumerals,
-      String? font,
-      String? theme,
-      String? locale,
-    })
-  {
-     return AppSettings(
-      fontSize: fontSize ?? this.fontSize,
-      showArabicNumerals: showArabicNumerals ?? this.showArabicNumerals,
-      font: font ?? this.font,
+    String? theme,
+    String? locale,
+    ReaderSettings? readerSettings,
+  }) {
+    return AppSettings(
       theme: theme ?? this.theme,
       locale: locale ?? this.locale,
-     );
+      readerSettings: readerSettings ?? this.readerSettings,
+    );
   }
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     return AppSettings(
-      locale: json['locale'] as String,
       theme: json['theme'] as String,
-      font: json['font'] as String,
-      fontSize: json['fontSize'] as double,
-      showArabicNumerals: json['showArabicNumerals'] as bool,
+      locale: json['locale'] as String,
+      readerSettings: ReaderSettings.fromJson(json['readerSettings'] as Map<String, dynamic>),
     );
   }
 
-  // toJson method
   Map<String, dynamic> toJson() {
     return {
-      'locale': locale,
       'theme': theme,
-      'font': font,
-      'fontSize': fontSize,
-      'showArabicNumerals': showArabicNumerals,
+      'locale': locale,
+      'readerSettings': readerSettings.toJson(),
     };
   }
 
   @override
   String toString() {
-    return 'Config(fontSize: $fontSize, showArabicNumerals: $showArabicNumerals, font: $font, theme: $theme)';
+    return 'AppSettings(theme: $theme, locale: $locale, readerSettings: $readerSettings)';
   }
 }
-
 extension AppSettingsExtensions on AppSettings {
   AppColorScheme get currentScheme => AppColorSchemes.fromName(theme);
 }

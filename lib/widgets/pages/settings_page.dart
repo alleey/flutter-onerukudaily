@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../blocs/settings_bloc.dart';
@@ -27,7 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((d) async {
-      final ruku = await AssetService().loadRuku(1);
+      final ruku = await AssetService().loadRuku(550);
       setState(() {
         _sampleRuku = ruku;
       });
@@ -60,14 +61,6 @@ class _SettingsPageState extends State<SettingsPage> {
           backgroundColor: scheme.page.background,
           foregroundColor: scheme.page.text,
           title: const Text(Constants.appTitle),
-          bottom: TabBar(
-            labelColor: scheme.page.text,
-            unselectedLabelColor: scheme.page.text.withOpacity(.5),
-            tabs: const [
-              Tab(icon: Icon(Icons.settings), text: 'General'),
-              Tab(icon: Icon(Icons.book_online), text: 'Reader'),
-            ],
-          )
         ),
         body: Container(
           color: scheme.page.background,
@@ -78,11 +71,45 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(5.0),
-              child: TabBarView(
+              child: Column(
                 children: [
-                  _buildGeneralSettings(context, settings),
-                  _buildReaderSettings(context, settings),
-                ]
+                  ButtonDialogAction(
+                    isDefault: true,
+                    onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
+                    builder: (_,__) => const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.refresh),
+                        SizedBox(width: 5),
+                        Text("Restore Defaults"),
+                      ],
+                    ),
+                  ),
+                  TabBar(
+                    labelColor: scheme.page.text,
+                    dividerColor: scheme.page.defaultButton.background,
+                    indicatorColor: scheme.page.defaultButton.foreground,
+                    unselectedLabelColor: scheme.page.text.withOpacity(.5),
+                    tabs: const [
+                      Tab(icon: Icon(Icons.settings), text: 'General'),
+                      Tab(icon: Icon(Icons.book_online), text: 'Reader'),
+                    ],
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: TabBarView(
+                      children: [
+                        _buildGeneralSettings(context, settings),
+                        _buildReaderSettings(context, settings),
+                      ]
+                    ),
+                  ),
+                  if (_sampleRuku != null)
+                    Expanded(
+                      flex: 1,
+                      child: RukuReader(ruku: _sampleRuku!, settings: settings.readerSettings)
+                    ),
+                ],
               ),
             )
           )
@@ -103,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           const SizedBox(height: 10,),
           Text(
-            "Change Theme",
+            "Application Theme",
             style: TextStyle(
               color: scheme.page.text,
               fontSize: titleFontSize,
@@ -111,128 +138,200 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 10,),
           ColorSchemePicker(selectedTheme: settings.theme, onSelect: (newTheme) {
-            context.settingsBloc.add(WriteSettingsBlocEvent(
-              settings: settings.copyWith(theme: newTheme),
-              reload: true
-            ));
+            context.settingsBloc.save(settings: settings.copyWith(theme: newTheme));
           }),
 
-        const SizedBox(height: 10,),
-
-        // TEXT SIZE
-        Row(mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ButtonDialogAction(
-              isDefault: true,
-              onAction: (close) => context.settingsBloc.add(WriteSettingsBlocEvent(settings: AppSettings(), reload: true)),
-              builder: (_,__) => const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.refresh),
-                    SizedBox(width: 5),
-                    Text("Restore Defaults"),
-                  ],
-                ),
-              ),
-            )
-          ]
-        ),
       ]),
     );
   }
 
   Widget _buildReaderSettings(BuildContext context, AppSettings settings) {
-    var fonts = Constants.fonts.toList();
+
+
+    return _buildReaderSettingsPage1(context, settings);
+  }
+
+  Widget _buildReaderSettingsPage1(BuildContext context, AppSettings settings) {
+
+    final scheme = settings.currentScheme;
+    final readerSettings = settings.readerSettings;
+    final fonts = Constants.fonts.toList();
     fonts.sort();
 
     return SingleChildScrollView(
       child: Column(
-        children: [
-        // TEXT SIZE
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Text Size",
-          ),
-          Slider(
-            value: settings.fontSize,
-            min: 24,
-            max: 56,
-            onChanged: (d) {
-                context.settingsBloc.add(WriteSettingsBlocEvent(
-                  settings: settings.copyWith(fontSize: d),
-                  reload: true
-                ));
-            })
-        ]),
-
-        // TEXT SIZE
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Arabic Numbers",
-          ),
-          Switch(
-              value: settings.showArabicNumerals,
-              onChanged: (d) {
-                context.settingsBloc.add(WriteSettingsBlocEvent(
-                  settings: settings.copyWith(showArabicNumerals: d),
-                  reload: true
-                ));
-            })
-        ]),
-
-        // TEXT SIZE
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Font",
-          ),
-          DropdownMenu<String>(
-              initialSelection: settings.font,
-              dropdownMenuEntries:
-                  fonts.map<DropdownMenuEntry<String>>((String value) {
-                return DropdownMenuEntry<String>(value: value, label: value);
-              }).toList(),
-              onSelected: (String? value) {
-                context.settingsBloc.add(WriteSettingsBlocEvent(
-                  settings: settings.copyWith(font: value),
-                  reload: true
-                ));
-              })
-        ]),
-
-        const SizedBox(height: 10,),
-        // TEXT SIZE
-        Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ButtonDialogAction(
-            isDefault: true,
-            onAction: (close) => context.settingsBloc.add(WriteSettingsBlocEvent(settings: AppSettings(), reload: true)),
-            builder: (_,__) => const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.refresh),
-                  SizedBox(width: 5),
-                  Text("Restore Defaults"),
-                ],
-              ),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Text Size",
+                ),
+                Slider(
+                  activeColor: scheme.page.text,
+                  value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
+                  min: Constants.minReaderFontSize,
+                  max: Constants.maxReaderFontSize,
+                  onChanged: (value) {
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
+                  }
+                )
+              ]
             ),
-          )
-        ]),
 
-        if (_sampleRuku != null)
-          ...[
-            const SizedBox(height: 10,),
-            const Text("Preview"),
-            const SizedBox(height: 10,),
-            RukuReader(ruku: _sampleRuku!, settings: settings),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Numbers Arabic",
+                ),
+                Switch(
+                  activeColor: scheme.page.text,
+                  value: readerSettings.showArabicNumerals,
+                  onChanged: (value) {
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
+                  }
+                )
+              ]
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Numbers before Ayat",
+                ),
+                Switch(
+                  activeColor: scheme.page.text,
+                  value: readerSettings.numberBeforeAya,
+                  onChanged: (value) {
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
+                  }
+                )
+              ]
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children:
+              [
+                const Text(
+                  "Aya/Line",
+                ),
+                Switch(
+                    activeColor: scheme.page.text,
+                    value: readerSettings.ayaPerLine,
+                    onChanged: (value) {
+                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
+                  })
+              ]
+            ),
+
+            // TEXT SIZE
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Font",
+                ),
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: DropdownButton<String>(
+                      value: readerSettings.font,
+                      style: TextStyle(
+                        color: scheme.page.text
+                      ),
+                      dropdownColor: scheme.page.background,
+                      items: fonts.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          alignment: Alignment.centerRight,
+                          value: value,
+                          child: Text(
+                            "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                            textDirection: TextDirection.rtl,
+                            style: TextStyle(fontFamily: value),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
+                      }),
+                )
+              ]
+            ),
+
+
           ],
-      ]),
+        ),
+    );
+  }
+}
+
+
+class PagedContainer extends StatefulWidget {
+  final List<Widget> widgets;
+
+  const PagedContainer({super.key, required this.widgets});
+
+  @override
+  _PagedContainerState createState() => _PagedContainerState();
+}
+
+class _PagedContainerState extends State<PagedContainer> {
+  late PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        PageView(
+          controller: _pageController,
+          onPageChanged: (int page) {
+            setState(() {
+              _currentPage = page;
+            });
+          },
+          children: widget.widgets.map((widget) {
+            return IntrinsicHeight(
+              child: widget,
+            );
+          }).toList(),
+        ),
+        SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(widget.widgets.length, (index) {
+            return GestureDetector(
+              onTap: () {
+                _pageController.animateToPage(index,
+                    duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                width: _currentPage == index ? 12 : 8,
+                height: _currentPage == index ? 12 : 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _currentPage == index ? Colors.blue : Colors.grey,
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 }

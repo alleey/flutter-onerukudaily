@@ -1,7 +1,8 @@
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../models/app_settings.dart';
+import '../models/reader_settings.dart';
 import '../models/ruku.dart';
 import '../utils/conversion.dart';
 
@@ -16,7 +17,7 @@ class RukuReader extends StatelessWidget {
   });
 
   final Ruku ruku;
-  final AppSettings settings;
+  final ReaderSettings settings;
   final Widget? scrollHeader;
   final Widget? scrollFooter;
 
@@ -25,7 +26,7 @@ class RukuReader extends StatelessWidget {
     return _buildLayout(context, ruku, settings);
   }
 
-  Widget _buildLayout(BuildContext context, Ruku ruku, AppSettings config) {
+  Widget _buildLayout(BuildContext context, Ruku ruku, ReaderSettings config) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(10),
@@ -48,15 +49,16 @@ class RukuReader extends StatelessWidget {
     );
   }
 
-  Widget _buildAyat(BuildContext context, Ruku ruku, AppSettings config) {
+  Widget _buildAyat(BuildContext context, Ruku ruku, ReaderSettings settings) {
 
     var ayaNumber = ruku.firstAya;
     List<InlineSpan> ayatList = [];
 
     var colorText = Colors.black;
     var colorBg = Colors.white;
+    final fontSize = settings.fontSize;
 
-    for (var aya in ruku.ayat) {
+    ruku.ayat.forEachIndexed((index, aya) {
 
       if (ayaNumber == ruku.sajdaAya) {
         colorBg = Colors.green.shade700;
@@ -66,59 +68,87 @@ class RukuReader extends StatelessWidget {
         colorBg = ayaNumber % 2 == 0 ? Colors.white : const Color.fromARGB(255, 229, 235, 238);
       }
 
+      if (settings.ayaPerLine && index > 0) {
+        ayatList.add(TextSpan(
+            text: "\n",
+            style: TextStyle(
+              fontSize: fontSize,
+              fontFamily: settings.font,
+              color: colorText,
+              backgroundColor: colorBg,
+            ),
+          )
+        );
+      }
+
+      if (settings.numberBeforeAya) {
+        ayatList.addAll(
+          _buildAyaNumber(context, settings, ayaNumber)
+        );
+      }
+
       ayatList.add(TextSpan(
           text: aya,
           style: TextStyle(
-            fontSize: config.fontSize,
-            fontFamily: config.font,
+            fontSize: fontSize,
+            fontFamily: settings.font,
             color: colorText,
             backgroundColor: colorBg,
           ),
         )
       );
 
-      ayatList.add(TextSpan(
-          text: " \uFD3F",
-          style: TextStyle(
-            color: Colors.deepOrange,
-            fontSize: config.fontSize,
-            fontFamily: config.font,
-            fontWeight: FontWeight.bold,
-          )
-        ),
-      );
-      ayatList.add(TextSpan(
-          text: config.showArabicNumerals ? ConversionUtils.toArabicNumeral(ayaNumber) : ayaNumber.toString(),
-          style: TextStyle(
-            color: Colors.deepOrange,
-            fontSize: config.fontSize - 12,
-            fontFamily: config.font,
-            fontWeight: FontWeight.bold,
-          )
-        ),
-      );
-      ayatList.add(TextSpan(
-          text: "\uFD3E \n",
-          style: TextStyle(
-            color: Colors.deepOrange,
-            fontSize: config.fontSize,
-            fontFamily: config.font,
-            fontWeight: FontWeight.bold,
-          )
-        ),
-      );
+      if (!settings.numberBeforeAya) {
+        ayatList.addAll(
+          _buildAyaNumber(context, settings, ayaNumber)
+        );
+      }
 
       ayaNumber++;
-    }
+    });
 
     return SelectionArea(
       child: Text.rich(
         TextSpan(children: ayatList),
-        textAlign: TextAlign.justify,
+        textAlign: settings.ayaPerLine ? TextAlign.start : TextAlign.justify,
         textDirection: TextDirection.rtl,
         selectionColor: const Color(0xAF6694e8),
       ),
     );
   }
+
+    Iterable<InlineSpan> _buildAyaNumber(BuildContext context, ReaderSettings settings, int ayaNumber) {
+      return [
+        TextSpan(
+            text: "\uFD3F",
+            style: TextStyle(
+              color: Colors.deepOrange,
+              fontSize: settings.fontSize,
+              fontFamily: settings.font,
+              fontWeight: FontWeight.bold,
+            )
+          ),
+
+        TextSpan(
+            text: settings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ayaNumber) : ayaNumber.toString(),
+            style: TextStyle(
+              color: Colors.deepOrange,
+              fontSize: settings.fontSize - 2,
+              fontFamily: settings.font,
+              fontWeight: FontWeight.bold,
+            )
+          ),
+
+        TextSpan(
+            text: "\uFD3E",
+            style: TextStyle(
+              color: Colors.deepOrange,
+              fontSize: settings.fontSize,
+              fontFamily: settings.font,
+              fontWeight: FontWeight.bold,
+            )
+          ),
+      ];
+    }
 }
 

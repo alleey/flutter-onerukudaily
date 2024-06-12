@@ -189,7 +189,6 @@ jobs:
       with:
         fetch-depth: 0  # Fetch all history for tags
 
-
     - name: Read meta data
       id: metadata
       uses: actions/github-script@v6

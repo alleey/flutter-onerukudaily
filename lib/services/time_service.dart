@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +14,13 @@ class TimeService {
       return;
     }
     tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation(tz.local.name));
+    localTimezone = tz.local.name;
+    tz.setLocalLocation(tz.getLocation(localTimezone));
+    log("local timezone -> $localTimezone");
   }
 
   tz.TZDateTime timeAfter(Duration duration)
     => tz.TZDateTime.now(tz.local).add(duration);
-
 
   tz.TZDateTime nextInstanceOfTime(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
