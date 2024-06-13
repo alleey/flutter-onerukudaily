@@ -1,9 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:timezone/data/latest_all.dart';
+import 'package:timezone/timezone.dart';
 
 class TimeService {
 
@@ -13,23 +15,27 @@ class TimeService {
     if (kIsWeb || Platform.isLinux) {
       return;
     }
-    tz.initializeTimeZones();
-    localTimezone = tz.local.name;
-    tz.setLocalLocation(tz.getLocation(localTimezone));
+
+    localTimezone = await FlutterTimezone.getLocalTimezone();
+
+    initializeTimeZones();
+    setLocalLocation(getLocation(localTimezone));
     log("local timezone -> $localTimezone");
   }
 
-  tz.TZDateTime timeAfter(Duration duration)
-    => tz.TZDateTime.now(tz.local).add(duration);
+  TZDateTime now() => TZDateTime.now(local);
 
-  tz.TZDateTime nextInstanceOfTime(TimeOfDay time, { bool tomorrow = false }) {
+  TZDateTime timeAfter(Duration duration) => now().add(duration);
 
-    final now = tz.TZDateTime.now(tz.local);
-    var result = tz.TZDateTime(tz.local, now.year, now.month, now.day, time.hour, time.minute, 0);
+  TZDateTime nextInstanceOfTime(TimeOfDay time, { bool tomorrow = false }) {
 
-    if (result.isBefore(now) || (tomorrow && now.year == result.year && now.month == result.month && now.day == result.day)) {
+    final dateNow = now();
+    var result = TZDateTime(local, dateNow.year, dateNow.month, dateNow.day, time.hour, time.minute, 0);
+
+    if (result.isBefore(dateNow) || (tomorrow && dateNow.year == result.year && dateNow.month == result.month && dateNow.day == result.day)) {
       result = result.add(const Duration(days: 1));
     }
+
     return result;
   }
 }

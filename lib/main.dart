@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -16,6 +18,7 @@ import 'services/data_service.dart';
 import 'services/notification_service.dart';
 import 'widgets/common/responsive_layout.dart';
 import 'widgets/loading_indicator.dart';
+import 'widgets/pages/about_page.dart';
 import 'widgets/pages/main_page.dart';
 import 'widgets/pages/reminders_page.dart';
 import 'widgets/pages/ruku_reader_page.dart';
@@ -39,7 +42,18 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var _settings = AppSettings();
 
-  // This widget is the root of your application.
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -63,9 +77,11 @@ class _MyAppState extends State<MyApp> {
             constraints: constraints,
             breakpoints:  ResponsiveValue.from(small: 600, medium: 1200),
             provider: (layout) {
-              // if (!kIsWeb && layout.isSmall) {
-              //   _setPortraitOnlyMode();
-              // }
+
+              if (!kIsWeb && layout.isSmall) {
+                _setPortraitOnlyMode();
+              }
+
               layout.provideAll(AppLayoutConstants.layout);
               layout.provideAll(DialogLayoutConstants.layout);
             },
@@ -112,6 +128,7 @@ class _MyAppState extends State<MyApp> {
       home: const InitialRouteHandler(),
       navigatorObservers: [ReaderNavigationObserver(context: context)],
       routes: {
+        KnownRouteNames.about: (context) => const AboutPage(),
         KnownRouteNames.main: (context) => const MainPage(),
         KnownRouteNames.readruku: (context) => const RukuReaderPage(),
         KnownRouteNames.reminders: (context) => const RemindersPage(),
@@ -119,6 +136,9 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
+
+  Future<void> _setPortraitOnlyMode() async
+    => SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 }
 
 class InitialRouteHandler extends StatelessWidget {

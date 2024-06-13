@@ -24,7 +24,8 @@ class RemindersPage extends StatefulWidget {
 
 class _RemindersPageState extends State<RemindersPage> {
 
-  final alertService = AlertsService();
+  final _alertService = AlertsService();
+  List<TimeOfDay>? _reminders;
 
   @override
   void initState() {
@@ -94,37 +95,46 @@ class _RemindersPageState extends State<RemindersPage> {
     final layout = context.layout;
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
 
-    return BlocBuilder<NotificationBloc, NotificationBlocState>(
+    return BlocListener<NotificationBloc, NotificationBlocState>(
 
-        builder: (context, state) {
+        listener: (context, state) {
 
           if (state is RemindersLoadedState) {
+            setState(() {
+              _reminders = state.reminders;
+            });
+          }
+        },
+        child: Builder(builder: (context) {
 
-            return Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: scheme.page.background,
-              child: DefaultTextStyle.merge(
-                style: TextStyle(
-                  color: scheme.page.text,
-                  fontSize: bodyFontSize,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: state.isNotEmpty ?
-                    _buildRemindersList(state, context, settings):
-                    _buildNoReminders(state, context, settings),
-                )
-              )
-            );
+          if (_reminders == null) {
+            return const Center(child: LoadingIndicator());
           }
 
-          return const Center(child: LoadingIndicator());
-        },
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: scheme.page.background,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: scheme.page.text,
+                fontSize: bodyFontSize,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: _reminders!.isNotEmpty ?
+                  _buildRemindersList(context, settings):
+                  _buildNoReminders(context, settings),
+              )
+            )
+          );
+
+        }
+      ),
     );
   }
 
-  Widget _buildNoReminders(RemindersLoadedState state, BuildContext context, AppSettings settings) {
+  Widget _buildNoReminders(BuildContext context, AppSettings settings) {
     final scheme = settings.currentScheme.page.button;
     return Column(
       children: [
@@ -137,13 +147,13 @@ class _RemindersPageState extends State<RemindersPage> {
         const Spacer(),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: _buildAddReminderButton(context, settings, state),
+          child: _buildAddReminderButton(context, settings),
         ),
       ],
     );
   }
 
-  Widget _buildRemindersList(RemindersLoadedState state, BuildContext context, AppSettings settings) {
+  Widget _buildRemindersList(BuildContext context, AppSettings settings) {
 
     final layout = context.layout;
     final iconSize = layout.get<double>(AppLayoutConstants.reminderIconSizeKey);
@@ -160,9 +170,9 @@ class _RemindersPageState extends State<RemindersPage> {
         Expanded(
           child: ListView.builder(
 
-            itemCount: state.reminders.length,
+            itemCount: _reminders!.length,
             itemBuilder: (context, index) {
-              final schedule = state.reminders[index];
+              final schedule = _reminders![index];
 
               return ListTile(
                 title: Text(schedule.toAmPmFormat()),
@@ -209,12 +219,12 @@ class _RemindersPageState extends State<RemindersPage> {
           ]
         ),
 
-        if (state.reminders.length < Constants.maxReminders)
+        if (_reminders!.length < Constants.maxReminders)
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: _buildAddReminderButton(context, settings, state),
+            child: _buildAddReminderButton(context, settings),
           ),
-        if (state.reminders.length >= Constants.maxReminders)
+        if (_reminders!.length >= Constants.maxReminders)
           Text(
             context.localizations.translate("page_reminders_limitreached"),
             style: TextStyle(
@@ -225,16 +235,16 @@ class _RemindersPageState extends State<RemindersPage> {
     );
   }
 
-  Widget _buildAddReminderButton(BuildContext context, AppSettings settings, RemindersLoadedState state) {
+  Widget _buildAddReminderButton(BuildContext context, AppSettings settings) {
     return ButtonDialogAction(
       isDefault: true,
       onAction: (close) async {
-        final picked = await alertService.timePicker(context,
+        final picked = await _alertService.timePicker(context,
           initialTime: TimeOfDay.now(),
-          selectedTimes: state.reminders
+          selectedTimes: _reminders!
         );
         if (picked != null) {
-          _handleTimeSelection(settings, picked, state.reminders);
+          _handleTimeSelection(settings, picked);
         }
       },
       builder: (_,__) => Padding(
@@ -251,8 +261,9 @@ class _RemindersPageState extends State<RemindersPage> {
     );
   }
 
-  void _handleTimeSelection(AppSettings settings, TimeOfDay selectedTime, List<TimeOfDay> selectedTimes) {
+  void _handleTimeSelection(AppSettings settings, TimeOfDay selectedTime) {
 
+    final selectedTimes = _reminders!;
     if (selectedTimes.contains(selectedTime)) {
 
       final scheme = settings.currentScheme;

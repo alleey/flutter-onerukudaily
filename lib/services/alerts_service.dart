@@ -4,10 +4,12 @@ import 'package:one_ruku_daily/localizations/app_localizations.dart';
 
 import '../common/layout_constants.dart';
 import '../models/app_settings.dart';
+import '../models/statistics.dart';
 import '../widgets/common/responsive_layout.dart';
 import '../widgets/custom_time_picker.dart';
 import '../widgets/dialogs/app_dialog.dart';
 import '../widgets/dialogs/common.dart';
+import '../widgets/dialogs/completion_dialog.dart';
 import '../widgets/loading_indicator.dart';
 
 class AlertsService {
@@ -152,7 +154,10 @@ class AlertsService {
     );
   }
 
-  Future<dynamic> completionDialog(BuildContext context, { required VoidCallback onClose }) {
+  Future<dynamic> completionDialog(BuildContext context, {
+    required Statistics statistics,
+    required VoidCallback onClose
+  }) {
 
     return actionDialog(
       context,
@@ -169,7 +174,7 @@ class AlertsService {
         Expanded(
           child: ButtonDialogAction(
             isDefault: false,
-            builder: (_,__) => Text(context.localizations.translate("dlg_needreset_ok"), textAlign: TextAlign.center),
+            builder: (_,__) => Text(context.localizations.translate("dlg_completion_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(null);
               onClose();
@@ -178,11 +183,7 @@ class AlertsService {
         ),
 
       ],
-      contents: (_,__) =>  Center(
-        child: Text(
-          context.localizations.translate("dlg_completion_intro")
-        )
-      )
+      contents: (_,__) =>  CompletionDialog(statistics: statistics)
     );
   }
 

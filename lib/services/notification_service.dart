@@ -65,21 +65,20 @@ class NotificationService {
     return initialized;
   }
 
-  Future<bool> hasPendingdNotifications() async {
-    var pending = await _plugin.pendingNotificationRequests();
-    return pending.isNotEmpty;
-  }
+  Future<bool> hasPendingdNotifications() async => (await pendingdNotifications()).isNotEmpty;
+  Future<List<PendingNotificationRequest>> pendingdNotifications() => _plugin.pendingNotificationRequests();
 
-  NotificationDetails _notificationDetails() {
-    const notificationDetails = NotificationDetails(
+  NotificationDetails _notificationDetails({ StyleInformation? style }) {
+    final notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
-        'io.alleey.development.read_ruku_everyday',
-        'Read 1 Ruku Everday',
-        channelDescription: 'Read 1 Ruku Everday',
+        'io.alleey.development.one_ruku_daily',
+        'Read 1 Ruku Daily',
+        channelDescription: 'Read 1 Ruku Daily',
         importance: Importance.max,
         priority: Priority.high,
+        styleInformation: style,
       ),
-      iOS: DarwinNotificationDetails()
+      iOS: const DarwinNotificationDetails()
     );
     return notificationDetails;
   }
@@ -124,16 +123,18 @@ class NotificationService {
     int id = 1,
     required tz.TZDateTime scheduledDate,
     String? title,
-    String? body
+    String? body,
+    String? payload,
   }) async {
 
-    final details = _notificationDetails();
+    final details = _notificationDetails(style: BigTextStyleInformation(body ?? ""));
     await _plugin.zonedSchedule(
-      id, // Notification ID
+      id,
       title,
-      body, // Notification body
+      body,
       scheduledDate,
       details,
+      payload: payload,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exact,
       matchDateTimeComponents: DateTimeComponents.time,

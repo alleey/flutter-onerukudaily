@@ -110,12 +110,12 @@ class _SettingsPageState extends State<SettingsPage> {
               unselectedLabelColor: scheme.page.text.withOpacity(.5),
               tabs: [
                 Tab(
-                  icon: const Icon(Icons.settings),
-                  text: context.localizations.translate("page_settings_tab_general")
-                ),
-                Tab(
                   icon: const Icon(Icons.book_online),
                   text: context.localizations.translate("page_settings_tab_reader")
+                ),
+                Tab(
+                  icon: const Icon(Icons.settings),
+                  text: context.localizations.translate("page_settings_tab_general")
                 ),
               ],
             ),
@@ -124,8 +124,8 @@ class _SettingsPageState extends State<SettingsPage> {
             flex: 2,
             child: TabBarView(
               children: [
-                _buildGeneralSettings(context, settings),
                 _buildReaderSettings(context, settings),
+                _buildGeneralSettings(context, settings),
               ]
             ),
           ),

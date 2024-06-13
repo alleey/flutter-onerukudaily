@@ -44,15 +44,15 @@ class AppLayoutConstants
 
   static const String appbarHeightKey = "app.appbarHeight";
   static final appbarHeight = ResponsiveValue<double>.from(
-    small: 34,
-    medium: 48,
-    large: 72,
+    small: 40,
+    medium: 50,
+    large: 60,
   );
 
   static const String titleFontSizeKey = "app.titleFontSize";
   static final titleFontSize = ResponsiveValue<double>.from(
-    small: 18,
-    medium: 28,
+    small: 20,
+    medium: 30,
     large: 40,
   );
 

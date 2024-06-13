@@ -1,11 +1,11 @@
 {
-  "app_title": "1 Ruku Everyday",
+  "app_title": "1 Ruku Daily",
   "app_lang_en": "English",
   "app_lang_ur": "اردو",
   "app_lang_ru": "Русский",
   "app_lang_es": "Español",
 
-  "dlg_picktime_title": "Set Reminder Time",
+  "dlg_picktime_title": "Set Reminder",
   "dlg_picktime_ok": "OK",
   "dlg_picktime_cancel": "Cancel",
 
@@ -15,14 +15,29 @@
 
   "dlg_completion_title": "ٱلْحَمْدُ لِلَّٰهِ",
   "dlg_completion_ok": "OK",
-  "dlg_completion_intro": "You have completed recitation of all the Rukus. The reader will now reset and start from the first Ruku.",
+  "dlg_completion_completions": "Quran",
+  "dlg_completion_reads": "Ruku",
+  "dlg_completion_intro": "You have finished reciting all the Rukus. The reader will now reset and begin again from the first Ruku",
+  "dlg_completion_intro3": "May Allah's blessings surround you as you have completed the noble task of reading the Quran. May the wisdom and guidance from its verses illuminate your heart and life. May Allah accept your efforts and grant you steadfastness in faith.",
+  "dlg_completion_intro2": "تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ",
+
+  "page_about_title": "About",
+  "page_about_version": "ver. {version}",
+  "page_about_intro": "Read as little as one Ruku from the Quran daily.",
+  "page_about_hadith": "The Prophet Muhammad (ﷺ) said, 'Whoever reads a letter from the Book of Allah, he will have a reward. And that reward will be multiplied by ten. I am not saying that 'Alif, Lam, Meem' is a letter, rather I am saying that 'Alif' is a letter, 'lam' is a letter and 'meem' is a letter'.",
+  "page_about_intro2": "Your feedback, suggestions, and ideas are highly anticipated. Use the Feedback button to share your thoughts and help us make the application even better.",
+  "page_about_intro3": "If you found the application to be beneficial, please share with friends and family.",
+  "page_about_feedback": "Feedback",
+  "page_about_ok": "Close",
+
+  "page_main_intro": "The Messenger of Allah (ﷺ) said, 'Recite the Quran, for it will come as an intercessor for its reciters on the Day of Resurrection'",
 
   "page_reminders_title": "Reminders",
   "page_reminders_add": "Add Reminder",
   "page_reminders_limitreached": "Reminder limit reached",
   "page_reminders_multipleperday": "Multiple Ruku per day?",
   "page_reminders_noreminders": "Use the Add reminder button to set up to {maxReminders} daily reminders.",
-  "page_reminders_remindersintro": "You will receive a daily reminder to read a Ruku at the following times.",
+  "page_reminders_remindersintro": "You'll receive a daily reminder to read a Ruku at the following times.",
 
   "page_reader_title": "Read Ruku",
   "page_reader_readnext": "Read Next",

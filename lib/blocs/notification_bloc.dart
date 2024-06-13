@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,9 +48,6 @@ class NotificationInitializedState extends NotificationBlocState {
 class RemindersLoadedState extends NotificationBlocState {
   final List<TimeOfDay> reminders;
   RemindersLoadedState(this.reminders);
-
-  bool get isEmpty => reminders.isEmpty;
-  bool get isNotEmpty => reminders.isNotEmpty;
 }
 
 class NotificationsSchduledState extends NotificationBlocState {
@@ -107,19 +106,28 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
     emit(RemindersLoadedState(reminders.list));
   }
 
-  void _onScheduleNotifications(ScheduleNotifications event, Emitter<NotificationBlocState> emit) {
+  void _onScheduleNotifications(ScheduleNotifications event, Emitter<NotificationBlocState> emit) async {
 
     notificationService.cancelAllNotifications();
     reminders.list.forEachIndexed((index, timeOfDay) {
 
-        notificationService.scheduleNotification(
-          id: 0,
-          title: Constants.appTitle,
-          body: "Time to read your daily Ruku passage from the Quran.",
-          scheduledDate: timeService.nextInstanceOfTime(timeOfDay, tomorrow: event.reschduleForTomorrow),
-        );
-      }
-    );
+      final when = timeService.nextInstanceOfTime(timeOfDay, tomorrow: event.reschduleForTomorrow);
+      //final when = timeService.timeAfter(Duration(seconds: 5 * index));
+
+      notificationService.scheduleNotification(
+        id: index,
+        title: "Reminder!",
+        body: "Time to read your daily Ruku passage from the Quran.",
+        scheduledDate: when,
+      );
+
+      log("notification: scheduled to fire on $when");
+    });
+
+    for (var item in (await notificationService.pendingdNotifications())) {
+      log("notification: pending ${item.id}, ${item.title}");
+    }
+
     emit(NotificationsSchduledState());
   }
 }

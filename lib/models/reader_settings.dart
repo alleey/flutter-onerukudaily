@@ -42,7 +42,7 @@ class ReaderSettings {
       numberBeforeAya: (json['numberBeforeAya'] ?? false) as bool,
       ayaPerLine: (json['ayaPerLine'] ?? false) as bool,
       fontSize: (json['fontSize'] ?? 24) as double,
-      font: (json['font'] ?? "Lateef") as String,
+      font: (json['font'] ?? "Scheherazade") as String,
       colorScheme: ReaderColorScheme.fromJson(json['colorScheme'] ?? {})
     );
   }

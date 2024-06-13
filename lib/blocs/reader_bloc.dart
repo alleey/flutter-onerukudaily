@@ -35,13 +35,17 @@ class ReaderBlocState {
 }
 
 class RukuAvailableState extends ReaderBlocState {
-  RukuAvailableState({ required this.ruku });
+  RukuAvailableState({ required this.ruku, required this.statistics });
   final Ruku ruku;
+  Statistics statistics;
 }
 
 class RukuIndexExhaustedState extends ReaderBlocState {
-  RukuIndexExhaustedState();
+  RukuIndexExhaustedState({ required this.statistics });
+  Statistics statistics;
 }
+
+class RukuErrorState extends ReaderBlocState {}
 
 ////////////////////////////////////////////
 
@@ -71,17 +75,15 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
       _statistics = StatisticsExtensions.fromJsonString(_appDataService.get("statistics", ""));
 
       try {
-
         if (rukuNum < 1) {
           return;
         }
 
         if (rukuNum > Ruku.lastRukuIndex) {
-          emit(RukuIndexExhaustedState());
+          emit(RukuIndexExhaustedState(statistics: _statistics));
           return;
         }
 
-        log("Loading ruku $rukuNum");
 
         final ruku = await _assetService.loadRuku(rukuNum);
         if (event.goNext) {
@@ -89,15 +91,18 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
           _appDataService.setRukuIndex(rukuNum + 1);
         }
 
+        log("loaded ruku $rukuNum");
+        log("statistics $_statistics");
+
         _appDataService.put("statistics", _statistics.toJsonStriing());
 
         log("Loaded ruku $ruku");
-        emit(RukuAvailableState(ruku: ruku!));
+        emit(RukuAvailableState(ruku: ruku!, statistics: _statistics));
       }
       catch(e)
       {
         log("Exception ruku $e");
-        emit(RukuIndexExhaustedState());
+        emit(RukuErrorState());
       }
     });
   }

@@ -6,31 +6,36 @@ import 'ruku.dart';
 class Statistics {
   final int completions;
   final int reads;
-  final DateTime lastRead;
+  final DateTime intervalStart;
+  final DateTime intervalEnd;
 
   Statistics({
     this.completions = 0,
     this.reads = 0,
-    DateTime? lastRead,
-  }) : lastRead = lastRead ?? DateTime.fromMicrosecondsSinceEpoch(0);
+    DateTime? intervalStart,
+    DateTime? intervalEnd,
+  }) : intervalStart = intervalStart ?? DateTime.now().toUtc(),
+       intervalEnd = intervalEnd ?? DateTime.fromMicrosecondsSinceEpoch(0);
 
   Statistics copyWith({
     int? completions,
     int? reads,
-    DateTime? lastRead,
+    DateTime? intervalStart,
+    DateTime? intervalEnd,
   }) {
     return Statistics(
       completions: completions ?? this.completions,
       reads: reads ?? this.reads,
-      lastRead: lastRead ?? this.lastRead,
+      intervalStart: intervalStart ?? this.intervalStart,
+      intervalEnd: intervalEnd ?? this.intervalEnd,
     );
   }
 
   Statistics update({ required int rukuNum }) {
     return copyWith(
-      completions: rukuNum >= Ruku.lastRukuIndex ?  completions + 1:completions,
+      completions: rukuNum >= Ruku.lastRukuIndex ?  completions+1:completions,
       reads: reads + 1,
-      lastRead: DateTime.now().toUtc(),
+      intervalEnd: DateTime.now().toUtc(),
     );
   }
 
@@ -38,7 +43,8 @@ class Statistics {
     return Statistics(
       completions: json['completions'] ?? 0,
       reads: json['reads'] ?? 0,
-      lastRead: DateTime.tryParse(json['lastRead'] ?? "") ?? DateTime.now().toUtc(),
+      intervalStart: DateTime.tryParse(json['intervalStart'] ?? "") ?? DateTime.now().toUtc(),
+      intervalEnd: DateTime.tryParse(json['intervalEnd'] ?? "") ?? DateTime.now().toUtc(),
     );
   }
 
@@ -46,8 +52,16 @@ class Statistics {
     return {
       'completions': completions,
       'reads': reads,
-      'lastRead': lastRead.toIso8601String(),
+      'lastRintervalStartead': intervalStart.toIso8601String(),
+      'intervalEnd': intervalEnd.toIso8601String(),
     };
+  }
+
+  @override
+  String toString() {
+    return 'Statistics(completions: $completions, reads: $reads, '
+           'intervalStart: ${intervalStart.toIso8601String()}, '
+           'intervalEnd: ${intervalEnd.toIso8601String()})';
   }
 }
 

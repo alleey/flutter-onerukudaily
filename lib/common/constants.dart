@@ -38,6 +38,7 @@ class Constants {
 
 class KnownRouteNames {
 
+  static const String about = '/about';
   static const String main = '/main';
   static const String readruku = '/read-ruku';
   static const String reminders = '/reminders';

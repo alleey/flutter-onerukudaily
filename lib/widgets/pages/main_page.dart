@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
@@ -61,7 +62,7 @@ class MainPage extends StatelessWidget {
                 fontSize: bodyFontSize,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                 child: _buildBody(context, settings),
               )
             ),
@@ -77,44 +78,75 @@ class MainPage extends StatelessWidget {
     final currentRuku = AppDataService().rukuIndex - 1;
     final notificationSupport = NotificationService().platformHasSupport;
 
-    return Wrap(
-      alignment: WrapAlignment.center,
-      children: <Widget>[
-        _buildCard(
-          context,
-          settings,
-          title: context.localizations.translate("page_reader_title"),
-          icon: Icons.book,
-          onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
-          isDefault: true,
-          extra: Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 3),
-            child: PercentageBar(
-              direction: TextDirection.rtl,
-              height: 20,
-              value: currentRuku.toDouble() / Ruku.lastRukuIndex.toDouble(),
-              foregroundColor: pageScheme.text,
-              backgroundColor: pageScheme.background,
-              onGenerateLabel: (value) => "$currentRuku/${Ruku.lastRukuIndex}",
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              children: <Widget>[
+
+                _buildCard(
+                  context,
+                  settings,
+                  title: context.localizations.translate("page_reader_title"),
+                  icon: Icons.book,
+                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
+                  isDefault: true,
+                  extra: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10, top: 3),
+                    child: PercentageBar(
+                      direction: TextDirection.rtl,
+                      height: 20,
+                      value: currentRuku.toDouble() / Ruku.lastRukuIndex.toDouble(),
+                      foregroundColor: pageScheme.text,
+                      backgroundColor: pageScheme.background,
+                      onGenerateLabel: (value) => "$currentRuku/${Ruku.lastRukuIndex}",
+                    ),
+                  )
+                ),
+
+                if (notificationSupport)
+                  _buildCard(
+                    context,
+                    settings,
+                    title: context.localizations.translate("page_reminders_title"),
+                    icon: Icons.schedule,
+                    onTap: () => Navigator.pushNamed(context, KnownRouteNames.reminders),
+                  ),
+
+                _buildCard(
+                  context,
+                  settings,
+                  title: context.localizations.translate("page_settings_title"),
+                  icon: Icons.settings,
+                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.settings),
+                ),
+
+                _buildCard(
+                  context,
+                  settings,
+                  title: context.localizations.translate("page_about_title"),
+                  icon: Icons.info,
+                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.about),
+                ),
+              ],
             ),
-          )
-        ),
-
-        if (notificationSupport)
-          _buildCard(
-            context,
-            settings,
-            title: context.localizations.translate("page_reminders_title"),
-            icon: Icons.schedule,
-            onTap: () => Navigator.pushNamed(context, KnownRouteNames.reminders),
           ),
-
-        _buildCard(
-          context,
-          settings,
-          title: context.localizations.translate("page_settings_title"),
-          icon: Icons.settings,
-          onTap: () => Navigator.pushNamed(context, KnownRouteNames.settings),
+        ),
+        Text.rich(
+          textAlign: TextAlign.center,
+          textScaler: const TextScaler.linear(.9),
+          TextSpan(
+            children: [
+              TextSpan(
+                text: context.localizations.translate("page_main_intro"),
+                style: TextStyle(
+                  color: pageScheme.text,
+                )
+              ),
+            ],
+          ),
         ),
       ],
     );

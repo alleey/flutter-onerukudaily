@@ -66,17 +66,17 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
             title: _buildSuraName(context, _ruku!, settings),
             actions: [
 
-              ToggleButtons(
-                isSelected: [settings.readerSettings.ayaPerLine, !settings.readerSettings.ayaPerLine],
-                onPressed: (int index) {
-                  final readerSettings = settings.readerSettings.copyWith(ayaPerLine: index == 0);
-                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings));
-                },
-                children: const [
-                  Icon(Icons.align_horizontal_right),
-                  Icon(Icons.wrap_text),
-                ],
-              ),
+              // ToggleButtons(
+              //   isSelected: [settings.readerSettings.ayaPerLine, !settings.readerSettings.ayaPerLine],
+              //   onPressed: (int index) {
+              //     final readerSettings = settings.readerSettings.copyWith(ayaPerLine: index == 0);
+              //     context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings));
+              //   },
+              //   children: const [
+              //     Icon(Icons.align_horizontal_right),
+              //     Icon(Icons.wrap_text),
+              //   ],
+              // ),
 
               IconButton(
                 icon: const Icon(
@@ -118,7 +118,11 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           log("reader listener: $state");
 
           if (state is RukuIndexExhaustedState) {
-            await AlertsService().completionDialog(context, onClose:() => context.readerBloc.add(ResetBlocEvent()));
+            await AlertsService().completionDialog(
+              context,
+              statistics: state.statistics,
+              onClose:() => context.readerBloc.add(ResetBlocEvent())
+            );
           }
 
           if (state is RukuAvailableState) {
@@ -148,33 +152,6 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           return const Center(child: LoadingIndicator(message: Constants.loaderText, direction: TextDirection.rtl));
         }
       );
-  }
-
-  Widget _buildCompletionAlert(BuildContext context) {
-    return const SizedBox();
-    // return Alert(
-    //   context: context,
-    //   type: AlertType.success,
-    //   title: "ٱلْحَمْدُ لِلَّٰهِ",
-    //   desc: "You've completed recitation of all the Rukus. The reader will now reset and start from the first Ruku.",
-    //   buttons: [
-    //     DialogButton(
-    //       onPressed: () {
-    //         Navigator.pop(context);
-    //         Future.delayed(const Duration(milliseconds: 3000), () {
-    //           configBloc.add(
-    //             WriteConfigBlocEvent(config: _config.copyWith(index: 1), reload: true)
-    //           );
-    //         });
-    //       },
-    //       width: 120,
-    //       child: const Text(
-    //         "Continue",
-    //         style: TextStyle(color: Colors.white, fontSize: 20),
-    //       ),
-    //     )
-    //   ],
-    // );
   }
 
   Widget _buildSuraName(BuildContext context, Ruku ruku, AppSettings config) {
