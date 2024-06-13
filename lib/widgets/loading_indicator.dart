@@ -9,14 +9,16 @@ class LoadingIndicator extends StatelessWidget {
 
   const LoadingIndicator({
     super.key,
-    this.message = "loading . . ."
+    this.message = "loading . . .",
+    this.direction = TextDirection.ltr,
   });
 
   final String message;
+  final TextDirection direction;
 
   @override
   Widget build(BuildContext context) {
-    return  SettingsAwareBuilder(
+    return SettingsAwareBuilder(
       builder: (context, settingsNotifier) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: ValueListenableBuilder(
@@ -32,26 +34,29 @@ class LoadingIndicator extends StatelessWidget {
     final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     final scheme = settings.currentScheme;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          textAlign: TextAlign.center,
-          message,
-          style: TextStyle(
-            color: scheme.page.text,
-            fontSize: titleFontSize,
+    return Directionality(
+      textDirection: direction,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            textAlign: TextAlign.center,
+            message,
+            style: TextStyle(
+              color: scheme.page.text,
+              fontSize: titleFontSize,
+            ),
           ),
-        ),
-        const SizedBox(height: 16), // Spacer
-        SizedBox(
-          width: MediaQuery.of(context).size.width / 3,
-          child: LinearProgressIndicator(
-            color: scheme.page.text,
-            backgroundColor: scheme.page.background,
-          ),
-        )
-      ],
+          const SizedBox(height: 16), // Spacer
+          SizedBox(
+            width: MediaQuery.of(context).size.width / 3,
+            child: LinearProgressIndicator(
+              color: scheme.page.text,
+              backgroundColor: scheme.page.background,
+            ),
+          )
+        ],
+      ),
     );
   }
 }

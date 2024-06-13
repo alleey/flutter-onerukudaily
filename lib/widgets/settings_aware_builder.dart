@@ -12,7 +12,7 @@ class SettingsAwareBuilder extends StatefulWidget {
     super.key,
     required this.builder,
     this.onSettingsChange,
-    this.onSettingsAvailable
+    this.onSettingsAvailable,
   });
 
   final Widget Function(BuildContext context, ValueNotifier<AppSettings> settingsProvider) builder;
@@ -46,6 +46,7 @@ class _SettingsAwareBuilderState extends State<SettingsAwareBuilder> {
 
   @override
   Widget build(BuildContext context) {
+
     return BlocListener<SettingsBloc, SettingsBlocState>(
       listener: (BuildContext context, state) {
         if(state is SettingsReadBlocState) {

@@ -34,6 +34,12 @@ class AppDataService {
     return value as T;
   }
 
+  Future putIfAbsent<T>(String key, T value) async {
+    if (get<T?>(key, null) == null) {
+      await put(key, value);
+    }
+  }
+
   Future put<T>(String key, T value) async {
     await _dataService.appDataBox.put(key, value);
     await _dataService.appDataBox.flush();
@@ -41,5 +47,6 @@ class AppDataService {
 }
 
 extension AppDataServiceExtensions on AppDataService {
-  int get currentRukuIndex => get(KnownSettingsNames.rukuIndex, 1);
+  int get rukuIndex => get(KnownSettingsNames.rukuIndex, 1);
+  Future setRukuIndex(int value) => put(KnownSettingsNames.rukuIndex, value);
 }

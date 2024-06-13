@@ -23,7 +23,7 @@ class ReaderAyaColorScheme {
     );
   }
 
-  factory ReaderAyaColorScheme.fromJson(Map<String, String> hexColors, { ReaderAyaColorScheme? defaults }) {
+  factory ReaderAyaColorScheme.fromJson(Map<String, dynamic> hexColors, { ReaderAyaColorScheme? defaults }) {
     return ReaderAyaColorScheme(
       background: ColorExtensions.fromHex(hexColors['background'] ?? (defaults?.background ?? Colors.black).toHex()),
       text: ColorExtensions.fromHex(hexColors['text'] ?? (defaults?.text ?? Colors.white).toHex()),

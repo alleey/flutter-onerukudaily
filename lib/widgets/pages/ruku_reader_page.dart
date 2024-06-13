@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/reader_bloc.dart';
+import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
+import '../../common/layout_constants.dart';
+import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/ruku.dart';
+import '../../services/alerts_service.dart';
 import '../../utils/conversion.dart';
 import '../common/responsive_layout.dart';
 import '../dialogs/app_dialog.dart';
@@ -23,13 +27,12 @@ class RukuReaderPage extends StatefulWidget {
 
 class _RukuReaderPageState extends State<RukuReaderPage> {
 
-  var settings = AppSettings();
-  Ruku? _rukuRead;
+  Ruku? _ruku;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: Constants.readerOpenDelay), () {
       context.readerBloc.add(ReadRukuBlocEvent());
     });
   }
@@ -48,67 +51,103 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
 
     final scheme = settings.currentScheme;
     final layout = context.layout;
+    final screenCoverPct = context.layout.get<Size>(AppLayoutConstants.screenCoverPctKey);
+    final appBarHeight = layout.get<double>(AppLayoutConstants.appbarHeightKey);
+    final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
 
     return Scaffold(
-      appBar: _rukuRead == null ? null :
-        AppBar(
-          centerTitle: true,
-          title: _buildSuraName(_rukuRead!, settings),
-          backgroundColor: scheme.page.background,
-          foregroundColor: scheme.page.text,
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.lightGreen,
+      appBar: _ruku == null ? null :
+        PreferredSize(
+          preferredSize: Size.fromHeight(appBarHeight),
+          child: AppBar(
+            centerTitle: true,
+            backgroundColor: scheme.page.background,
+            foregroundColor: scheme.page.text,
+            title: _buildSuraName(context, _ruku!, settings),
+            actions: [
+
+              ToggleButtons(
+                isSelected: [settings.readerSettings.ayaPerLine, !settings.readerSettings.ayaPerLine],
+                onPressed: (int index) {
+                  final readerSettings = settings.readerSettings.copyWith(ayaPerLine: index == 0);
+                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings));
+                },
+                children: const [
+                  Icon(Icons.align_horizontal_right),
+                  Icon(Icons.wrap_text),
+                ],
               ),
-              onPressed: () {
-                Navigator.pushNamed(context, KnownRouteNames.settings);
-              },
-            )
-          ],
+
+              IconButton(
+                icon: const Icon(
+                  Icons.settings,
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, KnownRouteNames.settings);
+                },
+              ),
+            ],
+          ),
         ),
       body: Container(
         color: scheme.page.background,
-        child: BlocConsumer<ReaderBloc, ReaderBlocState>(
-          listener: (context, state) {
-
-            log("reader listener: $state");
-            if (state is RukuIndexExhaustedState) {
-              //_buildCompletionAlert(context).show();
-            }
-            if (state is RukuAvailableState) {
-              setState(() {
-                _rukuRead = state.ruku;
-              });
-            }
-
-
-          },
-          builder: (context, state) {
-
-            log("reader builder: $state");
-            if (_rukuRead != null) {
-
-              return Column(
-                children: [
-                  Expanded(
-                    child: RukuReader(
-                      key: ObjectKey(_rukuRead!.index),
-                      ruku: _rukuRead!,
-                      settings: settings.readerSettings,
-                      scrollFooter: _buildScrollFooter(context, _rukuRead!, settings),
-                    ),
-                  ),
-                ],
-              );
-            }
-
-            return const Center(child: LoadingIndicator(message: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"));
-          }
-        ),
-      ),
+        child: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * screenCoverPct.width,
+            height: MediaQuery.of(context).size.height * screenCoverPct.height,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: scheme.page.text,
+                fontSize: bodyFontSize,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: _buildBody(context, settings),
+              )
+            ),
+          ),
+        )
+      )
     );
+  }
+
+  Widget _buildBody(BuildContext context, AppSettings settings) {
+    return BlocConsumer<ReaderBloc, ReaderBlocState>(
+        listener: (context, state) async {
+
+          log("reader listener: $state");
+
+          if (state is RukuIndexExhaustedState) {
+            await AlertsService().completionDialog(context, onClose:() => context.readerBloc.add(ResetBlocEvent()));
+          }
+
+          if (state is RukuAvailableState) {
+            setState(() {
+              _ruku = state.ruku;
+            });
+          }
+
+        },
+        builder: (context, state) {
+
+          if (_ruku != null) {
+            return Column(
+              children: [
+                Expanded(
+                  child: RukuReader(
+                    key: ObjectKey(_ruku!.index),
+                    ruku: _ruku!,
+                    settings: settings.readerSettings,
+                    scrollFooter: _buildScrollFooter(context, _ruku!, settings),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return const Center(child: LoadingIndicator(message: Constants.loaderText, direction: TextDirection.rtl));
+        }
+      );
   }
 
   Widget _buildCompletionAlert(BuildContext context) {
@@ -138,54 +177,13 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     // );
   }
 
-  // Widget _buildHeader(BuildContext context, Ruku ruku, AppSettings config) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.stretch,
-  //     children: [
-  //       Container(
-  //         color: Colors.black,
-  //         child: Stack(
-  //           alignment: Alignment.center,
-  //           children: [
-  //             _buildSuraName(ruku, config),
-  //             Positioned(
-  //                 left: 10,
-  //                 child: _buildRukuNumber(config, ruku)),
-  //             Positioned(
-  //                 right: 0,
-  //                 child: IconButton(
-  //                   icon: const Icon(
-  //                     Icons.settings,
-  //                     color: Colors.lightGreen,
-  //                   ),
-  //                   onPressed: () {
-  //                     Navigator.pushNamed(context, KnownRouteNames.settings);
-  //                   },
-  //                 )
-  //               ),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // Widget _buildRukuNumber(AppSettings config, Ruku ruku) {
-  //   return Text(
-  //     "#${config.readerSettings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ruku.index) : ruku.index.toString()}", // ركوع
-  //     style: TextStyle(
-  //         color: Colors.lightGreen,
-  //         fontSize: 32,
-  //         fontFamily: config.readerSettings.font),
-  //   );
-  // }
-
-  Widget _buildSuraName(Ruku ruku, AppSettings config) {
+  Widget _buildSuraName(BuildContext context, Ruku ruku, AppSettings config) {
+    final titleFontSize = context.layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     return Text(
       "${ruku.sura.name} - #${config.readerSettings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ruku.index) : ruku.index.toString()}" ,
       style: TextStyle(
-        color: ruku.sura.isMakki ? Color.fromARGB(255, 236, 209, 38) : const Color.fromARGB(255, 147, 223, 60),
-        fontSize: 48,
+        //color: ruku.sura.isMakki ? Color.fromARGB(255, 236, 209, 38) : const Color.fromARGB(255, 147, 223, 60),
+        fontSize: titleFontSize,
         fontFamily: config.readerSettings.font,
       ),
       textDirection: TextDirection.rtl,
@@ -198,14 +196,14 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
       onAction: (close) {
         context.readerBloc.add(ReadRukuBlocEvent(index: ruku.index + 1));
       },
-      builder: (_,__) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      builder: (_,__) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.navigate_before),
-            SizedBox(width: 5),
-            Text("Read Next"),
+            const Icon(Icons.navigate_before),
+            const SizedBox(width: 5),
+            Text(context.localizations.translate("page_reader_readnext")),
           ],
         ),
       ),

@@ -39,7 +39,10 @@ class RukuReader extends StatelessWidget {
             if (scrollHeader != null)
               scrollHeader!,
 
-            _buildAyat(context, ruku, config),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: _buildAyat(context, ruku, config),
+            ),
 
             if (scrollFooter != null)
               scrollFooter!,
@@ -102,20 +105,18 @@ class RukuReader extends StatelessWidget {
       ayaNumber++;
     });
 
-    return SelectionArea(
-      child: Text.rich(
-        TextSpan(children: ayatList),
-        textAlign: settings.ayaPerLine ? TextAlign.start : TextAlign.justify,
-        textDirection: TextDirection.rtl,
-        selectionColor: const Color(0xAF6694e8),
-      ),
+    return Text.rich(
+      TextSpan(children: ayatList),
+      textAlign: settings.ayaPerLine ? TextAlign.start : TextAlign.justify,
+      textDirection: TextDirection.rtl,
+      selectionColor: const Color(0xAF6694e8),
     );
   }
 
     Iterable<InlineSpan> _buildAyaNumber(BuildContext context, ReaderSettings settings, int ayaNumber) {
       return [
         TextSpan(
-            text: "\uFD3F",
+            text: " \uFD3F",
             style: TextStyle(
               color: settings.colorScheme.markers,
               fontSize: settings.fontSize,
@@ -135,7 +136,7 @@ class RukuReader extends StatelessWidget {
           ),
 
         TextSpan(
-            text: "\uFD3E",
+            text: "\uFD3E ",
             style: TextStyle(
               color: settings.colorScheme.markers,
               fontSize: settings.fontSize,

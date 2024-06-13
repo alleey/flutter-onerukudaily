@@ -62,12 +62,12 @@ class SettingsBloc extends Bloc<SettingsBlocEvent, SettingsBlocState>
           _settings = AppSettings.fromJson(jsonDecode(jsonString));
         } else {
           log("Settings empty");
-      }
+        }
 
         log("Settings read $_settings");
       }
       catch(e) {
-        log("Settings error $e");
+        log("Settings error $e", error: e);
       }
 
       emit(SettingsReadBlocState(settings: currentSettings));

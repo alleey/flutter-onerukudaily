@@ -3,5 +3,48 @@
   "app_lang_en": "English",
   "app_lang_ur": "اردو",
   "app_lang_ru": "Русский",
-  "app_lang_es": "Español"
+  "app_lang_es": "Español",
+
+  "dlg_picktime_title": "Set Reminder Time",
+  "dlg_picktime_ok": "OK",
+  "dlg_picktime_cancel": "Cancel",
+
+  "dlg_pickcolor_title": "Select Color",
+  "dlg_pickcolor_ok": "OK",
+  "dlg_pickcolor_cancel": "Cancel",
+
+  "dlg_completion_title": "ٱلْحَمْدُ لِلَّٰهِ",
+  "dlg_completion_ok": "OK",
+  "dlg_completion_intro": "You have completed recitation of all the Rukus. The reader will now reset and start from the first Ruku.",
+
+  "page_reminders_title": "Reminders",
+  "page_reminders_add": "Add Reminder",
+  "page_reminders_limitreached": "Reminder limit reached",
+  "page_reminders_multipleperday": "Multiple Ruku per day?",
+  "page_reminders_noreminders": "Use the Add reminder button to set up to {maxReminders} daily reminders.",
+  "page_reminders_remindersintro": "You will receive a daily reminder to read a Ruku at the following times.",
+
+  "page_reader_title": "Read Ruku",
+  "page_reader_readnext": "Read Next",
+
+  "page_settings_title": "Settings",
+  "page_settings_tab_general": "General",
+  "page_settings_tab_reader": "Reader",
+  "page_settings_reset": "Restore Defaults",
+  "page_settings_theme": "Application Theme",
+
+  "page_settings_textsize": "Text Size",
+  "page_settings_numberstyle": "Numbers Arabic",
+  "page_settings_numberplacement": "Numbers before Ayat",
+  "page_settings_ayaperline": "Aya/Line",
+  "page_settings_font": "Font",
+  "page_settings_clr_background": "Background",
+  "page_settings_clr_ayaeven": "Aya (even)",
+  "page_settings_clr_ayaodd": "Aya (odd)",
+  "page_settings_clr_ayasajda": "Aya (sajda)",
+  "page_settings_clr_markers": "Aya Numbers",
+
+  "page_statistics_title": "Statistics",
+
+  "page_about_title": "About"
 }

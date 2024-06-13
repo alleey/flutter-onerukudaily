@@ -246,10 +246,10 @@ class AppColorScheme {
       palette: palette,
       dialog: AppDialogColorScheme(
         background: palette.color2,
-        text: palette.color1,
-        textHighlight: palette.color2,
-        button: AppButtonColorScheme(text: palette.color3, background: palette.color4),
-        defaultButton: AppButtonColorScheme(text: palette.color2, background: palette.color4),
+        text: palette.color4,
+        textHighlight: palette.color3,
+        button: AppButtonColorScheme(text: palette.color4, background: palette.color1),
+        defaultButton: AppButtonColorScheme(text: palette.color4, background: palette.color1),
         surfaceTintColor: palette.color4,
       ),
       page: AppPageColorScheme(

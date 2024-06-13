@@ -84,14 +84,14 @@ jobs:
     - run: flutter pub get
     - run: flutter build web --base-href /flutter-onerukudaily/ --build-name=${{ steps.metadata.outputs.value }} --build-number=${{ github.run_number }}
     - run: flutter build appbundle --release --build-name=${{ steps.metadata.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
-    # - run: flutter build apk --release --build-name=${{ steps.metadata.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
+    - run: flutter build apk --release --build-name=${{ steps.metadata.outputs.value }} --build-number=${{ github.run_number }} --dart-define=MIN_SDK_VERSION=24
 
-    # - name: Sign APK
-    #   run: |
-    #     zip -d build/app/outputs/flutter-apk/app-release.apk META-INF/\*
-    #     jarsigner -verbose -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/keystore.jks \
-    #       -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD \
-    #       build/app/outputs/flutter-apk/app-release.apk $KEY_ALIAS
+    - name: Sign APK
+      run: |
+        zip -d build/app/outputs/flutter-apk/app-release.apk META-INF/\*
+        jarsigner -verbose -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore android/app/keystore.jks \
+          -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD \
+          build/app/outputs/flutter-apk/app-release.apk $KEY_ALIAS
 
     - name: Sign AppBundle
       run: |
@@ -106,11 +106,11 @@ jobs:
         name: Web-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
         path: build/web
 
-    # - name: Attach APK
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: APK-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
-    #     path: build/app/outputs/flutter-apk/app-release.apk
+    - name: Attach APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: APK-onerukudaily-${{ github.ref_name }}-${{ github.sha }}
+        path: build/app/outputs/flutter-apk/app-release.apk
 
     - name: Attach AppBundle
       uses: actions/upload-artifact@v3

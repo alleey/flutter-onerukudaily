@@ -6,6 +6,7 @@ import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
 import '../../common/time_of_day_extensions.dart';
+import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../services/alerts_service.dart';
 import '../../utils/utils.dart';
@@ -45,43 +46,81 @@ class _RemindersPageState extends State<RemindersPage> {
 
     final scheme = settings.currentScheme;
     final layout = context.layout;
+    final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
+    final screenCoverPct = context.layout.get<Size>(AppLayoutConstants.screenCoverPctKey);
+    final appBarHeight = layout.get<double>(AppLayoutConstants.appbarHeightKey);
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Reminders'),
-        backgroundColor: scheme.page.defaultButton.background,
-        foregroundColor: scheme.page.defaultButton.text,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(appBarHeight),
+        child: AppBar(
+          centerTitle: true,
+          title: Text(
+            context.localizations.translate("page_reminders_title"),
+            style: TextStyle(
+              fontSize: titleFontSize,
+            ),
+          ),
+          backgroundColor: scheme.page.defaultButton.background,
+          foregroundColor: scheme.page.defaultButton.text,
+        ),
       ),
-      body: BlocBuilder<NotificationBloc, NotificationBlocState>(
-
-          builder: (context, state) {
-
-            if (state is RemindersLoadedState) {
-
-              return Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: scheme.page.background,
-                child: DefaultTextStyle.merge(
-                  style: TextStyle(
-                    color: scheme.page.text,
-                    fontSize: bodyFontSize,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: state.isNotEmpty ?
-                      _buildRemindersList(state, context, settings):
-                      _buildNoReminders(state, context, settings),
-                  )
-                )
-              );
-            }
-
-            return const Center(child: LoadingIndicator());
-          },
+      body: Container(
+        color: scheme.page.background,
+        child: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * screenCoverPct.width,
+            height: MediaQuery.of(context).size.height * screenCoverPct.height,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: scheme.page.text,
+                fontSize: bodyFontSize,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: _buildBody(context, settings),
+              )
+            ),
+          ),
+        )
       )
+    );
+  }
+
+  Widget _buildBody(BuildContext context, AppSettings settings) {
+
+    final scheme = settings.currentScheme;
+    final layout = context.layout;
+    final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
+
+    return BlocBuilder<NotificationBloc, NotificationBlocState>(
+
+        builder: (context, state) {
+
+          if (state is RemindersLoadedState) {
+
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: scheme.page.background,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: scheme.page.text,
+                  fontSize: bodyFontSize,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: state.isNotEmpty ?
+                    _buildRemindersList(state, context, settings):
+                    _buildNoReminders(state, context, settings),
+                )
+              )
+            );
+          }
+
+          return const Center(child: LoadingIndicator());
+        },
     );
   }
 
@@ -90,7 +129,7 @@ class _RemindersPageState extends State<RemindersPage> {
     return Column(
       children: [
         Text(
-          "Use the Add reminder button to set up to ${Constants.maxReminders} daily reminders.",
+          context.localizations.translate("page_reminders_noreminders", placeholders: {"maxReminders": Constants.maxReminders}),
           style: TextStyle(
             color: scheme.text
           ),
@@ -113,7 +152,7 @@ class _RemindersPageState extends State<RemindersPage> {
     return Column(
       children: [
         Text(
-          "You'll receive a daily reminder to read a Ruku at the following times.",
+          context.localizations.translate("page_reminders_remindersintro"),
           style: TextStyle(
             color: scheme.text
           ),
@@ -151,12 +190,12 @@ class _RemindersPageState extends State<RemindersPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Expanded(
+            Expanded(
               child: FittedBox(
                 alignment: AlignmentDirectional.centerStart,
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  "Multiple Ruku per day?",
+                  context.localizations.translate("page_reminders_multipleperday"),
                 ),
               ),
             ),
@@ -177,7 +216,7 @@ class _RemindersPageState extends State<RemindersPage> {
           ),
         if (state.reminders.length >= Constants.maxReminders)
           Text(
-            "Reminder limit reached",
+            context.localizations.translate("page_reminders_limitreached"),
             style: TextStyle(
               color: scheme.defaultButton.text
             ),
@@ -198,14 +237,14 @@ class _RemindersPageState extends State<RemindersPage> {
           _handleTimeSelection(settings, picked, state.reminders);
         }
       },
-      builder: (_,__) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      builder: (_,__) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_alarm),
-            SizedBox(width: 5),
-            Text("Add Reminder"),
+            const Icon(Icons.add_alarm),
+            const SizedBox(width: 5),
+            Text(context.localizations.translate("page_reminders_add")),
           ],
         ),
       ),

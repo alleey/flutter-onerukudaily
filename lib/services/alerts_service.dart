@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:one_ruku_daily/localizations/app_localizations.dart';
 
 import '../common/layout_constants.dart';
 import '../models/app_settings.dart';
@@ -151,6 +152,40 @@ class AlertsService {
     );
   }
 
+  Future<dynamic> completionDialog(BuildContext context, { required VoidCallback onClose }) {
+
+    return actionDialog(
+      context,
+      title: (_,__) => DefaultDialogTitle(
+        builder: (context, settingsProvider) => Text(
+          context.localizations.translate("dlg_completion_title"),
+          style: TextStyle(
+            fontSize: context.layout.get<double>(AppLayoutConstants.titleFontSizeKey)
+          ),
+        )
+      ),
+      actions: (_,__) => [
+
+        Expanded(
+          child: ButtonDialogAction(
+            isDefault: false,
+            builder: (_,__) => Text(context.localizations.translate("dlg_needreset_ok"), textAlign: TextAlign.center),
+            onAction: (close) {
+              close(null);
+              onClose();
+            },
+          ),
+        ),
+
+      ],
+      contents: (_,__) =>  Center(
+        child: Text(
+          context.localizations.translate("dlg_completion_intro")
+        )
+      )
+    );
+  }
+
   Future<TimeOfDay?> timePicker(BuildContext context, {
     required TimeOfDay initialTime,
     required List<TimeOfDay> selectedTimes,
@@ -160,7 +195,12 @@ class AlertsService {
     return actionDialog<TimeOfDay>(
       context,
       title: (_, settingsProvider) => DefaultDialogTitle(
-        builder: (context, settingsProvider) => const Text("Set Reminder Time")
+        builder: (context, settingsProvider) => Text(
+          context.localizations.translate("dlg_picktime_title"),
+          style: TextStyle(
+            fontSize: context.layout.get<double>(AppLayoutConstants.titleFontSizeKey)
+          ),
+        )
       ),
       contents: (_,__) => Padding(
         padding: const EdgeInsets.all(8.0),
@@ -177,7 +217,7 @@ class AlertsService {
         Expanded(
           child: ButtonDialogAction(
             isDefault: false,
-            builder: (_,__) => const Text("OK", textAlign: TextAlign.center),
+            builder: (_,__) => Text(context.localizations.translate("dlg_picktime_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(selectedTime);
             },
@@ -188,7 +228,7 @@ class AlertsService {
           child: ButtonDialogAction(
             autofocus: true,
             isDefault: true,
-            builder: (_,__) => const Text("Cancel", textAlign: TextAlign.center),
+            builder: (_,__) => Text(context.localizations.translate("dlg_picktime_cancel"), textAlign: TextAlign.center),
             onAction: (close) => close(null),
           ),
         ),
@@ -196,7 +236,6 @@ class AlertsService {
       ],
     );
   }
-
 
   Future<Color?> colorPicker(BuildContext context, {
     required Color pickerColor,
@@ -206,19 +245,21 @@ class AlertsService {
     return actionDialog<Color>(
       context,
       title: (_, settingsProvider) => DefaultDialogTitle(
-        builder: (context, settingsProvider) => const Text("Select Color")
+        builder: (context, settingsProvider) => Text(
+          context.localizations.translate("dlg_pickcolor_title"),
+          style: TextStyle(
+            fontSize: context.layout.get<double>(AppLayoutConstants.titleFontSizeKey)
+          ),
+        )
       ),
       contents: (_,settingsProvider) {
+
         final scheme = settingsProvider.value.currentScheme;
         return Theme(
           data: ThemeData(
             textTheme: TextTheme(
-              bodyMedium: TextStyle(
-                color: scheme.dialog.text,
-              ),
-              bodyLarge: TextStyle(
-                color: scheme.dialog.text,
-              ),
+              bodyMedium: TextStyle(color: scheme.dialog.text),
+              bodyLarge: TextStyle(color: scheme.dialog.text),
             ),
           ),
           child: Padding(
@@ -237,7 +278,7 @@ class AlertsService {
         Expanded(
           child: ButtonDialogAction(
             isDefault: false,
-            builder: (_,__) => const Text("OK", textAlign: TextAlign.center),
+            builder: (_,__) => Text(context.localizations.translate("dlg_pickcolor_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(selected);
             },
@@ -248,7 +289,7 @@ class AlertsService {
           child: ButtonDialogAction(
             autofocus: true,
             isDefault: true,
-            builder: (_,__) => const Text("Cancel", textAlign: TextAlign.center),
+            builder: (_,__) => Text(context.localizations.translate("dlg_pickcolor_cancel"), textAlign: TextAlign.center),
             onAction: (close) => close(null),
           ),
         ),

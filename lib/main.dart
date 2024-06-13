@@ -126,7 +126,7 @@ class InitialRouteHandler extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  SettingsAwareBuilder(
+    return SettingsAwareBuilder(
       builder: (context, settingsNotifier) => ValueListenableBuilder(
         valueListenable: settingsNotifier,
         builder: (context, settings, child) =>  _buildContents(context, settings)
@@ -135,28 +135,34 @@ class InitialRouteHandler extends StatelessWidget {
   }
 
   Widget _buildContents(BuildContext context, AppSettings settings) {
-    return BlocBuilder<NotificationBloc, NotificationBlocState>(
-      builder: (context, state) {
+    final scheme = settings.currentScheme;
+    return BlocListener<NotificationBloc, NotificationBlocState>(
+      listener: (context, state) {
 
         if (state is NotificationInitializedState) {
+
+          // User tapped a notification to launch app.
+          // Unless they opted for multiple reads per day, reschedule any prending notifications for the day
+          //
+          if (state.appLaunchInfo.isNotificationLaunch) {
+            if (!settings.allowMultipleReminders) {
+              context.notificationBloc.add(ScheduleNotifications(reschduleForTomorrow: true));
+            }
+          }
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pushReplacementNamed(_getInitialRoute(state.appLaunchInfo));
           });
         }
-
-        final scheme = settings.currentScheme;
-        return Scaffold(
-          body: Container(
-            color: scheme.page.background,
-            child: const Center(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: LoadingIndicator(message: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ")
-              )
-            ),
-          )
-        );
-      }
+      },
+      child: Scaffold(
+        body: Container(
+          color: scheme.page.background,
+          child: const Center(
+            child: LoadingIndicator(message: Constants.loaderText, direction: TextDirection.rtl)
+          ),
+        )
+      )
     );
   }
 

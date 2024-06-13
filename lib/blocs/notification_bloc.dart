@@ -29,7 +29,8 @@ class RemoveReminderEvent extends NotificationBlocEvent {
 }
 
 class ScheduleNotifications extends NotificationBlocEvent {
-
+  bool reschduleForTomorrow;
+  ScheduleNotifications({ this.reschduleForTomorrow = false });
 }
 
 ////////////////////////////////////////////
@@ -95,24 +96,27 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
   void _onAddSchedule(AddReminderEvent event, Emitter<NotificationBlocState> emit) {
     reminders.add(event.reminder);
     appDataService.put(settingSchedules, reminders.toJson());
+    add(ScheduleNotifications());
     emit(RemindersLoadedState(reminders.list));
   }
 
   void _onRemoveSchedule(RemoveReminderEvent event, Emitter<NotificationBlocState> emit) {
     reminders.remove(event.schedule);
     appDataService.put(settingSchedules, reminders.toJson());
+    add(ScheduleNotifications());
     emit(RemindersLoadedState(reminders.list));
   }
 
   void _onScheduleNotifications(ScheduleNotifications event, Emitter<NotificationBlocState> emit) {
+
     notificationService.cancelAllNotifications();
     reminders.list.forEachIndexed((index, timeOfDay) {
 
         notificationService.scheduleNotification(
-          id: index,
+          id: 0,
           title: Constants.appTitle,
           body: "Time to read your daily Ruku passage from the Quran.",
-          scheduledDate: timeService.nextInstanceOfTime(timeOfDay),
+          scheduledDate: timeService.nextInstanceOfTime(timeOfDay, tomorrow: event.reschduleForTomorrow),
         );
       }
     );

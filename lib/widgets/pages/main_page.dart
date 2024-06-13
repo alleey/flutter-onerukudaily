@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
+import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/ruku.dart';
 import '../../services/app_data_service.dart';
+import '../../services/notification_service.dart';
 import '../common/percentage_bar.dart';
 import '../common/responsive_layout.dart';
 import '../settings_aware_builder.dart';
@@ -26,36 +28,54 @@ class MainPage extends StatelessWidget {
 
     final scheme = settings.currentScheme;
     final layout = context.layout;
+    final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
+    final screenCoverPct = context.layout.get<Size>(AppLayoutConstants.screenCoverPctKey);
+    final appBarHeight = layout.get<double>(AppLayoutConstants.appbarHeightKey);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: const Text(Constants.appTitle),
-        backgroundColor: scheme.page.defaultButton.background,
-        foregroundColor: scheme.page.defaultButton.text,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(appBarHeight),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: Text(
+            context.localizations.translate("app_title"),
+            style: TextStyle(
+              fontSize: titleFontSize,
+            ),
+          ),
+          backgroundColor: scheme.page.defaultButton.background,
+          foregroundColor: scheme.page.defaultButton.text,
+        ),
       ),
       body: Container(
-        width: double.infinity,
-        height: double.infinity,
         color: scheme.page.background,
-        child: DefaultTextStyle.merge(
-          style: TextStyle(
-            color: scheme.page.text,
-            fontSize: bodyFontSize,
+        child: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * screenCoverPct.width,
+            height: MediaQuery.of(context).size.height * screenCoverPct.height,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: scheme.page.text,
+                fontSize: bodyFontSize,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: _buildBody(context, settings),
+              )
+            ),
           ),
-          child: _buildGrid(context, settings)
         )
       )
     );
   }
 
-  Widget _buildGrid(BuildContext context, AppSettings settings) {
+  Widget _buildBody(BuildContext context, AppSettings settings) {
 
     final pageScheme = settings.currentScheme.page;
-    final scheme = settings.currentScheme.page.defaultButton;
-    final currentRuku = AppDataService().currentRukuIndex - 1;
+    final currentRuku = AppDataService().rukuIndex - 1;
+    final notificationSupport = NotificationService().platformHasSupport;
 
     return Wrap(
       alignment: WrapAlignment.center,
@@ -63,7 +83,7 @@ class MainPage extends StatelessWidget {
         _buildCard(
           context,
           settings,
-          title: 'Read Ruku',
+          title: context.localizations.translate("page_reader_title"),
           icon: Icons.book,
           onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
           isDefault: true,
@@ -79,17 +99,20 @@ class MainPage extends StatelessWidget {
             ),
           )
         ),
+
+        if (notificationSupport)
+          _buildCard(
+            context,
+            settings,
+            title: context.localizations.translate("page_reminders_title"),
+            icon: Icons.schedule,
+            onTap: () => Navigator.pushNamed(context, KnownRouteNames.reminders),
+          ),
+
         _buildCard(
           context,
           settings,
-          title: 'Reminders',
-          icon: Icons.schedule,
-          onTap: () => Navigator.pushNamed(context, KnownRouteNames.reminders),
-        ),
-        _buildCard(
-          context,
-          settings,
-          title: 'Settings',
+          title: context.localizations.translate("page_settings_title"),
           icon: Icons.settings,
           onTap: () => Navigator.pushNamed(context, KnownRouteNames.settings),
         ),

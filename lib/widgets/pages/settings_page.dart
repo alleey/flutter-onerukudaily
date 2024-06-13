@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
+import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/reader_color_scheme.dart';
 import '../../models/ruku.dart';
@@ -52,76 +53,103 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final scheme = settings.currentScheme;
     final layout = context.layout;
+    final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
+    final screenCoverPct = context.layout.get<Size>(AppLayoutConstants.screenCoverPctKey);
+    final appBarHeight = layout.get<double>(AppLayoutConstants.appbarHeightKey);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(appBarHeight),
+        child: AppBar(
           centerTitle: true,
-          title: const Text("Settings"),
           backgroundColor: scheme.page.defaultButton.background,
           foregroundColor: scheme.page.defaultButton.text,
-        ),
-        body: Container(
-          color: scheme.page.background,
-          child: DefaultTextStyle.merge(
+          title: Text(
+            context.localizations.translate("page_settings_title"),
             style: TextStyle(
-              color: scheme.page.text,
-              fontSize: bodyFontSize,
+              fontSize: titleFontSize,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                children: [
-                  Container(
-                    color: scheme.page.button.background,
-                    child: TabBar(
-                      labelColor: scheme.page.text,
-                      dividerColor: scheme.page.background,
-                      indicatorColor: scheme.page.text,
-                      unselectedLabelColor: scheme.page.text.withOpacity(.5),
-                      tabs: const [
-                        Tab(icon: Icon(Icons.settings), text: 'General'),
-                        Tab(icon: Icon(Icons.book_online), text: 'Reader'),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: TabBarView(
-                      children: [
-                        _buildGeneralSettings(context, settings),
-                        _buildReaderSettings(context, settings),
-                      ]
-                    ),
-                  ),
-                  ButtonDialogAction(
-                    isDefault: true,
-                    onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
-                    builder: (_,__) => const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.refresh),
-                        SizedBox(width: 5),
-                        Text("Restore Defaults"),
-                      ],
-                    ),
-                  ),
-                  if (_sampleRuku != null)
-                    Expanded(
-                      flex: 1,
-                      child: RukuReader(ruku: _sampleRuku!, settings: settings.readerSettings)
-                    ),
-                ],
-              ),
-            )
-          )
-        )
+          ),
+        ),
       ),
+      body: Container(
+        color: scheme.page.background,
+        child: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * screenCoverPct.width,
+            height: MediaQuery.of(context).size.height * screenCoverPct.height,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: scheme.page.text,
+                fontSize: bodyFontSize,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: _buildBody(context, settings),
+              )
+            ),
+          ),
+        )
+      )
     );
   }
 
+  Widget _buildBody(BuildContext context, AppSettings settings) {
+    final scheme = settings.currentScheme;
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          Container(
+            color: scheme.page.button.background,
+            child: TabBar(
+              labelColor: scheme.page.text,
+              dividerColor: scheme.page.background,
+              indicatorColor: scheme.page.text,
+              unselectedLabelColor: scheme.page.text.withOpacity(.5),
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.settings),
+                  text: context.localizations.translate("page_settings_tab_general")
+                ),
+                Tab(
+                  icon: const Icon(Icons.book_online),
+                  text: context.localizations.translate("page_settings_tab_reader")
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: TabBarView(
+              children: [
+                _buildGeneralSettings(context, settings),
+                _buildReaderSettings(context, settings),
+              ]
+            ),
+          ),
+          ButtonDialogAction(
+            isDefault: true,
+            onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.refresh),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("page_settings_reset")),
+              ],
+            ),
+          ),
+          if (_sampleRuku != null)
+            Expanded(
+              flex: 1,
+              child: RukuReader(ruku: _sampleRuku!, settings: settings.readerSettings)
+            ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildGeneralSettings(BuildContext context, AppSettings settings) {
 
@@ -134,7 +162,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           const SizedBox(height: 10,),
           Text(
-            "Application Theme",
+            context.localizations.translate("page_settings_theme"),
             style: TextStyle(
               color: scheme.page.text,
               fontSize: titleFontSize,
@@ -165,11 +193,12 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Text Size",
+              Text(
+                context.localizations.translate("page_settings_textsize"),
               ),
               Slider(
                 activeColor: scheme.page.text,
+                divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
                 value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
                 min: Constants.minReaderFontSize,
                 max: Constants.maxReaderFontSize,
@@ -183,8 +212,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Numbers Arabic",
+              Text(
+                context.localizations.translate("page_settings_numberstyle"),
               ),
               Switch(
                 activeColor: scheme.page.text,
@@ -199,8 +228,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Numbers before Ayat",
+              Text(
+                context.localizations.translate("page_settings_numberplacement"),
               ),
               Switch(
                 activeColor: scheme.page.text,
@@ -216,8 +245,8 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              const Text(
-                "Aya/Line",
+              Text(
+                context.localizations.translate("page_settings_ayaperline"),
               ),
               Switch(
                   activeColor: scheme.page.text,
@@ -231,8 +260,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Font",
+              Text(
+                context.localizations.translate("page_settings_font"),
               ),
               Directionality(
                 textDirection: TextDirection.rtl,
@@ -265,7 +294,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             children:
             [
-              const Text("Background"),
+              Text(context.localizations.translate("page_settings_clr_background")),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
@@ -281,7 +310,7 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              const Text("Aya (even)"),
+              Text(context.localizations.translate("page_settings_clr_ayaeven")),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
@@ -304,7 +333,7 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              const Text("Aya (odd)"),
+              Text(context.localizations.translate("page_settings_clr_ayaodd")),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
@@ -327,7 +356,7 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              const Text("Aya (sajda)"),
+              Text(context.localizations.translate("page_settings_clr_ayasajda")),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
@@ -349,7 +378,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             children:
             [
-              const Text("Markers"),
+              Text(context.localizations.translate("page_settings_clr_markers")),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),

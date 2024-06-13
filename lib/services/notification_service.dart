@@ -29,6 +29,14 @@ class AppLaunchInfo {
 
 class NotificationService {
 
+  static final NotificationService _instance = NotificationService._();
+
+  NotificationService._();
+
+  factory NotificationService() {
+    return _instance;
+  }
+
   final _plugin = FlutterLocalNotificationsPlugin();
 
   AppLaunchInfo appLaunchInfo = AppLaunchInfo();
@@ -65,12 +73,12 @@ class NotificationService {
   NotificationDetails _notificationDetails() {
     const notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
-          'io.alleey.development.read_ruku_everyday',
-          'Read 1 Ruku Everday',
-          channelDescription: 'Read 1 Ruku Everday',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
+        'io.alleey.development.read_ruku_everyday',
+        'Read 1 Ruku Everday',
+        channelDescription: 'Read 1 Ruku Everday',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
       iOS: DarwinNotificationDetails()
     );
     return notificationDetails;

@@ -15,7 +15,7 @@ class AppSettings {
     this.locale = "en",
     this.allowMultipleReminders = false,
     ReaderSettings? readerSettings,
-  }) : readerSettings = readerSettings ?? ReaderSettings();
+  }) : readerSettings = readerSettings ?? const ReaderSettings();
 
   AppSettings copyWith({
     String? theme,

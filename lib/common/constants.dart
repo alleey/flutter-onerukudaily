@@ -4,10 +4,13 @@ class Constants {
 
   static const int appDataVersion = 1;
   static const String appTitle = "1 Ruku Everyday";
+  static const String loaderText = "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ";
 
   static const int maxReminders = 5;
-  static const double minReaderFontSize = 16;
-  static const double maxReaderFontSize = 48;
+  static const double minReaderFontSize = 14;
+  static const double maxReaderFontSize = 96;
+
+  static const int readerOpenDelay = 1000;
 
   static const List<String> locales = ['en'];
 

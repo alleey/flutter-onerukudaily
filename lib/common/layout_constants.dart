@@ -35,11 +35,18 @@ class DialogLayoutConstants
 
 class AppLayoutConstants
 {
+  static const String screenCoverPctKey = "app.screenCoverPct";
+  static final screenCoverPct = ResponsiveValue.from(
+    small: const Size(1, 1),
+    medium: const Size(0.8, 1),
+    large: const Size(0.7, 1),
+  );
+
   static const String appbarHeightKey = "app.appbarHeight";
   static final appbarHeight = ResponsiveValue<double>.from(
     small: 34,
-    medium: 42,
-    large: 50,
+    medium: 48,
+    large: 72,
   );
 
   static const String titleFontSizeKey = "app.titleFontSize";
@@ -85,6 +92,7 @@ class AppLayoutConstants
   );
 
   static final layout = <String, ResponsiveValue<dynamic>>{
+    screenCoverPctKey: screenCoverPct,
     appbarHeightKey: appbarHeight,
     titleFontSizeKey: titleFontSize,
     bodyFontSizeKey: bodyFontSize,
