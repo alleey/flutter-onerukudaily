@@ -71,8 +71,6 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
       _statistics = StatisticsExtensions.fromJsonString(_appDataService.get("statistics", ""));
 
       try {
-          emit(RukuIndexExhaustedState());
-          return;
 
         if (rukuNum < 1) {
           return;
