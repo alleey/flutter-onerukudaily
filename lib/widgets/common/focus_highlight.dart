@@ -43,7 +43,7 @@ class _FocusHighlightState extends State<FocusHighlight> {
       canRequestFocus: widget.canRequestFocus,
       child: AnimatedContainer(
         duration: widget.duration,
-        color: _isFocused ? widget.focusColor.withOpacity(0.3) : widget.normalColor,
+        color: _isFocused ? widget.focusColor : widget.normalColor,
         child: widget.child,
       ),
     );

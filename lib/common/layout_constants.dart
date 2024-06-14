@@ -66,8 +66,8 @@ class AppLayoutConstants
   static const String mainCardSizeKey = "app.mainCardSize";
   static final mainCardSize = ResponsiveValue.from(
     small: const Size(150, 150),
-    medium: const Size(200, 200),
-    large: const Size(300, 300),
+    medium: const Size(190, 190),
+    large: const Size(250, 250),
   );
 
   static const String mainCardIconSizeKey = "app.mainCardIconSize";

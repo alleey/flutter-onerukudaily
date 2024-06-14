@@ -6,6 +6,7 @@ import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/ruku.dart';
 import '../../services/notification_service.dart';
+import '../common/focus_highlight.dart';
 import '../common/percentage_bar.dart';
 import '../common/responsive_layout.dart';
 import '../reader_aware_builder.dart';
@@ -187,40 +188,43 @@ class MainPage extends StatelessWidget {
     final iconSize = layout.get<double>(AppLayoutConstants.mainCardIconSizeKey);
     final fontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
 
-    return SizedBox(
-      width: cardSize.width,
-      height: cardSize.height,
-      child: Card(
-        color: button.background,
-        child: InkWell(
-          onTap: onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Icon(icon, size: iconSize, color: button.icon,
+    return FocusHighlight(
+      focusColor: button.text.withOpacity(0.5),
+      child: SizedBox(
+        width: cardSize.width,
+        height: cardSize.height,
+        child: Card(
+          color: button.background,
+          child: InkWell(
+            onTap: onTap,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Icon(icon, size: iconSize, color: button.icon,
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: button.text, fontSize: fontSize),
-                      ),
-                      if (extra != null) extra,
-                    ],
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: button.text, fontSize: fontSize),
+                        ),
+                        if (extra != null) extra,
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -94,7 +94,6 @@ class Statistics {
   Statistics update({required int rukuNum}) {
 
     final now = DateTime.now().toUtc().dateOnly();
-
     final oldestDate = now.subtract(const Duration(days: Constants.maxDailyStatsDays - 1));
 
     final statsMap = { for (var stat in dailyStats) stat.dateTime.dateOnly() : stat };

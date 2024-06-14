@@ -36,7 +36,7 @@ class DailyStatsBarChart extends StatelessWidget {
                   style: TextStyle(color: colorScheme.page.text),
                 ),
                 interval: _calculateInterval(maxY),
-                reservedSize: 10
+                reservedSize: 25
               )
             ),
             bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),

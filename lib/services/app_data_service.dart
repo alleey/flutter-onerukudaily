@@ -47,6 +47,6 @@ class AppDataService {
 }
 
 extension AppDataServiceExtensions on AppDataService {
-  int get dailyRukuNumber => get(KnownSettingsNames.rukuIndex, 1);
+  int get dailyRukuNumber => get(KnownSettingsNames.rukuIndex, 0);
   Future setDailyRukuNumber(int value) => put(KnownSettingsNames.rukuIndex, value);
 }

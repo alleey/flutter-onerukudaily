@@ -70,11 +70,8 @@ class _AppDialogState extends State<AppDialog> {
         child: Stack(
           children: [
             Padding(
-                  padding: widget.padding ?? padding,
-              child: FocusTraversalGroup(
-                policy: OrderedTraversalPolicy(),
-                child: _buildContents(context, settings)
-              ),
+              padding: widget.padding ?? padding,
+              child: _buildContents(context, settings),
             ),
             Positioned(
               child: Align(
@@ -190,30 +187,30 @@ class ButtonDialogAction extends DialogAction {
     final scheme = settingsProvider.value.currentScheme;
     final buttonTheme = isDefault ? scheme.dialog.defaultButton : scheme.dialog.button;
 
-    return FocusTraversalOrder(
-      order: const NumericFocusOrder(100),
+    return MergeSemantics(
       child: ElevatedButton(
-      autofocus: autofocus,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: buttonTheme.background,
-        foregroundColor: buttonTheme.text,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5)),
+        autofocus: autofocus,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: buttonTheme.background,
+          foregroundColor: buttonTheme.text,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          padding: EdgeInsets.zero,
+        ).copyWith(
+          overlayColor: StateDependentColor(buttonTheme.text),
         ),
-        padding: EdgeInsets.zero,
-      ).copyWith(
-        overlayColor: StateDependentColor(buttonTheme.text),
+        onPressed: () {
+          onAction((result) => Navigator.of(context, rootNavigator: true).pop(result));
+        },
+        child: DefaultTextStyle.merge(
+          style: TextStyle(
+            fontSize: bodyFontSize,
+            color: buttonTheme.text,
+          ),
+          child: builder(context, settingsProvider),
+        )
       ),
-      onPressed: () {
-        onAction((result) => Navigator.of(context, rootNavigator: true).pop(result));
-      },
-      child: DefaultTextStyle.merge(
-        style: TextStyle(
-          fontSize: bodyFontSize,
-          color: buttonTheme.text,
-        ),
-        child: builder(context, settingsProvider),
-      )),
     );
   }
 }

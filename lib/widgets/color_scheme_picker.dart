@@ -85,7 +85,7 @@ class _ColorSchemePickerState extends State<ColorSchemePicker> {
                 label: selectedIndex == index ? "Theme ${index + 1} is active!" : "Apply theme ${index + 1}.",
                 button: true,
                 child: FocusHighlight(
-                  focusColor: e.value.dialog.text,
+                  focusColor: e.value.dialog.text.withOpacity(0.5),
                   child: InkWell(
                     focusNode: _focusNodes[index],
                     canRequestFocus: true,

@@ -5,6 +5,7 @@ import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
+import '../common/focus_highlight.dart';
 import '../completion_stats.dart';
 import '../daily_stats_bar_chart.dart';
 import '../reader_aware_builder.dart';
@@ -46,6 +47,16 @@ class StatisticsPage extends StatelessWidget {
             context.localizations.translate("page_statistics_title"),
             style: TextStyle(
               fontSize: titleFontSize,
+            ),
+          ),
+          leading: FocusHighlight(
+            focusColor: scheme.page.text.withOpacity(0.5),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              color: scheme.page.text,
             ),
           ),
         ),
@@ -94,16 +105,20 @@ class StatisticsPage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              Semantics(
-                container: true,
-                child: Text.rich(
-                  textAlign: TextAlign.center,
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: context.localizations.translate("page_statistics_intro"),
-                      ),
-                    ],
+              FocusHighlight(
+                canRequestFocus: true,
+                focusColor: Colors.transparent,
+                child: Semantics(
+                  container: true,
+                  child: Text.rich(
+                    textAlign: TextAlign.center,
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: context.localizations.translate("page_statistics_intro"),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -112,30 +127,35 @@ class StatisticsPage extends StatelessWidget {
 
               CompletionStats(statistics: stats),
 
-              const SizedBox(height: 20),
-              Semantics(
-                container: true,
-                child: Text.rich(
-                  textAlign: TextAlign.center,
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: context.localizations.translate(
-                          "page_statistics_intro2",
-                          placeholders: {"maxDailyStatsDays": Constants.maxDailyStatsDays}
+              if (stats.dailyStats.isNotEmpty)
+              ...[
+                const SizedBox(height: 20),
+                Semantics(
+                  container: true,
+                  child: Text.rich(
+                    textAlign: TextAlign.center,
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: context.localizations.translate(
+                            "page_statistics_intro2",
+                            placeholders: {"maxDailyStatsDays": Constants.maxDailyStatsDays}
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: DailyStatsBarChart(dailyStats: stats.dailyStats, colorScheme: settings.currentScheme),
-              ),
+                const SizedBox(height: 20),
+                FocusHighlight(
+                  canRequestFocus: true,
+                  focusColor: settings.currentScheme.page.text.withOpacity(0.5),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: DailyStatsBarChart(dailyStats: stats.dailyStats, colorScheme: settings.currentScheme),
+                  ),
+                )
+              ],
 
               const SizedBox(height: 20),
           ]);

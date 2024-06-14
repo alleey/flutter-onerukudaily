@@ -49,6 +49,16 @@ class AboutPage extends StatelessWidget {
               fontSize: titleFontSize,
             ),
           ),
+          leading: FocusHighlight(
+            focusColor: scheme.page.text.withOpacity(0.5),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              color: scheme.page.text,
+            ),
+          ),
         ),
       ),
       body: Container(
@@ -93,7 +103,8 @@ class AboutPage extends StatelessWidget {
             excludeSemantics: true,
             child: FocusHighlight(
               canRequestFocus: true,
-              focusColor: scheme.background,
+              autofocus: true,
+              focusColor: scheme.background.withOpacity(0.1),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text.rich(
@@ -174,23 +185,25 @@ class AboutPage extends StatelessWidget {
             children: [
               Align(
                 alignment: AlignmentDirectional.center,
-                child: ButtonDialogAction(
-                  isDefault: true,
-                  onAction: (close) async {
-                    final link = Uri.tryParse(metadata.linkFeedback);
-                    if (link != null) {
-                      await launchUrl(link, mode: LaunchMode.inAppBrowserView);
-                    }
-                  },
-                  builder: (_,__) => const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 50),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.rate_review),
-                        SizedBox(width: 5),
-                        LocalizedText(textId: "page_about_feedback"),
-                      ],
+                child: FocusHighlight(
+                  focusColor: scheme.text.withOpacity(0.5),
+                  child: ButtonDialogAction(
+                    isDefault: true,
+                    onAction: (close) async {
+                      final link = Uri.tryParse(metadata.linkFeedback);
+                      if (link != null) {
+                        await launchUrl(link, mode: LaunchMode.inAppBrowserView);
+                      }
+                    },
+                    builder: (_,__) => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 50),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.rate_review),
+                          LocalizedText(textId: "page_about_feedback"),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:one_ruku_daily/services/prompt_serivce.dart';
-import 'package:one_ruku_daily/widgets/pages/stats_page.dart';
 
 import 'blocs/notification_bloc.dart';
 import 'blocs/reader_bloc.dart';
@@ -18,6 +16,7 @@ import 'models/app_settings.dart';
 import 'navigation/reader_navigation_observer.dart';
 import 'services/data_service.dart';
 import 'services/notification_service.dart';
+import 'services/prompt_serivce.dart';
 import 'widgets/common/responsive_layout.dart';
 import 'widgets/loading_indicator.dart';
 import 'widgets/pages/about_page.dart';
@@ -25,6 +24,7 @@ import 'widgets/pages/main_page.dart';
 import 'widgets/pages/reminders_page.dart';
 import 'widgets/pages/ruku_reader_page.dart';
 import 'widgets/pages/settings_page.dart';
+import 'widgets/pages/stats_page.dart';
 import 'widgets/settings_aware_builder.dart';
 
 Future<void> main() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:one_ruku_daily/utils/conversion.dart';
+
+import '../utils/conversion.dart';
 
 ////////////////////////////////////////////
 

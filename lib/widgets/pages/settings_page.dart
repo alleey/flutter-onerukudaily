@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
@@ -12,6 +13,7 @@ import '../../services/alerts_service.dart';
 import '../../services/asset_service.dart';
 import '../../utils/conversion.dart';
 import '../color_scheme_picker.dart';
+import '../common/focus_highlight.dart';
 import '../common/responsive_layout.dart';
 import '../dialogs/app_dialog.dart';
 import '../ruku_reader.dart';
@@ -71,6 +73,16 @@ class _SettingsPageState extends State<SettingsPage> {
               fontSize: titleFontSize,
             ),
           ),
+          leading: FocusHighlight(
+            focusColor: scheme.page.text.withOpacity(0.5),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              color: scheme.page.text,
+            ),
+          ),
         ),
       ),
       body: Container(
@@ -101,7 +113,6 @@ class _SettingsPageState extends State<SettingsPage> {
       length: 2,
       child: Column(
         children: [
-
           Container(
             color: scheme.page.button.background,
             child: TabBar(
@@ -110,13 +121,19 @@ class _SettingsPageState extends State<SettingsPage> {
               indicatorColor: scheme.page.button.text,
               unselectedLabelColor: scheme.page.button.text.withOpacity(.5),
               tabs: [
-                Tab(
-                  icon: const Icon(Icons.book_online),
-                  text: context.localizations.translate("page_settings_tab_reader")
+                FocusHighlight(
+                  focusColor: scheme.page.button.text.withOpacity(0.5),
+                  child: Tab(
+                    icon: const Icon(Icons.book_online),
+                    text: context.localizations.translate("page_settings_tab_reader")
+                  ),
                 ),
-                Tab(
-                  icon: const Icon(Icons.settings),
-                  text: context.localizations.translate("page_settings_tab_general")
+                FocusHighlight(
+                  focusColor: scheme.page.button.text.withOpacity(0.5),
+                  child: Tab(
+                    icon: const Icon(Icons.settings),
+                    text: context.localizations.translate("page_settings_tab_general")
+                  ),
                 ),
               ],
             ),
@@ -213,15 +230,18 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 context.localizations.translate("page_settings_textsize"),
               ),
-              Slider(
-                activeColor: scheme.page.text,
-                divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
-                value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
-                min: Constants.minReaderFontSize,
-                max: Constants.maxReaderFontSize,
-                onChanged: (value) {
-                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
-                }
+              FocusHighlight(
+                focusColor: scheme.page.button.text.withOpacity(0.5),
+                child: Slider(
+                  activeColor: scheme.page.text,
+                  divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
+                  value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
+                  min: Constants.minReaderFontSize,
+                  max: Constants.maxReaderFontSize,
+                  onChanged: (value) {
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
+                  }
+                ),
               )
             ]
           ),
@@ -232,12 +252,15 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 context.localizations.translate("page_settings_numberstyle"),
               ),
-              Switch(
-                activeColor: scheme.page.text,
-                value: readerSettings.showArabicNumerals,
-                onChanged: (value) {
-                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
-                }
+              FocusHighlight(
+                focusColor: scheme.page.button.text.withOpacity(0.5),
+                child: Switch(
+                  activeColor: scheme.page.text,
+                  value: readerSettings.showArabicNumerals,
+                  onChanged: (value) {
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
+                  }
+                ),
               )
             ]
           ),
@@ -248,12 +271,15 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 context.localizations.translate("page_settings_numberplacement"),
               ),
-              Switch(
-                activeColor: scheme.page.text,
-                value: readerSettings.numberBeforeAya,
-                onChanged: (value) {
-                  context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
-                }
+              FocusHighlight(
+                focusColor: scheme.page.button.text.withOpacity(0.5),
+                child: Switch(
+                  activeColor: scheme.page.text,
+                  value: readerSettings.numberBeforeAya,
+                  onChanged: (value) {
+                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
+                  }
+                ),
               )
             ]
           ),
@@ -265,12 +291,15 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 context.localizations.translate("page_settings_ayaperline"),
               ),
-              Switch(
-                  activeColor: scheme.page.text,
-                  value: readerSettings.ayaPerLine,
-                  onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
-                })
+              FocusHighlight(
+                focusColor: scheme.page.button.text.withOpacity(0.5),
+                child: Switch(
+                    activeColor: scheme.page.text,
+                    value: readerSettings.ayaPerLine,
+                    onChanged: (value) {
+                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
+                  }),
+              )
             ]
           ),
 
@@ -282,29 +311,32 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               Directionality(
                 textDirection: TextDirection.rtl,
-                child: DropdownButton<String>(
-                    value: readerSettings.font,
-                    style: TextStyle(
-                      color: buttonScheme.text
-                    ),
-                    dropdownColor: scheme.page.background,
-                    items: fonts.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        alignment: Alignment.centerRight,
-                        value: value,
-                        child: Text(
-                          "قُلْ هُوَ اللَّهُ أَحَدٌ",
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontFamily: value,
-                            fontSize: titleFontSize,
+                child: FocusHighlight(
+                  focusColor: scheme.page.button.text.withOpacity(0.5),
+                  child: DropdownButton<String>(
+                      value: readerSettings.font,
+                      style: TextStyle(
+                        color: buttonScheme.text
+                      ),
+                      dropdownColor: scheme.page.background,
+                      items: fonts.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          alignment: Alignment.centerRight,
+                          value: value,
+                          child: Text(
+                            "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                            textDirection: TextDirection.rtl,
+                            style: TextStyle(
+                              fontFamily: value,
+                              fontSize: titleFontSize,
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? value) {
-                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
-                    }),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
+                      }),
+                ),
               )
             ]
           ),
@@ -421,29 +453,32 @@ class _SettingsPageState extends State<SettingsPage> {
     Color initialColor,
     ReaderColorScheme Function(ReaderColorScheme scheme, Color newColor) updateFunction)
   {
-    return TextButton(
-      style: TextButton.styleFrom(
-        backgroundColor: initialColor,
-        side: BorderSide(
-          color: initialColor.inverse(),
-          width: 1
+    return FocusHighlight(
+      focusColor: settings.currentScheme.page.button.text.withOpacity(0.5),
+      child: TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: initialColor,
+          side: BorderSide(
+            color: initialColor.inverse(),
+            width: 1
+          ),
         ),
-      ),
-      onPressed: () async {
-        final newColor = await AlertsService().colorPicker(context, pickerColor: initialColor);
-        if (newColor != null) {
-          if (context.mounted) {
-            context.settingsBloc.save(
-              settings: settings.copyWith(
-                readerSettings: settings.readerSettings.copyWith(
-                  colorScheme: updateFunction(settings.readerSettings.colorScheme, newColor)
+        onPressed: () async {
+          final newColor = await AlertsService().colorPicker(context, pickerColor: initialColor);
+          if (newColor != null) {
+            if (context.mounted) {
+              context.settingsBloc.save(
+                settings: settings.copyWith(
+                  readerSettings: settings.readerSettings.copyWith(
+                    colorScheme: updateFunction(settings.readerSettings.colorScheme, newColor)
+                  )
                 )
-              )
-            );
+              );
+            }
           }
-        }
-      },
-      child: const Text(" ")
+        },
+        child: const Text(" ")
+      ),
     );
   }
 }

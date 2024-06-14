@@ -103,7 +103,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               style: buttonStle,
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
+              padding: EdgeInsets.symmetric(vertical: 2),
               child: Text("Hour"),
             ),
             Column(
@@ -155,7 +155,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
+              padding: EdgeInsets.symmetric(vertical: 2),
               child: Text("Minute"),
             ),
             SegmentedButton(
@@ -179,13 +179,13 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               style: buttonStle,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 2),
               child: Text("${formatTime(_getSelectedTime())} - ${formatTime24Hour(_getSelectedTime())}"),
             ),
 
             if (!isTimeValid)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
                   "A reminder for ${formatTime(_getSelectedTime())}/${formatTime24Hour(_getSelectedTime())} is already set!",
                   textScaler: const TextScaler.linear(0.9),

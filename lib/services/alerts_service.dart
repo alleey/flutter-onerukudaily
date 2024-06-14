@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:one_ruku_daily/localizations/app_localizations.dart';
 
+import '../../localizations/app_localizations.dart';
 import '../common/layout_constants.dart';
 import '../models/app_settings.dart';
 import '../models/statistics.dart';

@@ -11,6 +11,7 @@ import '../../models/app_settings.dart';
 import '../../services/alerts_service.dart';
 import '../../services/prompt_serivce.dart';
 import '../../utils/utils.dart';
+import '../common/focus_highlight.dart';
 import '../common/responsive_layout.dart';
 import '../dialogs/app_dialog.dart';
 import '../loading_indicator.dart';
@@ -66,6 +67,16 @@ class _RemindersPageState extends State<RemindersPage> {
           ),
           backgroundColor: scheme.page.defaultButton.background,
           foregroundColor: scheme.page.defaultButton.text,
+          leading: FocusHighlight(
+            focusColor: scheme.page.text.withOpacity(0.5),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              color: scheme.page.text,
+            ),
+          ),
         ),
       ),
       body: Container(
@@ -191,12 +202,15 @@ class _RemindersPageState extends State<RemindersPage> {
                   size: iconSize,
                   color: scheme.defaultButton.background,
                 ),
-                trailing: IconButton(
-                  color: scheme.defaultButton.text,
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    context.notificationBloc.add(RemoveReminderEvent(schedule));
-                  },
+                trailing: FocusHighlight(
+                  focusColor: scheme.defaultButton.text.withOpacity(0.5),
+                  child: IconButton(
+                    color: scheme.defaultButton.text,
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      context.notificationBloc.add(RemoveReminderEvent(schedule));
+                    },
+                  ),
                 ),
                 textColor: scheme.text,
                 tileColor: scheme.defaultButton.background,
@@ -218,12 +232,15 @@ class _RemindersPageState extends State<RemindersPage> {
                 ),
               ),
             ),
-            Switch(
-              activeColor: scheme.defaultButton.background,
-              value: settings.allowMultipleReminders,
-              onChanged: (value) {
-                context.settingsBloc.save(settings: settings.copyWith(allowMultipleReminders: value));
-              }
+            FocusHighlight(
+              focusColor: scheme.text.withOpacity(0.5),
+              child: Switch(
+                activeColor: scheme.defaultButton.background,
+                value: settings.allowMultipleReminders,
+                onChanged: (value) {
+                  context.settingsBloc.save(settings: settings.copyWith(allowMultipleReminders: value));
+                }
+              ),
             )
           ]
         ),
@@ -245,29 +262,34 @@ class _RemindersPageState extends State<RemindersPage> {
   }
 
   Widget _buildAddReminderButton(BuildContext context, AppSettings settings) {
+    final scheme = settings.currentScheme.page;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ButtonDialogAction(
-          isDefault: true,
-          onAction: (close) async {
-            final picked = await _alertService.timePicker(context,
-              initialTime: TimeOfDay.now(),
-              selectedTimes: _reminders!
-            );
-            if (picked != null) {
-              _handleTimeSelection(settings, picked);
-            }
-          },
-          builder: (_,__) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.add_alarm),
-                const SizedBox(width: 5),
-                Text(context.localizations.translate("page_reminders_add")),
-              ],
+        FocusHighlight(
+          focusColor: scheme.text.withOpacity(0.5),
+          child: ButtonDialogAction(
+            isDefault: true,
+            autofocus: true,
+            onAction: (close) async {
+              final picked = await _alertService.timePicker(context,
+                initialTime: TimeOfDay.now(),
+                selectedTimes: _reminders!
+              );
+              if (picked != null) {
+                _handleTimeSelection(settings, picked);
+              }
+            },
+            builder: (_,__) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add_alarm),
+                  const SizedBox(width: 5),
+                  Text(context.localizations.translate("page_reminders_add")),
+                ],
+              ),
             ),
           ),
         ),
