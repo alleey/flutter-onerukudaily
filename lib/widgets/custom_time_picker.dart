@@ -188,7 +188,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Text(
                   "A reminder for ${formatTime(_getSelectedTime())}/${formatTime24Hour(_getSelectedTime())} is already set!",
-                  textScaler: TextScaler.linear(0.9),
+                  textScaler: const TextScaler.linear(0.9),
                   style: TextStyle(
                     color: scheme.textHighlight,
                   ),

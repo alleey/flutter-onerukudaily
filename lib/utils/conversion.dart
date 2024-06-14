@@ -51,3 +51,7 @@ extension ColorExtensions on Color {
     );
   }
 }
+
+extension DateTimeExtensions on DateTime {
+  DateTime dateOnly() => DateTime(year, month, day);
+}

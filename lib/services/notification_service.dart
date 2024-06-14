@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../common/native.dart';
+import '../models/prompts.dart';
 
 class AppLaunchInfo {
   final bool isNotificationLaunch;
@@ -122,16 +123,23 @@ class NotificationService {
   Future<void> scheduleNotification({
     int id = 1,
     required tz.TZDateTime scheduledDate,
-    String? title,
-    String? body,
+    required HtmlPrompt prompt,
     String? payload,
   }) async {
 
-    final details = _notificationDetails(style: BigTextStyleInformation(body ?? ""));
+    final details = _notificationDetails(style: BigTextStyleInformation(
+      prompt.body,
+      htmlFormatBigText: true,
+      contentTitle: prompt.title,
+      htmlFormatContentTitle: true,
+      summaryText: prompt.header,
+      htmlFormatSummaryText: true,
+    ));
+
     await _plugin.zonedSchedule(
       id,
-      title,
-      body,
+      prompt.fallback.header,
+      prompt.fallback.body,
       scheduledDate,
       details,
       payload: payload,

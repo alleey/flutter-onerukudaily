@@ -10,6 +10,8 @@ class Constants {
   static const double minReaderFontSize = 14;
   static const double maxReaderFontSize = 96;
 
+  static const int maxDailyStatsDays = 90;
+
   static const int readerOpenDelay = 1000;
 
   static const List<String> locales = ['en'];
@@ -43,6 +45,7 @@ class KnownRouteNames {
   static const String readruku = '/read-ruku';
   static const String reminders = '/reminders';
   static const String settings = '/settings';
+  static const String statistics = '/statistics';
 }
 
 class KnownSettingsNames {

@@ -23,10 +23,10 @@ sealed class AppColorSchemes {
 
   static AppColorScheme defaultScheme() {
     final palette = ColorPalette(
-      ColorExtensions.fromHex("114232"),
-      ColorExtensions.fromHex("87a922"),
-      ColorExtensions.fromHex("fcdc2a"),
-      ColorExtensions.fromHex("f7f6bb")
+      ColorExtensions.fromHex("322C2B"),
+      ColorExtensions.fromHex("803D3B"),
+      ColorExtensions.fromHex("AF8260"),
+      ColorExtensions.fromHex("E4C59E"),
     );
     return AppColorScheme.fromPalette(palette);
   }
@@ -53,10 +53,10 @@ sealed class AppColorSchemes {
 
   static AppColorScheme theme3() {
     final palette = ColorPalette(
-      ColorExtensions.fromHex("c40c0c"),
-      ColorExtensions.fromHex("ff6500"),
-      ColorExtensions.fromHex("ff8a08"),
-      ColorExtensions.fromHex("ffc100"),
+      ColorExtensions.fromHex("543310"),
+      ColorExtensions.fromHex("74512D"),
+      ColorExtensions.fromHex("AF8F6F"),
+      ColorExtensions.fromHex("F8F4E1"),
     );
     return AppColorScheme.fromPalette(palette);
   }
@@ -73,30 +73,30 @@ sealed class AppColorSchemes {
 
   static AppColorScheme theme5() {
     final palette = ColorPalette(
-      ColorExtensions.fromHex("f8f4ec"),
-      ColorExtensions.fromHex("ff9bd2"),
-      ColorExtensions.fromHex("d63484"),
       ColorExtensions.fromHex("402b3a"),
+      ColorExtensions.fromHex("d63484"),
+      ColorExtensions.fromHex("ff9bd2"),
+      ColorExtensions.fromHex("f8f4ec"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme6() {
     final palette = ColorPalette(
-      ColorExtensions.fromHex("dcf2f1"),
-      ColorExtensions.fromHex("7fc7d9"),
-      ColorExtensions.fromHex("365486"),
       ColorExtensions.fromHex("0f1035"),
+      ColorExtensions.fromHex("365486"),
+      ColorExtensions.fromHex("7fc7d9"),
+      ColorExtensions.fromHex("dcf2f1"),
     );
     return AppColorScheme.fromPalette(palette);
   }
 
   static AppColorScheme theme7() {
     final palette = ColorPalette(
-      ColorExtensions.fromHex("32012F"),
-      ColorExtensions.fromHex("524C42"),
-      ColorExtensions.fromHex("E2DFD0"),
-      ColorExtensions.fromHex("F97300"),
+      ColorExtensions.fromHex("FEFAF6"),
+      ColorExtensions.fromHex("EADBC8"),
+      ColorExtensions.fromHex("DAC0A3"),
+      ColorExtensions.fromHex("102C57"),
     );
     return AppColorScheme.fromPalette(palette);
   }
@@ -245,19 +245,19 @@ class AppColorScheme {
     return AppColorScheme(
       palette: palette,
       dialog: AppDialogColorScheme(
-        background: palette.color2,
+        background: palette.color3,
         text: palette.color4,
-        textHighlight: palette.color3,
+        textHighlight: palette.color1,
         button: AppButtonColorScheme(text: palette.color4, background: palette.color1),
-        defaultButton: AppButtonColorScheme(text: palette.color4, background: palette.color1),
+        defaultButton: AppButtonColorScheme(text: palette.color4, background: palette.color2),
         surfaceTintColor: palette.color4,
       ),
       page: AppPageColorScheme(
-        background: palette.color2,
+        background: palette.color3,
         text: palette.color4,
-        textHighlight: palette.color3,
+        textHighlight: palette.color1,
         button: AppButtonColorScheme(text: palette.color4, background: palette.color1),
-        defaultButton: AppButtonColorScheme(text: palette.color3, background: palette.color1),
+        defaultButton: AppButtonColorScheme(text: palette.color4, background: palette.color2),
       )
     );
   }

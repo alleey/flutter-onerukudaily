@@ -19,12 +19,9 @@ class CompletionStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  SettingsAwareBuilder(
-      builder: (context, settingsNotifier) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ValueListenableBuilder(
-          valueListenable: settingsNotifier,
-          builder: (context, settings, child) =>  _buildContents(context, settings)
-        ),
+      builder: (context, settingsNotifier) => ValueListenableBuilder(
+        valueListenable: settingsNotifier,
+        builder: (context, settings, child) =>  _buildContents(context, settings)
       ),
     );
   }

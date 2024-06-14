@@ -1,11 +1,9 @@
 
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../common/constants.dart';
 import '../models/ruku.dart';
 import '../models/statistics.dart';
 import '../services/app_data_service.dart';
@@ -15,16 +13,24 @@ import '../services/asset_service.dart';
 
 abstract class ReaderBlocEvent {}
 
-class ReadRukuBlocEvent extends ReaderBlocEvent {
-  ReadRukuBlocEvent({ this.index, this.goNext = true  });
-  final int? index;
-  final bool goNext;
+class GetNextDailyRukuBlocEvent extends ReaderBlocEvent {}
+
+// Only view the Ruku without updating the daily ruku marker or statistics
+class ViewRukuBlocEvent extends ReaderBlocEvent {
+  ViewRukuBlocEvent({ required this.index  });
+  final int index;
 }
+
+class SetDailyRukuBlocEvent extends ReaderBlocEvent {
+  SetDailyRukuBlocEvent({ required this.index  });
+  final int index;
+}
+
 
 class ClearReaderStateBlocEvent extends ReaderBlocEvent {}
 
-class ResetBlocEvent extends ReaderBlocEvent {
-  ResetBlocEvent({ this.userInitiated = false  });
+class StartNewReadingBlocEvent extends ReaderBlocEvent {
+  StartNewReadingBlocEvent({ this.userInitiated = false  });
   final bool userInitiated;
 }
 
@@ -34,15 +40,15 @@ class ReaderBlocState {
   ReaderBlocState();
 }
 
-class RukuAvailableState extends ReaderBlocState {
-  RukuAvailableState({ required this.ruku, required this.statistics });
+class RukuLoadedBlocState extends ReaderBlocState {
+  RukuLoadedBlocState({ required this.ruku, required this.statistics });
   final Ruku ruku;
-  Statistics statistics;
+  final Statistics statistics;
 }
 
-class RukuIndexExhaustedState extends ReaderBlocState {
-  RukuIndexExhaustedState({ required this.statistics });
-  Statistics statistics;
+class NoMoreRukuBlocState extends ReaderBlocState {
+  NoMoreRukuBlocState({ required this.statistics });
+  final Statistics statistics;
 }
 
 class RukuErrorState extends ReaderBlocState {}
@@ -53,58 +59,85 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
 {
   final _assetService = AssetService();
   final _appDataService = AppDataService();
-  Statistics _statistics = Statistics();
+  var _statistics = Statistics();
+
+  int get dailyRukuNumber => _appDataService.dailyRukuNumber;
+  Statistics get statistics => _statistics;
 
   ReaderBloc() : super(ReaderBlocState())
   {
     _appDataService.putIfAbsent("statistics", _statistics.toJsonStriing());
+    _statistics = StatisticsExtensions.fromJsonString(_appDataService.get("statistics", ""));
 
     on<ClearReaderStateBlocEvent>((event, emit) async {
       emit(ReaderBlocState());
     });
 
-    on<ResetBlocEvent>((event, emit) async {
+    on<StartNewReadingBlocEvent>((event, emit) async {
       add(ClearReaderStateBlocEvent());
-      _appDataService.setRukuIndex(1);
-      add(ReadRukuBlocEvent(goNext: true));
+      _appDataService.setDailyRukuNumber(1);
+      add(GetNextDailyRukuBlocEvent());
     });
 
-    on<ReadRukuBlocEvent>((event, emit) async {
-
-      int rukuNum = event.index ?? _appDataService.rukuIndex;
-      _statistics = StatisticsExtensions.fromJsonString(_appDataService.get("statistics", ""));
-
-      try {
-        if (rukuNum < 1) {
-          return;
-        }
-
-        if (rukuNum > Ruku.lastRukuIndex) {
-          emit(RukuIndexExhaustedState(statistics: _statistics));
-          return;
-        }
-
-
-        final ruku = await _assetService.loadRuku(rukuNum);
-        if (event.goNext) {
-          _statistics = _statistics.update(rukuNum: rukuNum);
-          _appDataService.setRukuIndex(rukuNum + 1);
-        }
-
-        log("loaded ruku $rukuNum");
-        log("statistics $_statistics");
-
-        _appDataService.put("statistics", _statistics.toJsonStriing());
-
-        log("Loaded ruku $ruku");
-        emit(RukuAvailableState(ruku: ruku!, statistics: _statistics));
+    on<SetDailyRukuBlocEvent>((event, emit) async {
+      if (event.index < 1 || event.index > Ruku.lastRukuIndex) {
+        return;
       }
-      catch(e)
-      {
-        log("Exception ruku $e");
-        emit(RukuErrorState());
-      }
+
+      log("new ruku index ${event.index}");
+      _appDataService.setDailyRukuNumber(event.index);
+      add(ViewRukuBlocEvent(index: event.index));
     });
+
+    on<ViewRukuBlocEvent>(_onViewRuku);
+    on<GetNextDailyRukuBlocEvent>(_onGetNextDailyRuku);
+  }
+
+  Future<void> _onViewRuku(ViewRukuBlocEvent event, emit) async {
+
+    if (event.index < 1 || event.index > Ruku.lastRukuIndex) {
+      return;
+    }
+
+    try {
+
+      final ruku = await _assetService.loadRuku(event.index);
+      emit(RukuLoadedBlocState(ruku: ruku!, statistics: _statistics));
+    }
+    catch(e)
+    {
+      log("Exception ruku $e");
+      emit(RukuErrorState());
+    }
+  }
+
+  Future<void> _onGetNextDailyRuku(GetNextDailyRukuBlocEvent event, emit) async {
+
+    int rukuNum = dailyRukuNumber + 1;
+    if (rukuNum > Ruku.lastRukuIndex) {
+      emit(NoMoreRukuBlocState(statistics: _statistics));
+      return;
+    }
+
+    try {
+
+      final ruku = await _assetService.loadRuku(rukuNum);
+      log("loaded ruku $rukuNum");
+
+      _statistics = _statistics.update(rukuNum: rukuNum);
+      log("statistics $_statistics");
+
+      _appDataService.setDailyRukuNumber(rukuNum + 1);
+      _appDataService.put("statistics", _statistics.toJsonStriing());
+
+      log("Loaded ruku $ruku");
+      emit(RukuLoadedBlocState(ruku: ruku!, statistics: _statistics ));
+    }
+    catch(e)
+    {
+      log("Exception ruku $e");
+      emit(RukuErrorState());
+    }
   }
 }
 

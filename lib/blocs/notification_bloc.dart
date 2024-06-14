@@ -5,18 +5,17 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../common/constants.dart';
 import '../models/reminder_list.dart';
 import '../services/app_data_service.dart';
 import '../services/notification_service.dart';
+import '../services/prompt_serivce.dart';
 import '../services/time_service.dart';
 
 ////////////////////////////////////////////
 
 abstract class NotificationBlocEvent {}
 
-class InitializeEvent extends NotificationBlocEvent {}
-
+class InitializeNotificationsEvent extends NotificationBlocEvent {}
 
 class LoadRemindersEvent extends NotificationBlocEvent {}
 
@@ -31,8 +30,10 @@ class RemoveReminderEvent extends NotificationBlocEvent {
 }
 
 class ScheduleNotifications extends NotificationBlocEvent {
-  bool reschduleForTomorrow;
-  ScheduleNotifications({ this.reschduleForTomorrow = false });
+  final bool reschduleForTomorrow;
+  final PromptSerivce promptSerivce;
+
+  ScheduleNotifications(this.promptSerivce, { this.reschduleForTomorrow = false });
 }
 
 ////////////////////////////////////////////
@@ -47,7 +48,8 @@ class NotificationInitializedState extends NotificationBlocState {
 
 class RemindersLoadedState extends NotificationBlocState {
   final List<TimeOfDay> reminders;
-  RemindersLoadedState(this.reminders);
+  final bool dirty;
+  RemindersLoadedState(this.reminders, { required this.dirty });
 }
 
 class NotificationsSchduledState extends NotificationBlocState {
@@ -66,14 +68,14 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
 
   NotificationBloc() : super(NotificationBlocState())
   {
-    on<InitializeEvent>(_onInitialize);
+    on<InitializeNotificationsEvent>(_onInitialize);
     on<LoadRemindersEvent>(_onLoadSchedules);
     on<AddReminderEvent>(_onAddSchedule);
     on<RemoveReminderEvent>(_onRemoveSchedule);
     on<ScheduleNotifications>(_onScheduleNotifications);
   }
 
-  void _onInitialize(InitializeEvent event, Emitter<NotificationBlocState> emit) async {
+  void _onInitialize(InitializeNotificationsEvent event, Emitter<NotificationBlocState> emit) async {
 
     await notificationService.initialize();
     if (notificationService.platformHasSupport) {
@@ -89,21 +91,25 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
     final loaded = appDataService.get(settingSchedules, "[]");
     reminders.clear();
     reminders.copyAll(RemindersList.fromJson(loaded));
-    emit(RemindersLoadedState(reminders.list));
+    emit(RemindersLoadedState(reminders.list, dirty: false));
   }
 
   void _onAddSchedule(AddReminderEvent event, Emitter<NotificationBlocState> emit) {
+
+    final copy = reminders.copyWith();
     reminders.add(event.reminder);
     appDataService.put(settingSchedules, reminders.toJson());
-    add(ScheduleNotifications());
-    emit(RemindersLoadedState(reminders.list));
+
+    emit(RemindersLoadedState(reminders.list, dirty: reminders.compareTo(copy) != 0));
   }
 
   void _onRemoveSchedule(RemoveReminderEvent event, Emitter<NotificationBlocState> emit) {
+
+    final copy = reminders.copyWith();
     reminders.remove(event.schedule);
     appDataService.put(settingSchedules, reminders.toJson());
-    add(ScheduleNotifications());
-    emit(RemindersLoadedState(reminders.list));
+
+    emit(RemindersLoadedState(reminders.list, dirty: reminders.compareTo(copy) != 0));
   }
 
   void _onScheduleNotifications(ScheduleNotifications event, Emitter<NotificationBlocState> emit) async {
@@ -112,14 +118,10 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
     reminders.list.forEachIndexed((index, timeOfDay) {
 
       final when = timeService.nextInstanceOfTime(timeOfDay, tomorrow: event.reschduleForTomorrow);
+      final prompt = event.promptSerivce.reminderPrompt(index: index, totatReminders: reminders.list.length);
       //final when = timeService.timeAfter(Duration(seconds: 5 * index));
 
-      notificationService.scheduleNotification(
-        id: index,
-        title: "Reminder!",
-        body: "Time to read your daily Ruku passage from the Quran.",
-        scheduledDate: when,
-      );
+      notificationService.scheduleNotification(id: index, prompt: prompt, scheduledDate: when);
 
       log("notification: scheduled to fire on $when");
     });

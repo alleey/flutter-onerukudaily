@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/ruku.dart';
-import '../../services/app_data_service.dart';
 import '../../services/notification_service.dart';
 import '../common/percentage_bar.dart';
 import '../common/responsive_layout.dart';
+import '../reader_aware_builder.dart';
 import '../settings_aware_builder.dart';
 
 class MainPage extends StatelessWidget {
@@ -17,11 +16,11 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  SettingsAwareBuilder(
+    return SettingsAwareBuilder(
       builder: (context, settingsNotifier) => ValueListenableBuilder(
-        valueListenable: settingsNotifier,
-        builder: (context, settings, child) =>  _buildContents(context, settings)
-      ),
+          valueListenable: settingsNotifier,
+          builder: (context, settings, child) =>
+              _buildContents(context, settings)),
     );
   }
 
@@ -75,7 +74,6 @@ class MainPage extends StatelessWidget {
   Widget _buildBody(BuildContext context, AppSettings settings) {
 
     final pageScheme = settings.currentScheme.page;
-    final currentRuku = AppDataService().rukuIndex - 1;
     final notificationSupport = NotificationService().platformHasSupport;
 
     return Column(
@@ -86,26 +84,35 @@ class MainPage extends StatelessWidget {
               alignment: WrapAlignment.center,
               children: <Widget>[
 
-                _buildCard(
-                  context,
-                  settings,
-                  title: context.localizations.translate("page_reader_title"),
-                  icon: Icons.book,
-                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
-                  isDefault: true,
-                  extra: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10, top: 3),
-                    child: PercentageBar(
-                      direction: TextDirection.rtl,
-                      height: 20,
-                      value: currentRuku.toDouble() / Ruku.lastRukuIndex.toDouble(),
-                      foregroundColor: pageScheme.text,
-                      backgroundColor: pageScheme.background,
-                      onGenerateLabel: (value) => "$currentRuku/${Ruku.lastRukuIndex}",
-                    ),
-                  )
+                // Read Ruku Card
+                ReaderListenerBuilder(
+                  builder: (context, stateProvider) {
+                    return _buildCard(context, settings,
+                      title: context.localizations.translate("page_reader_title"),
+                      icon: Icons.book,
+                      onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
+                      isDefault: true,
+                      extra: Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
+
+                        // Respond to Reader block changes
+                        child: ValueListenableBuilder(
+                          valueListenable: stateProvider,
+                          builder: (context, readerState, child) => PercentageBar(
+                            direction: TextDirection.rtl,
+                            height: 20,
+                            value: readerState.rukuNumber.toDouble()/Ruku.lastRukuIndex.toDouble(),
+                            foregroundColor: pageScheme.text,
+                            backgroundColor: pageScheme.background,
+                            onGenerateLabel: (value) => "${readerState.rukuNumber}/${Ruku.lastRukuIndex}",
+                          ),
+                        ),
+                      )
+                    );
+                  },
                 ),
 
+                // Reminders Card
                 if (notificationSupport)
                   _buildCard(
                     context,
@@ -115,12 +122,22 @@ class MainPage extends StatelessWidget {
                     onTap: () => Navigator.pushNamed(context, KnownRouteNames.reminders),
                   ),
 
+                // Settings Card
                 _buildCard(
                   context,
                   settings,
                   title: context.localizations.translate("page_settings_title"),
                   icon: Icons.settings,
                   onTap: () => Navigator.pushNamed(context, KnownRouteNames.settings),
+                ),
+
+                // Settings Card
+                _buildCard(
+                  context,
+                  settings,
+                  title: context.localizations.translate("page_statistics_title"),
+                  icon: Icons.rate_review,
+                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.statistics),
                 ),
 
                 _buildCard(
@@ -152,7 +169,9 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(BuildContext context, AppSettings settings,  {
+  Widget _buildCard(
+    BuildContext context,
+    AppSettings settings, {
     required String title,
     required IconData icon,
     required VoidCallback onTap,
@@ -161,7 +180,7 @@ class MainPage extends StatelessWidget {
   }) {
 
     final scheme = settings.currentScheme.page;
-    final button = isDefault ? scheme.defaultButton:scheme.button;
+    final button = isDefault ? scheme.defaultButton : scheme.button;
 
     final layout = context.layout;
     final cardSize = layout.get<Size>(AppLayoutConstants.mainCardSizeKey);
@@ -180,11 +199,8 @@ class MainPage extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Icon(
-                    icon,
-                    size: iconSize,
-                    color: button.icon,
+                    alignment: Alignment.bottomCenter,
+                    child: Icon(icon, size: iconSize, color: button.icon,
                   ),
                 ),
               ),
@@ -197,13 +213,9 @@ class MainPage extends StatelessWidget {
                       Text(
                         title,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: button.text,
-                          fontSize: fontSize
-                        ),
+                        style: TextStyle(color: button.text, fontSize: fontSize),
                       ),
-                      if (extra != null)
-                        extra,
+                      if (extra != null) extra,
                     ],
                   ),
                 ),

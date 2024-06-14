@@ -173,7 +173,8 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            isDefault: false,
+            autofocus: true,
+            isDefault: true,
             builder: (_,__) => Text(context.localizations.translate("dlg_completion_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(null);

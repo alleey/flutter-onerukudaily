@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:one_ruku_daily/services/prompt_serivce.dart';
+import 'package:one_ruku_daily/widgets/pages/stats_page.dart';
 
 import 'blocs/notification_bloc.dart';
 import 'blocs/reader_bloc.dart';
@@ -66,7 +68,7 @@ class _MyAppState extends State<MyApp> {
           create: (BuildContext context) => ReaderBloc()
         ),
         BlocProvider<NotificationBloc>(
-          create: (BuildContext context) => NotificationBloc()..add(InitializeEvent())
+          create: (BuildContext context) => NotificationBloc()..add(InitializeNotificationsEvent())
         ),
       ],
 
@@ -133,6 +135,7 @@ class _MyAppState extends State<MyApp> {
         KnownRouteNames.readruku: (context) => const RukuReaderPage(),
         KnownRouteNames.reminders: (context) => const RemindersPage(),
         KnownRouteNames.settings: (context) => const SettingsPage(),
+        KnownRouteNames.statistics: (context) => const StatisticsPage(),
       },
     );
   }
@@ -166,7 +169,10 @@ class InitialRouteHandler extends StatelessWidget {
           //
           if (state.appLaunchInfo.isNotificationLaunch) {
             if (!settings.allowMultipleReminders) {
-              context.notificationBloc.add(ScheduleNotifications(reschduleForTomorrow: true));
+              context.notificationBloc.add(ScheduleNotifications(
+                PromptSerivce(localizations: context.localizations),
+                reschduleForTomorrow: true
+              ));
             }
           }
 

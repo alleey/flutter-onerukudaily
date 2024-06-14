@@ -9,6 +9,7 @@ import '../../common/time_of_day_extensions.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../services/alerts_service.dart';
+import '../../services/prompt_serivce.dart';
 import '../../utils/utils.dart';
 import '../common/responsive_layout.dart';
 import '../dialogs/app_dialog.dart';
@@ -100,9 +101,17 @@ class _RemindersPageState extends State<RemindersPage> {
         listener: (context, state) {
 
           if (state is RemindersLoadedState) {
+
             setState(() {
               _reminders = state.reminders;
             });
+
+            // reminders changed, lets reschedule
+            if (state.dirty) {
+              context.notificationBloc.add(ScheduleNotifications(
+                PromptSerivce(localizations: context.localizations)
+              ));
+            }
           }
         },
         child: Builder(builder: (context) {
@@ -236,28 +245,33 @@ class _RemindersPageState extends State<RemindersPage> {
   }
 
   Widget _buildAddReminderButton(BuildContext context, AppSettings settings) {
-    return ButtonDialogAction(
-      isDefault: true,
-      onAction: (close) async {
-        final picked = await _alertService.timePicker(context,
-          initialTime: TimeOfDay.now(),
-          selectedTimes: _reminders!
-        );
-        if (picked != null) {
-          _handleTimeSelection(settings, picked);
-        }
-      },
-      builder: (_,__) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.add_alarm),
-            const SizedBox(width: 5),
-            Text(context.localizations.translate("page_reminders_add")),
-          ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ButtonDialogAction(
+          isDefault: true,
+          onAction: (close) async {
+            final picked = await _alertService.timePicker(context,
+              initialTime: TimeOfDay.now(),
+              selectedTimes: _reminders!
+            );
+            if (picked != null) {
+              _handleTimeSelection(settings, picked);
+            }
+          },
+          builder: (_,__) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.add_alarm),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("page_reminders_add")),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

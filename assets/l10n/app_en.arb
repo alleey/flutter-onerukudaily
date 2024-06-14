@@ -5,6 +5,21 @@
   "app_lang_ru": "Русский",
   "app_lang_es": "Español",
 
+  "app_prompt_header_first": "First Reminder of the day",
+  "app_prompt_header_default": "Daily Reminder",
+  "app_prompt_header_last": "Last Reminder of the day!",
+
+  "app_prompt_1": "Enlighten your day with a Ruku passage from the Quran.",
+  "app_prompt_2": "Your daily dose of Quran: Today's Ruku.",
+  "app_prompt_3": "Time to read your daily Ruku passage from the Quran.",
+  "app_prompt_4": "Recite your daily Ruku passage from the Quran.",
+  "app_prompt_5": "Dive into today's Ruku recitation.",
+  "app_prompt_6": "Today's Ruku reading from the Quran awaits.",
+  "app_prompt_7": "Join in reading today's Ruku passage from the Quran.",
+  "app_prompt_8": "Enhance your day with a Ruku reading from the Quran.",
+  "app_prompt_9": "Embrace your daily Ruku reading.",
+  "app_prompt_10": "Immerse in today's Ruku from the Quran.",
+
   "dlg_picktime_title": "Set Reminder",
   "dlg_picktime_ok": "OK",
   "dlg_picktime_cancel": "Cancel",
@@ -40,7 +55,9 @@
   "page_reminders_remindersintro": "You'll receive a daily reminder to read a Ruku at the following times.",
 
   "page_reader_title": "Read Ruku",
-  "page_reader_readnext": "Read Next",
+  "page_reader_readnext": "Next",
+  "page_reader_readprev": "Prev",
+  "page_reader_readsetcurrent": "Set Current",
 
   "page_settings_title": "Settings",
   "page_settings_tab_general": "General",
@@ -60,6 +77,6 @@
   "page_settings_clr_markers": "Aya Numbers",
 
   "page_statistics_title": "Statistics",
-
-  "page_about_title": "About"
+  "page_statistics_intro": "These are your overall reading metrics:",
+  "page_statistics_intro2": "Displaying trends from the past {maxDailyStatsDays} days."
 }

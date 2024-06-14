@@ -32,7 +32,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((d) async {
-      final ruku = await AssetService().loadRuku(550);
+      final ruku = await AssetService().loadRuku(538); // 550
       setState(() {
         _sampleRuku = ruku;
       });
@@ -101,13 +101,14 @@ class _SettingsPageState extends State<SettingsPage> {
       length: 2,
       child: Column(
         children: [
+
           Container(
             color: scheme.page.button.background,
             child: TabBar(
-              labelColor: scheme.page.text,
-              dividerColor: scheme.page.background,
-              indicatorColor: scheme.page.text,
-              unselectedLabelColor: scheme.page.text.withOpacity(.5),
+              labelColor: scheme.page.button.text,
+              dividerColor: scheme.page.button.text,
+              indicatorColor: scheme.page.button.text,
+              unselectedLabelColor: scheme.page.button.text.withOpacity(.5),
               tabs: [
                 Tab(
                   icon: const Icon(Icons.book_online),
@@ -120,6 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
+
           Expanded(
             flex: 2,
             child: TabBarView(
@@ -129,22 +131,35 @@ class _SettingsPageState extends State<SettingsPage> {
               ]
             ),
           ),
-          ButtonDialogAction(
-            isDefault: true,
-            onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
-            builder: (_,__) => Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.refresh),
-                const SizedBox(width: 5),
-                Text(context.localizations.translate("page_settings_reset")),
-              ],
-            ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ButtonDialogAction(
+                isDefault: true,
+                onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
+                builder: (_,__) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.refresh),
+                      const SizedBox(width: 5),
+                      Text(context.localizations.translate("page_settings_reset")),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
+
           if (_sampleRuku != null)
             Expanded(
               flex: 1,
-              child: RukuReader(ruku: _sampleRuku!, settings: settings.readerSettings)
+              child: RukuReader(
+                ruku: _sampleRuku!,
+                settings: settings.readerSettings,
+              )
             ),
         ],
       ),
@@ -159,6 +174,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10,),
           Text(
@@ -182,6 +198,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final scheme = settings.currentScheme;
     final buttonScheme = scheme.page.button;
     final readerSettings = settings.readerSettings;
+    final titleFontSize = context.layout.get<double>(AppLayoutConstants.titleFontSizeKey);
 
     final fonts = Constants.fonts.toList();
     fonts.sort();
@@ -278,7 +295,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: Text(
                           "قُلْ هُوَ اللَّهُ أَحَدٌ",
                           textDirection: TextDirection.rtl,
-                          style: TextStyle(fontFamily: value),
+                          style: TextStyle(
+                            fontFamily: value,
+                            fontSize: titleFontSize,
+                          ),
                         ),
                       );
                     }).toList(),

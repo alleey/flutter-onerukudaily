@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:one_ruku_daily/common/app_color_scheme.dart';
-import 'package:one_ruku_daily/models/app_meta_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../widgets/common/responsive_layout.dart';
@@ -171,25 +169,33 @@ class AboutPage extends StatelessWidget {
           label: "Give Feedback",
           button: true,
           excludeSemantics: true,
-          child: Align(
-            alignment: AlignmentDirectional.center,
-            child: ButtonDialogAction(
-              isDefault: true,
-              onAction: (close) async {
-                final link = Uri.tryParse(metadata.linkFeedback);
-                if (link != null) {
-                  await launchUrl(link, mode: LaunchMode.inAppBrowserView);
-                }
-              },
-              builder: (_,__) => const  Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.rate_review),
-                  SizedBox(width: 5),
-                  LocalizedText(textId: "page_about_feedback"),
-                ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.center,
+                child: ButtonDialogAction(
+                  isDefault: true,
+                  onAction: (close) async {
+                    final link = Uri.tryParse(metadata.linkFeedback);
+                    if (link != null) {
+                      await launchUrl(link, mode: LaunchMode.inAppBrowserView);
+                    }
+                  },
+                  builder: (_,__) => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 50),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.rate_review),
+                        SizedBox(width: 5),
+                        LocalizedText(textId: "page_about_feedback"),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
 

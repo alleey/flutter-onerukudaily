@@ -45,6 +45,8 @@ class Ruku {
     required this.sura,
   });
 
+  bool get hasBismillah => isFirstOfSura && sura.index != 9;
+  bool get isFirstOfSura => firstAya == 1;
   bool get isLast => index == lastRukuIndex;
 
   factory Ruku.fromJson(Map<String, dynamic> json) {

@@ -13,25 +13,29 @@ class RukuReader extends StatelessWidget {
     required this.ruku,
     required this.settings,
     this.scrollHeader,
-    this.scrollFooter
+    this.scrollFooter,
+    this.padding,
   });
 
   final Ruku ruku;
   final ReaderSettings settings;
   final Widget? scrollHeader;
   final Widget? scrollFooter;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     return _buildLayout(context, ruku, settings);
   }
 
-  Widget _buildLayout(BuildContext context, Ruku ruku, ReaderSettings config) {
+  Widget _buildLayout(BuildContext context, Ruku ruku, ReaderSettings settings) {
+
     return Container(
-      color: config.colorScheme.background,
-      padding: const EdgeInsets.all(10),
+      color: settings.colorScheme.background,
+      padding: padding ?? const EdgeInsets.all(5.0),
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -39,15 +43,40 @@ class RukuReader extends StatelessWidget {
             if (scrollHeader != null)
               scrollHeader!,
 
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: _buildAyat(context, ruku, config),
-            ),
+            if (ruku.hasBismillah)
+              _buildBismillah(context, settings),
+
+            _buildAyat(context, ruku, settings),
 
             if (scrollFooter != null)
               scrollFooter!,
           ],
         ),
+      ),
+    );
+  }
+
+
+  Widget _buildBismillah(BuildContext context, ReaderSettings settings) {
+
+    final fontSize = settings.fontSize;
+    return Container(
+      color: settings.colorScheme.aya.text,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+              style: TextStyle(
+                fontSize: fontSize,
+                fontFamily: settings.font,
+                color: settings.colorScheme.aya.background,
+              )
+            )
+          ]
+        ),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.rtl
       ),
     );
   }
@@ -86,7 +115,7 @@ class RukuReader extends StatelessWidget {
       }
 
       ayatList.add(TextSpan(
-          text: aya,
+          text: " $aya ",
           style: TextStyle(
             fontSize: fontSize,
             fontFamily: settings.font,
@@ -113,38 +142,38 @@ class RukuReader extends StatelessWidget {
     );
   }
 
-    Iterable<InlineSpan> _buildAyaNumber(BuildContext context, ReaderSettings settings, int ayaNumber) {
-      return [
-        TextSpan(
-            text: " \uFD3F",
-            style: TextStyle(
-              color: settings.colorScheme.markers,
-              fontSize: settings.fontSize,
-              fontFamily: settings.font,
-              fontWeight: FontWeight.bold,
-            )
-          ),
+  Iterable<InlineSpan> _buildAyaNumber(BuildContext context, ReaderSettings settings, int ayaNumber) {
+    return [
+      TextSpan(
+        text: "\uFD3F",
+        style: TextStyle(
+          color: settings.colorScheme.markers,
+          fontSize: settings.fontSize,
+          fontFamily: settings.font,
+          fontWeight: FontWeight.bold,
+        )
+      ),
 
-        TextSpan(
-            text: settings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ayaNumber) : ayaNumber.toString(),
-            style: TextStyle(
-              color: settings.colorScheme.markers,
-              fontSize: settings.fontSize - 2,
-              fontFamily: settings.font,
-              fontWeight: FontWeight.bold,
-            )
-          ),
+      TextSpan(
+        text: settings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ayaNumber) : ayaNumber.toString(),
+        style: TextStyle(
+          color: settings.colorScheme.markers,
+          fontSize: settings.fontSize - 2,
+          fontFamily: settings.font,
+          fontWeight: FontWeight.bold,
+        )
+      ),
 
-        TextSpan(
-            text: "\uFD3E ",
-            style: TextStyle(
-              color: settings.colorScheme.markers,
-              fontSize: settings.fontSize,
-              fontFamily: settings.font,
-              fontWeight: FontWeight.bold,
-            )
-          ),
-      ];
-    }
+      TextSpan(
+        text: "\uFD3E",
+        style: TextStyle(
+          color: settings.colorScheme.markers,
+          fontSize: settings.fontSize,
+          fontFamily: settings.font,
+          fontWeight: FontWeight.bold,
+        )
+      ),
+    ];
+  }
 }
 

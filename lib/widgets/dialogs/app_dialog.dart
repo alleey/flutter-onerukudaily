@@ -198,7 +198,7 @@ class ButtonDialogAction extends DialogAction {
         backgroundColor: buttonTheme.background,
         foregroundColor: buttonTheme.text,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
         padding: EdgeInsets.zero,
       ).copyWith(
@@ -210,7 +210,7 @@ class ButtonDialogAction extends DialogAction {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           fontSize: bodyFontSize,
-            color: buttonTheme.text,
+          color: buttonTheme.text,
         ),
         child: builder(context, settingsProvider),
       )),
