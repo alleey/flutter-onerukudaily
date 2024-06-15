@@ -43,6 +43,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 36,
+  "first_ruku_index": 525,
   "index": 83,
   "is_makki": true,
   "name": "المطففين",

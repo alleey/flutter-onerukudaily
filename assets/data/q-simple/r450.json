@@ -17,6 +17,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 18,
+  "first_ruku_index": 450,
   "index": 49,
   "is_makki": false,
   "name": "الحجرات",

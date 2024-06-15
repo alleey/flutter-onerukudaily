@@ -84,7 +84,7 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
         return;
       }
 
-      log("new ruku index ${event.index}");
+      log("SetDailyRukuBlocEvent index ${event.index}");
       _appDataService.setDailyRukuNumber(event.index);
       add(ViewRukuBlocEvent(index: event.index));
     });
@@ -102,6 +102,7 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
     try {
 
       final ruku = await _assetService.loadRuku(event.index);
+      log("ViewRuku ruku ${event.index}, dailyRukuNumber: $dailyRukuNumber");
       emit(RukuLoadedBlocState(ruku: ruku!, statistics: _statistics));
     }
     catch(e)
@@ -122,12 +123,12 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
     try {
 
       final ruku = await _assetService.loadRuku(rukuNum);
-      log("loaded ruku $rukuNum");
+      log("DailyRuku ruku $rukuNum, dailyRukuNumber: $dailyRukuNumber");
 
       _statistics = _statistics.update(rukuNum: rukuNum);
-      log("statistics $_statistics");
+      //log("statistics $_statistics");
 
-      _appDataService.setDailyRukuNumber(rukuNum + 1);
+      _appDataService.setDailyRukuNumber(rukuNum);
       _appDataService.put("statistics", _statistics.toJsonStriing());
 
       log("Loaded ruku $ruku");

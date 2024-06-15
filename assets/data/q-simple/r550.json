@@ -10,6 +10,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 3,
+  "first_ruku_index": 550,
   "index": 108,
   "is_makki": true,
   "name": "الكوثر",

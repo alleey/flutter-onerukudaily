@@ -19,6 +19,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 286,
+  "first_ruku_index": 2,
   "index": 2,
   "is_makki": false,
   "name": "البقرة",

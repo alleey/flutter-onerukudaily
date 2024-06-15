@@ -23,8 +23,7 @@ class PromptSerivce {
     final title = _localizations.translate("app_title");
 
     return HtmlPrompt(
-      title: title,
-      header: "<b>$header</b>",
+      title: "<b>$header</b>",
       body: prompt,
       fallback: SimplePrompt(header: header, body: prompt)
     );

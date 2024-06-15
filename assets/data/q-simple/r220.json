@@ -26,6 +26,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 99,
+  "first_ruku_index": 218,
   "index": 15,
   "is_makki": true,
   "name": "الحجر",

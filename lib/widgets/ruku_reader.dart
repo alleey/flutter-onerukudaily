@@ -201,7 +201,6 @@ class _CustomHorizontalScrollViewState extends State<CustomHorizontalScrollView>
   Widget build(BuildContext context) {
 
     return FocusHighlight(
-      focusColor: Colors.red,
       canRequestFocus: true,
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {

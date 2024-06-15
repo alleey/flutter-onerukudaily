@@ -15,6 +15,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 60,
+  "first_ruku_index": 349,
   "index": 30,
   "is_makki": true,
   "name": "الروم",

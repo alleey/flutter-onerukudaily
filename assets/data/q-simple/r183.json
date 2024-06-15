@@ -15,6 +15,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 123,
+  "first_ruku_index": 183,
   "index": 11,
   "is_makki": true,
   "name": "هود",

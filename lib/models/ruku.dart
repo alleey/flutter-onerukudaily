@@ -2,6 +2,7 @@
 class Sura {
   final int ayas;
   final int index;
+  final int firstRukuIndex;
   final bool isMakki;
   final String name;
   final int rukus;
@@ -9,6 +10,7 @@ class Sura {
   Sura({
     required this.ayas,
     required this.index,
+    required this.firstRukuIndex,
     required this.isMakki,
     required this.name,
     required this.rukus,
@@ -18,6 +20,7 @@ class Sura {
     return Sura(
       ayas: json['ayas'],
       index: json['index'],
+      firstRukuIndex: json['first_ruku_index'],
       isMakki: json['is_makki'],
       name: json['name'],
       rukus: json['rukus'],
@@ -45,6 +48,7 @@ class Ruku {
     required this.sura,
   });
 
+  int get relativeIndex => index - sura.firstRukuIndex + 1;
   bool get hasBismillah => isFirstOfSura && sura.index != 9;
   bool get isFirstOfSura => firstAya == 1;
   bool get isLast => index == lastRukuIndex;

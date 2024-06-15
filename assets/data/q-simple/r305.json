@@ -13,6 +13,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 64,
+  "first_ruku_index": 301,
   "index": 24,
   "is_makki": false,
   "name": "النور",

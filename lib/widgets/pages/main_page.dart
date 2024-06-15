@@ -90,7 +90,7 @@ class MainPage extends StatelessWidget {
                   builder: (context, stateProvider) {
                     return _buildCard(context, settings,
                       title: context.localizations.translate("page_reader_title"),
-                      icon: Icons.book,
+                      icon: Icons.menu_book,
                       onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
                       isDefault: true,
                       extra: Padding(
@@ -127,18 +127,18 @@ class MainPage extends StatelessWidget {
                 _buildCard(
                   context,
                   settings,
-                  title: context.localizations.translate("page_settings_title"),
-                  icon: Icons.settings,
-                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.settings),
+                  title: context.localizations.translate("page_statistics_title"),
+                  icon: Icons.trending_up,
+                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.statistics),
                 ),
 
                 // Settings Card
                 _buildCard(
                   context,
                   settings,
-                  title: context.localizations.translate("page_statistics_title"),
-                  icon: Icons.rate_review,
-                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.statistics),
+                  title: context.localizations.translate("page_settings_title"),
+                  icon: Icons.settings,
+                  onTap: () => Navigator.pushNamed(context, KnownRouteNames.settings),
                 ),
 
                 _buildCard(

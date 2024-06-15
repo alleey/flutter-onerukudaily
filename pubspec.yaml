@@ -47,6 +47,7 @@ flutter:
 
   assets:
     - assets/metadata.json
+    - assets/data/sura_ruku_map.json
     - assets/data/q-simple/
     - assets/l10n/
 

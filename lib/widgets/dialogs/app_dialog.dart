@@ -167,6 +167,7 @@ class ButtonDialogAction extends DialogAction {
     super.key,
     required super.builder,
     required this.onAction,
+    this.onLongPressAction,
     this.isDefault = false,
     this.autofocus = false,
   }) : super();
@@ -174,6 +175,7 @@ class ButtonDialogAction extends DialogAction {
   final bool isDefault;
   final bool autofocus;
   final void Function(CloseWithResult close) onAction;
+  final void Function(CloseWithResult close)? onLongPressAction;
 
   @override
   Widget build(BuildContext context) => SettingsAwareBuilder(
@@ -200,6 +202,9 @@ class ButtonDialogAction extends DialogAction {
         ).copyWith(
           overlayColor: StateDependentColor(buttonTheme.text),
         ),
+        onLongPress: () {
+          onLongPressAction?.call((result) => Navigator.of(context, rootNavigator: true).pop(result));
+        },
         onPressed: () {
           onAction((result) => Navigator.of(context, rootNavigator: true).pop(result));
         },

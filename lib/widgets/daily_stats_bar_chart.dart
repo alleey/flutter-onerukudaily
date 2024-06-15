@@ -45,6 +45,24 @@ class DailyStatsBarChart extends StatelessWidget {
           ),
         ),
         borderData: FlBorderData(border: const Border(bottom: BorderSide(), left: BorderSide())),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            tooltipRoundedRadius: 8,
+            tooltipMargin: 8,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+
+              final stats = dailyStats[groupIndex];
+              return BarTooltipItem(
+                "${stats.reads} Ruku",
+                TextStyle(
+                  color: colorScheme.page.defaultButton.text,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          ),
+          handleBuiltInTouches: true,
+        ),
         alignment: BarChartAlignment.spaceAround,
         maxY: maxY,
         barGroups: dailyStats.mapIndexed((index, stats) {
@@ -53,7 +71,7 @@ class DailyStatsBarChart extends StatelessWidget {
             x: index,
             barRods: [
               BarChartRodData(
-                color: colorScheme.page.defaultButton.background,
+                color: stats.completions > 0 ?  colorScheme.page.button.background:colorScheme.page.defaultButton.background,
                 width: 3.0,
                 toY: stats.reads.toDouble(),
               ),

@@ -49,6 +49,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 42,
+  "first_ruku_index": 522,
   "index": 80,
   "is_makki": true,
   "name": "عبس",

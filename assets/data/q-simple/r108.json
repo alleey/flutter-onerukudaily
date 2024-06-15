@@ -12,6 +12,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 165,
+  "first_ruku_index": 102,
   "index": 6,
   "is_makki": true,
   "name": "الأنعام",

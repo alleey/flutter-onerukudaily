@@ -30,12 +30,12 @@ import 'widgets/settings_aware_builder.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DataService().initialize();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 
 class MyApp extends StatefulWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();

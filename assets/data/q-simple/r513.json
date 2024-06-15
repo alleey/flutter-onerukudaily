@@ -17,6 +17,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 40,
+  "first_ruku_index": 512,
   "index": 75,
   "is_makki": true,
   "name": "القيامة",

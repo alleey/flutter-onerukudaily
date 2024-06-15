@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_ruku_daily/localizations/app_localizations.dart';
 
 import '../common/layout_constants.dart';
 import '../models/app_settings.dart';
@@ -82,13 +83,13 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           children: [
             SegmentedButton(
               showSelectedIcon: false,
-              segments: const [
+              segments: [
                 ButtonSegment<bool>(
-                  label: Text('AM'),
+                  label: Text(context.localizations.translate("dlg_picktime_am")),
                   value: true,
                 ),
                 ButtonSegment<bool>(
-                  label: Text('PM'),
+                  label: Text(context.localizations.translate("dlg_picktime_pm")),
                   value: false,
                 )
               ],
@@ -102,9 +103,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               selected: <bool>{isAm},
               style: buttonStle,
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 2),
-              child: Text("Hour"),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Text(context.localizations.translate("dlg_picktime_hour")),
             ),
             Column(
               children:
@@ -154,9 +155,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 ),
               ],
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 2),
-              child: Text("Minute"),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Text(context.localizations.translate("dlg_picktime_minute")),
             ),
             SegmentedButton(
               showSelectedIcon: false,
@@ -187,7 +188,12 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
-                  "A reminder for ${formatTime(_getSelectedTime())}/${formatTime24Hour(_getSelectedTime())} is already set!",
+                  context.localizations.translate(
+                    "dlg_picktime_reminder_already_set",
+                    placeholders: {
+                      "time": "${formatTime(_getSelectedTime())}/${formatTime24Hour(_getSelectedTime())}"
+                    }
+                  ),
                   textScaler: const TextScaler.linear(0.9),
                   style: TextStyle(
                     color: scheme.textHighlight,

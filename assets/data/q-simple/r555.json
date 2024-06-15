@@ -12,6 +12,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 5,
+  "first_ruku_index": 555,
   "index": 113,
   "is_makki": true,
   "name": "الفلق",

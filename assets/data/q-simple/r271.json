@@ -37,6 +37,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 135,
+  "first_ruku_index": 270,
   "index": 20,
   "is_makki": true,
   "name": "طه",
