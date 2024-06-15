@@ -16,6 +16,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 110,
+  "first_ruku_index": 252,
   "index": 18,
   "is_makki": true,
   "name": "الكهف",

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../blocs/reader_bloc.dart';
@@ -29,6 +31,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
 
   Ruku? _ruku;
   bool _isDailyRuku = false;
+  bool _isReady = true;
 
   @override
   void initState() {
@@ -75,7 +78,9 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                     autofocus: true,
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop();
+                      Navigator.of(context, rootNavigator: true).popUntil(
+                        (route) => route.settings.name == KnownRouteNames.main
+                      );
                     },
                     color: scheme.page.text,
                   ),
@@ -141,11 +146,15 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
 
     return ReaderListenerBuilder(
       onStateAvailable: (state) => setState(() {
-        _ruku = state.ruku;
-      }),
-      onStateChange: (state) => setState(() {
+        log("onStateAvailable ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
         _ruku = state.ruku;
         _isDailyRuku = state.isDailyRuku;
+      }),
+      onStateChange: (state) => setState(() {
+        log("onStateChange ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
+        _ruku = state.ruku;
+        _isDailyRuku = state.isDailyRuku;
+        _isReady = true;
       }),
       onQuranCompleted: (state) async {
         await AlertsService().completionDialog(
@@ -179,7 +188,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                 ruku: _ruku!,
                 settings: settings.readerSettings,
                 scrollFooter: _buildScrollFooter(context, _ruku!, settings),
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               ),
             ),
             Positioned(
@@ -240,7 +249,12 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               child: ButtonDialogAction(
                 isDefault: false,
                 onAction: (close) {
-                  context.readerBloc.add(ViewRukuBlocEvent(index: ruku.index - 1));
+
+                  if (_isReady) {
+                    _isReady = false;
+                    context.readerBloc.add(ViewRukuBlocEvent(index: ruku.index - 1));
+                  }
+
                 },
                 builder: (_,__) => Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -263,19 +277,32 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               child: ButtonDialogAction(
                 isDefault: false,
                 onAction: (close) {
-                  context.readerBloc.add(SetDailyRukuBlocEvent(index: ruku.index));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: scheme.text,
-                      content: Text(
-                        "Ruku#${ruku.index} is now your current ruku.",
-                        style: TextStyle(
-                          color: scheme.background,
-                          fontWeight: FontWeight.bold
-                        ),
-                      )
-                    ),
-                  );
+
+                  if (_isReady) {
+                    _isReady = false;
+                    context.readerBloc.add(SetDailyRukuBlocEvent(index: ruku.index));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: scheme.text,
+                        content: Text(
+                          "Ruku#${ruku.index} is now your current ruku.",
+                          style: TextStyle(
+                            color: scheme.background,
+                            fontWeight: FontWeight.bold
+                          ),
+                        )
+                      ),
+                    );
+                  }
+
+                },
+                onLongPressAction: (close) async {
+
+                  final selection = await AlertsService().rukuPicker(context, sura: ruku.sura.index, ruku: ruku.relativeIndex);
+                  if ((selection ?? ruku.index) != ruku.index) {
+                    log("$selection");
+                    context!.readerBloc.add(ViewRukuBlocEvent(index: selection!));
+                  }
                 },
                 builder: (_,__) {
                   return const Row(
@@ -300,8 +327,13 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               child: ButtonDialogAction(
                 isDefault: true,
                 onAction: (close) {
-                  final event = _isDailyRuku ? GetNextDailyRukuBlocEvent():ViewRukuBlocEvent(index: ruku.index + 1);
-                  context.readerBloc.add(event);
+
+                  if (_isReady) {
+                    _isReady = false;
+                    final event = _isDailyRuku ? GetNextDailyRukuBlocEvent():ViewRukuBlocEvent(index: ruku.index + 1);
+                    context.readerBloc.add(event);
+                  }
+
                 },
                 builder: (_,__) => Row(
                     mainAxisAlignment: MainAxisAlignment.center,

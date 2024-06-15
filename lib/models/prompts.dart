@@ -21,14 +21,14 @@ class SimplePrompt {
 }
 
 class HtmlPrompt {
-  final String header;
-  final String title;
+  final String? header;
+  final String? title;
   final String body;
   final SimplePrompt fallback;
 
   HtmlPrompt({
-    required this.header,
-    required this.title,
+    this.header,
+    this.title,
     required this.body,
     required this.fallback,
   });

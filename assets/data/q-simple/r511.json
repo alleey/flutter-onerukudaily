@@ -32,6 +32,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 56,
+  "first_ruku_index": 510,
   "index": 74,
   "is_makki": true,
   "name": "المدثر",

@@ -18,6 +18,7 @@
  "sajda_aya": 60,
  "sura": {
   "ayas": 77,
+  "first_ruku_index": 310,
   "index": 25,
   "is_makki": true,
   "name": "الفرقان",

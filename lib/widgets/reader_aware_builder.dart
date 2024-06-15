@@ -74,7 +74,12 @@ class _ReaderListenerBuilderState extends State<ReaderListenerBuilder> {
       listener: (BuildContext context, state) {
 
         if(state is RukuLoadedBlocState) {
-          _changeNotifier.value = ReaderState(rukuNumber: state.ruku.index, statistics: state.statistics, ruku: state.ruku);
+
+          _changeNotifier.value = ReaderState(
+            rukuNumber: context.readerBloc.dailyRukuNumber,
+            statistics: state.statistics,
+            ruku: state.ruku
+          );
           widget.onStateAvailable?.call(_changeNotifier.value);
           widget.onStateChange?.call(_changeNotifier.value);
         }

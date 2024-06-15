@@ -30,6 +30,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 60,
+  "first_ruku_index": 455,
   "index": 51,
   "is_makki": true,
   "name": "الذاريات",

@@ -27,6 +27,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 20,
+  "first_ruku_index": 532,
   "index": 90,
   "is_makki": true,
   "name": "البلد",

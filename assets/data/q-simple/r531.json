@@ -37,6 +37,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 30,
+  "first_ruku_index": 531,
   "index": 89,
   "is_makki": true,
   "name": "الفجر",

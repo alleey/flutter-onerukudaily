@@ -321,7 +321,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       dropdownColor: scheme.page.background,
                       items: fonts.map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
-                          alignment: Alignment.centerRight,
+                          alignment: AlignmentDirectional.centerStart,
                           value: value,
                           child: Text(
                             "قُلْ هُوَ اللَّهُ أَحَدٌ",

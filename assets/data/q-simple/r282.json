@@ -32,6 +32,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 112,
+  "first_ruku_index": 278,
   "index": 21,
   "is_makki": true,
   "name": "الأنبياء",

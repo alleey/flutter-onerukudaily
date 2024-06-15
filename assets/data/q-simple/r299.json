@@ -22,6 +22,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 118,
+  "first_ruku_index": 295,
   "index": 23,
   "is_makki": true,
   "name": "المؤمنون",

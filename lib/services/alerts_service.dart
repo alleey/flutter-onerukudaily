@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -11,6 +13,7 @@ import '../widgets/dialogs/app_dialog.dart';
 import '../widgets/dialogs/common.dart';
 import '../widgets/dialogs/completion_dialog.dart';
 import '../widgets/loading_indicator.dart';
+import '../widgets/ruku_picker.dart';
 
 class AlertsService {
 
@@ -19,6 +22,8 @@ class AlertsService {
     required ContentBuilder title,
     required ContentBuilder contents,
     required ActionBuilder actions,
+    double? width,
+    double? height,
   }) {
     final screenCoverPct = ResponsiveLayoutProvider.layout(context).get<Size>(DialogLayoutConstants.screenCoverPctKey);
     return showGeneralDialog<T>(
@@ -34,11 +39,11 @@ class AlertsService {
       },
       pageBuilder: (context, animation, secondaryAnimation) {
         return AppDialog(
-            title: title,
+          title: title,
           actions: actions,
           contents: contents,
-          width: MediaQuery.of(context).size.width * screenCoverPct.width,
-          height: MediaQuery.of(context).size.height * screenCoverPct.height,
+          width: width ?? MediaQuery.of(context).size.width * screenCoverPct.width,
+          height: height ?? MediaQuery.of(context).size.height * screenCoverPct.height,
         );
       }
     );
@@ -185,6 +190,62 @@ class AlertsService {
 
       ],
       contents: (_,__) =>  CompletionDialog(statistics: statistics)
+    );
+  }
+
+  Future<int?> rukuPicker(BuildContext context, {
+    int? sura,
+    int? ruku,
+  }) {
+
+    var selectedSura = sura;
+    var selectedRuku = ruku;
+
+    return actionDialog<int>(
+      context,
+      width: MediaQuery.of(context).size.width * .8,
+      height: MediaQuery.of(context).size.height * .5,
+      title: (_, settingsProvider) => DefaultDialogTitle(
+        builder: (context, settingsProvider) => Text(
+          context.localizations.translate("dlg_pickruku_title"),
+          style: TextStyle(
+            fontSize: context.layout.get<double>(AppLayoutConstants.titleFontSizeKey)
+          ),
+        )
+      ),
+      contents: (_,__) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: RukuPickerDialog(
+          selectedSura: selectedSura,
+          selectedRuku: selectedRuku,
+          onSelect: (value) {
+            selectedRuku = value;
+
+          }
+        ),
+      ),
+      actions: (_,__) => [
+
+        Expanded(
+          child: ButtonDialogAction(
+            isDefault: false,
+            builder: (_,__) => Text(context.localizations.translate("dlg_pickruku_ok"), textAlign: TextAlign.center),
+            onAction: (close) {
+              close(selectedRuku!);
+            },
+          ),
+        ),
+
+        Expanded(
+          child: ButtonDialogAction(
+            autofocus: true,
+            isDefault: true,
+            builder: (_,__) => Text(context.localizations.translate("dlg_pickruku_cancel"), textAlign: TextAlign.center),
+            onAction: (close) => close(null),
+          ),
+        ),
+
+      ],
     );
   }
 

@@ -18,6 +18,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 85,
+  "first_ruku_index": 404,
   "index": 40,
   "is_makki": true,
   "name": "غافر",

@@ -32,6 +32,7 @@
  "sajda_aya": 21,
  "sura": {
   "ayas": 25,
+  "first_ruku_index": 526,
   "index": 84,
   "is_makki": true,
   "name": "الإنشقاق",

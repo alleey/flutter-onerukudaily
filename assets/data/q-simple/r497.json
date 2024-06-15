@@ -23,6 +23,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 30,
+  "first_ruku_index": 496,
   "index": 67,
   "is_makki": true,
   "name": "الملك",
