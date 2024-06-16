@@ -70,6 +70,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               backgroundColor: scheme.page.background,
               foregroundColor: scheme.page.text,
               title: _buildSuraName(context, _ruku!, settings),
+
               leading: FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupAppCommands, 0),
                 child: FocusHighlight(
@@ -78,14 +79,16 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                     autofocus: true,
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
-                      Navigator.of(context, rootNavigator: true).popUntil(
-                        (route) => route.settings.name == KnownRouteNames.main
-                      );
+                      // This page could be reached directly from IntialRouteHandler
+                      // but it always goes back to main
+                      //
+                      Navigator.of(context, rootNavigator: true).pushReplacementNamed(KnownRouteNames.main);
                     },
                     color: scheme.page.text,
                   ),
                 ),
               ),
+
               actions: [
 
                 // ToggleButtons(

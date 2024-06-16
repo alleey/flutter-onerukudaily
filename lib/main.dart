@@ -177,7 +177,7 @@ class InitialRouteHandler extends StatelessWidget {
           }
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushReplacementNamed(_getInitialRoute(state.appLaunchInfo));
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(_getInitialRoute(state.appLaunchInfo));
           });
         }
       },

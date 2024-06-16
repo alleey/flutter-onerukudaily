@@ -46,7 +46,7 @@ class NotificationService {
   Future<bool?> initialize() async {
 
     bool initialized = true;
-    platformHasSupport = !kIsWeb && (Platform.isAndroid || Platform.isMacOS);
+    platformHasSupport = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     if (platformHasSupport && Platform.isAndroid) {
       platformHasSupport = !(await NativeChannel.isAndroidTV());
     }
