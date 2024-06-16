@@ -17,6 +17,7 @@
  "sajda_aya": 109,
  "sura": {
   "ayas": 111,
+  "first_ruku_index": 240,
   "index": 17,
   "is_makki": true,
   "name": "الإسراء",

@@ -25,6 +25,7 @@
  "sajda_aya": 206,
  "sura": {
   "ayas": 206,
+  "first_ruku_index": 122,
   "index": 7,
   "is_makki": true,
   "name": "الأعراف",

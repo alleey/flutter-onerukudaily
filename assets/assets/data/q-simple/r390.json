@@ -51,6 +51,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 182,
+  "first_ruku_index": 386,
   "index": 37,
   "is_makki": true,
   "name": "الصافات",

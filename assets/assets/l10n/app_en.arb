@@ -21,12 +21,25 @@
   "app_prompt_10": "Immerse in today's Ruku from the Quran.",
 
   "dlg_picktime_title": "Set Reminder",
+  "dlg_picktime_am": "AM",
+  "dlg_picktime_pm": "PM",
+  "dlg_picktime_hour": "Hour",
+  "dlg_picktime_minute": "Minute",
+  "dlg_picktime_reminder_already_set": "A reminder for {time} is already set!",
   "dlg_picktime_ok": "OK",
   "dlg_picktime_cancel": "Cancel",
 
   "dlg_pickcolor_title": "Select Color",
   "dlg_pickcolor_ok": "OK",
   "dlg_pickcolor_cancel": "Cancel",
+
+  "dlg_pickruku_title": "Jump to Ruku",
+  "dlg_pickruku_sura": "Sura",
+  "dlg_pickruku_ruku": "Ruku",
+  "dlg_pickruku_dailyruku": "Select My Daily Ruku",
+  "dlg_pickruku_selected": "Ruku# {selectedRuku}",
+  "dlg_pickruku_ok": "OK",
+  "dlg_pickruku_cancel": "Cancel",
 
   "dlg_completion_title": "ٱلْحَمْدُ لِلَّٰهِ",
   "dlg_completion_ok": "OK",

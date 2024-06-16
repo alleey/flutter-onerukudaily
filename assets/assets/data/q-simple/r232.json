@@ -12,6 +12,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 128,
+  "first_ruku_index": 224,
   "index": 16,
   "is_makki": true,
   "name": "النحل",

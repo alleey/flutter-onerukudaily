@@ -12,6 +12,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 120,
+  "first_ruku_index": 86,
   "index": 5,
   "is_makki": false,
   "name": "المائدة",

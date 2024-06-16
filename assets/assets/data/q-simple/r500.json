@@ -44,6 +44,7 @@
  "sajda_aya": 0,
  "sura": {
   "ayas": 52,
+  "first_ruku_index": 500,
   "index": 69,
   "is_makki": true,
   "name": "الحاقة",
