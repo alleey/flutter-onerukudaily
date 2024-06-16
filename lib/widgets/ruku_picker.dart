@@ -37,6 +37,7 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
 
   String selectedRuku = "";
   Map<String, Map<String, int>> suraMap = {};
+  bool _fireInitial = false;
 
   @override
   void initState() {
@@ -68,7 +69,10 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                 if (snapshot.hasData) {
                   suraMap = snapshot.data!;
 
-                  WidgetsBinding.instance.addPostFrameCallback((_) => _handleSuraRukuSelection());
+                  if (!_fireInitial) {
+                    _fireInitial = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) => _handleSuraRukuSelection(setState));
+                  }
                   return _buildContents(context, settings);
                 }
 
@@ -104,133 +108,135 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
           final rukuInfo = suraMap[suraList[suraId]]!;
           final totalRuku = rukuInfo["total"] as int;
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return StatefulBuilder(
+            builder: (context, setstate) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(context.localizations.translate("dlg_pickruku_sura")),
-                  DropdownButton<String>(
-                    value: suraList[suraId],
-                    style: TextStyle(
-                      color: buttonScheme.text
-                    ),
-                    dropdownColor: scheme.background,
-                    items: suraList.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        alignment: AlignmentDirectional.center,
-                        value: value,
-                        child: Text(
-                          value,
-                          textDirection: TextDirection.rtl,
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? value) {
-                      suraSelectionNotifier.value = suraList.indexOf(value!);
-                      rukuSelectionNotifier.value = 0;
-                      _handleSuraRukuSelection();
-                    }
-                  ),
-                ],
-              ),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(context.localizations.translate("dlg_pickruku_ruku")),
-                  ValueListenableBuilder(
-                    valueListenable: rukuSelectionNotifier,
-                    builder: (context, rukuId, child) {
-
-                      log("selected rukuId $rukuId");
-
-                      return DropdownButton<int>(
-                        value: rukuId,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(context.localizations.translate("dlg_pickruku_sura")),
+                      DropdownButton<String>(
+                        value: suraList[suraId],
                         style: TextStyle(
                           color: buttonScheme.text
                         ),
                         dropdownColor: scheme.background,
-                        items: Iterable<int>.generate(totalRuku).map((int v) {
-
-                          log("adding dropdown value $v");
-
-                          return DropdownMenuItem<int>(
+                        items: suraList.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
                             alignment: AlignmentDirectional.center,
-                            value: v,
+                            value: value,
                             child: Text(
-                              "${v + 1}",
+                              value,
+                              textDirection: TextDirection.rtl,
                             ),
                           );
-
                         }).toList(),
-                        onChanged: (int? value) {
-                          rukuSelectionNotifier.value = value!;
-                          _handleSuraRukuSelection();
+                        onChanged: (String? value) {
+                          suraSelectionNotifier.value = suraList.indexOf(value!);
+                          rukuSelectionNotifier.value = 0;
+                          _handleSuraRukuSelection(setstate);
                         }
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ],
-              ),
 
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(context.localizations.translate("dlg_pickruku_ruku")),
+                      ValueListenableBuilder(
+                        valueListenable: rukuSelectionNotifier,
+                        builder: (context, rukuId, child) {
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ButtonDialogAction(
-                    onAction: (close) {
-                      _handleDailyRukuSelection();
-                    },
-                    builder: (_, __) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(context.localizations.translate("dlg_pickruku_dailyruku")),
+                          //log("selected rukuId $rukuId");
+
+                          return DropdownButton<int>(
+                            value: rukuId,
+                            style: TextStyle(
+                              color: buttonScheme.text
+                            ),
+                            dropdownColor: scheme.background,
+                            items: Iterable<int>.generate(totalRuku).map((int v) {
+
+                              return DropdownMenuItem<int>(
+                                alignment: AlignmentDirectional.center,
+                                value: v,
+                                child: Text(
+                                  "${v + 1}",
+                                ),
+                              );
+
+                            }).toList(),
+                            onChanged: (int? value) {
+                              rukuSelectionNotifier.value = value!;
+                              _handleSuraRukuSelection(setstate);
+                            }
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ButtonDialogAction(
+                        onAction: (close) {
+                          _handleDailyRukuSelection(setstate);
+                        },
+                        builder: (_, __) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(context.localizations.translate("dlg_pickruku_dailyruku")),
+                        ),
+                      ),
+                  ]),
+
+                  Divider(color: scheme.text, indent: 5, endIndent: 5),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    Text(
+                      context.localizations.translate("dlg_pickruku_selected", placeholders: {
+                        "selectedRuku": selectedRuku
+                      })
                     ),
-                  ),
-              ]),
+                  ])
 
-              Divider(color: scheme.text, indent: 5, endIndent: 5),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                Text(
-                  context.localizations.translate("dlg_pickruku_selected", placeholders: {
-                    "selectedRuku": selectedRuku
-                  })
-                ),
-              ])
-
-            ]
+                ]
+              );
+            },
           );
         },
       ),
     );
   }
 
-  void _handleSuraRukuSelection() {
+  void _handleSuraRukuSelection(StateSetter setstate) {
 
     final suraList = suraMap.keys.toList();
     final rukuInfo = suraMap[suraList[suraSelectionNotifier.value]]!;
     final firstRuku = rukuInfo["first"] as int;
     final ruku = firstRuku + rukuSelectionNotifier.value;
 
-    setState(() {
+    setstate(() {
       selectedRuku = ruku.toString();
       widget.onSelect(ruku);
     });
+
   }
 
-  void _handleDailyRukuSelection() {
+  void _handleDailyRukuSelection(StateSetter setstate) {
 
     final ruku = context.readerBloc.dailyRukuNumber;
-    setState(() {
+
+    setstate(() {
       selectedRuku = ruku.toString();
       widget.onSelect(ruku);
     });
   }
-
 }

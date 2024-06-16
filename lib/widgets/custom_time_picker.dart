@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:one_ruku_daily/localizations/app_localizations.dart';
 
+import '../../localizations/app_localizations.dart';
 import '../common/layout_constants.dart';
 import '../models/app_settings.dart';
 import '../utils/utils.dart';
