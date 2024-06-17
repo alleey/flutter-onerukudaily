@@ -9,6 +9,7 @@ class FocusHighlight extends StatefulWidget {
   final bool canRequestFocus;
   final FocusNode? focusNode;
   final FocusOnKeyEventCallback? onKeyEvent;
+  final bool overlayMode;
 
   const FocusHighlight({
     super.key,
@@ -20,6 +21,7 @@ class FocusHighlight extends StatefulWidget {
     this.canRequestFocus = false,
     this.focusNode,
     this.onKeyEvent,
+    this.overlayMode = false,
   });
 
   @override
@@ -43,8 +45,20 @@ class _FocusHighlightState extends State<FocusHighlight> {
       canRequestFocus: widget.canRequestFocus,
       child: AnimatedContainer(
         duration: widget.duration,
-        color: _isFocused ? widget.focusColor : widget.normalColor,
-        child: widget.child,
+        color: widget.overlayMode ? Colors.transparent : (_isFocused ? widget.focusColor : widget.normalColor),
+        child: Stack(
+          children: [
+            widget.child,
+            if (widget.overlayMode && _isFocused)
+              Positioned(
+                top:0, bottom: 0, left: 0, right: 0,
+                child: AnimatedContainer(
+                  duration: widget.duration,
+                  color: widget.focusColor,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

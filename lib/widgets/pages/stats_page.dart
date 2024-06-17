@@ -49,14 +49,19 @@ class StatisticsPage extends StatelessWidget {
               fontSize: titleFontSize,
             ),
           ),
-          leading: FocusHighlight(
-            focusColor: scheme.page.text.withOpacity(0.5),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              color: scheme.page.text,
+          leading: Semantics(
+            label: context.localizations.translate("app_cmd_goback"),
+            button: true,
+            excludeSemantics: true,
+            child: FocusHighlight(
+              focusColor: scheme.page.text.withOpacity(0.5),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                color: scheme.page.text,
+              ),
             ),
           ),
         ),

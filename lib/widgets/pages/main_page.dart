@@ -99,14 +99,28 @@ class MainPage extends StatelessWidget {
                         // Respond to Reader block changes
                         child: ValueListenableBuilder(
                           valueListenable: stateProvider,
-                          builder: (context, readerState, child) => PercentageBar(
-                            direction: TextDirection.rtl,
-                            height: 20,
-                            value: readerState.rukuNumber.toDouble()/Ruku.lastRukuIndex.toDouble(),
-                            foregroundColor: pageScheme.text,
-                            backgroundColor: pageScheme.background,
-                            onGenerateLabel: (value) => "${readerState.rukuNumber}/${Ruku.lastRukuIndex}",
-                          ),
+                          builder: (context, readerState, child) {
+
+                            return Semantics(
+                              label: context.localizations.translate(
+                                "page_main_semantic_progress",
+                                placeholders: {
+                                  "rukuNumber": readerState.rukuNumber,
+                                  "lastRukuIndex": Ruku.lastRukuIndex,
+                                }
+                              ),
+                              container: false,
+                              excludeSemantics: true,
+                              child: PercentageBar(
+                                direction: TextDirection.rtl,
+                                height: 20,
+                                value: readerState.rukuNumber.toDouble()/Ruku.lastRukuIndex.toDouble(),
+                                foregroundColor: pageScheme.text,
+                                backgroundColor: pageScheme.background,
+                                onGenerateLabel: (value) => "${readerState.rukuNumber}/${Ruku.lastRukuIndex}",
+                              ),
+                            );
+                          },
                         ),
                       )
                     );
@@ -177,6 +191,7 @@ class MainPage extends StatelessWidget {
     required IconData icon,
     required VoidCallback onTap,
     bool isDefault = false,
+    bool semanticContainer = true,
     Widget? extra,
   }) {
 
@@ -194,6 +209,7 @@ class MainPage extends StatelessWidget {
         width: cardSize.width,
         height: cardSize.height,
         child: Card(
+          semanticContainer: semanticContainer,
           color: button.background,
           child: InkWell(
             onTap: onTap,
@@ -213,10 +229,13 @@ class MainPage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: button.text, fontSize: fontSize),
+                        Semantics(
+                          button: true,
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: button.text, fontSize: fontSize),
+                          ),
                         ),
                         if (extra != null) extra,
                       ],

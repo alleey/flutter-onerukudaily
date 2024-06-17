@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../blocs/reader_bloc.dart';
 import '../../common/constants.dart';
-import '../../common/custom_traversal_policy.dart';
 import '../../common/layout_constants.dart';
+import '../../common/native.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/ruku.dart';
@@ -59,87 +59,89 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     final appBarHeight = layout.get<double>(AppLayoutConstants.appbarHeightKey);
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
 
-    return FocusTraversalGroup(
-      policy: const CustomOrderedTraversalPolicy(),
-      child: Scaffold(
-        appBar: _ruku == null ? null :
-          PreferredSize(
-            preferredSize: Size.fromHeight(appBarHeight),
-            child: AppBar(
-              centerTitle: true,
-              backgroundColor: scheme.page.background,
-              foregroundColor: scheme.page.text,
-              title: _buildSuraName(context, _ruku!, settings),
+    return Scaffold(
+      appBar: _ruku == null ? null :
+        PreferredSize(
+          preferredSize: Size.fromHeight(appBarHeight),
+          child: AppBar(
+            centerTitle: true,
+            backgroundColor: scheme.page.background,
+            foregroundColor: scheme.page.text,
+            title: _buildSuraName(context, _ruku!, settings),
 
-              leading: FocusTraversalOrder(
-                order: const GroupFocusOrder(GroupFocusOrder.groupAppCommands, 0),
+            leading: Semantics(
+              label: context.localizations.translate("app_cmd_goback"),
+              button: true,
+              excludeSemantics: true,
+              child: FocusHighlight(
+                focusColor: scheme.page.text.withOpacity(0.5),
+                child: IconButton(
+                  autofocus: true,
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    // This page could be reached directly from IntialRouteHandler
+                    // but it always goes back to main
+                    //
+                    Navigator.of(context, rootNavigator: true).pushReplacementNamed(KnownRouteNames.main);
+                  },
+                  color: scheme.page.text,
+                ),
+              ),
+            ),
+
+            actions: [
+
+              // ToggleButtons(
+              //   isSelected: [settings.readerSettings.ayaPerLine, !settings.readerSettings.ayaPerLine],
+              //   onPressed: (int index) {
+              //     final readerSettings = settings.readerSettings.copyWith(ayaPerLine: index == 0);
+              //     context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings));
+              //   },
+              //   children: const [
+              //     Icon(Icons.align_horizontal_right),
+              //     Icon(Icons.wrap_text),
+              //   ],
+              // ),
+
+              Semantics(
+                label: context.localizations.translate("page_settings_title"),
+                button: true,
+                excludeSemantics: true,
                 child: FocusHighlight(
+                  canRequestFocus: true,
                   focusColor: scheme.page.text.withOpacity(0.5),
                   child: IconButton(
-                    autofocus: true,
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const Icon(
+                      Icons.settings,
+                    ),
                     onPressed: () {
-                      // This page could be reached directly from IntialRouteHandler
-                      // but it always goes back to main
-                      //
-                      Navigator.of(context, rootNavigator: true).pushReplacementNamed(KnownRouteNames.main);
+                      Navigator.pushNamed(context, KnownRouteNames.settings);
                     },
-                    color: scheme.page.text,
                   ),
                 ),
               ),
-
-              actions: [
-
-                // ToggleButtons(
-                //   isSelected: [settings.readerSettings.ayaPerLine, !settings.readerSettings.ayaPerLine],
-                //   onPressed: (int index) {
-                //     final readerSettings = settings.readerSettings.copyWith(ayaPerLine: index == 0);
-                //     context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings));
-                //   },
-                //   children: const [
-                //     Icon(Icons.align_horizontal_right),
-                //     Icon(Icons.wrap_text),
-                //   ],
-                // ),
-
-                FocusTraversalOrder(
-                  order: const GroupFocusOrder(GroupFocusOrder.groupAppCommands, 1),
-                  child: FocusHighlight(
-                    focusColor: scheme.page.text.withOpacity(0.5),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.settings,
-                      ),
-                      onPressed: () {
-                        Navigator.pushNamed(context, KnownRouteNames.settings);
-                      },
-                    ),
-                  ),
-                ),
-              ],
+            ],
+          ),
+        ),
+      body: Container(
+        color: scheme.page.background,
+        child: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * screenCoverPct.width,
+            height: MediaQuery.of(context).size.height * screenCoverPct.height,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: scheme.page.text,
+                fontSize: bodyFontSize,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: _buildBody(context, settings),
+              )
             ),
           ),
-        body: Container(
-          color: scheme.page.background,
-          child: Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * screenCoverPct.width,
-              height: MediaQuery.of(context).size.height * screenCoverPct.height,
-              child: DefaultTextStyle.merge(
-                style: TextStyle(
-                  color: scheme.page.text,
-                  fontSize: bodyFontSize,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: _buildBody(context, settings),
-                )
-              ),
-            ),
-          )
         )
-      ),
+      )
     );
   }
 
@@ -149,6 +151,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
 
     return ReaderListenerBuilder(
       onStateAvailable: (state) => setState(() {
+
         log("onStateAvailable ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
         _ruku = state.ruku;
         _isDailyRuku = state.isDailyRuku;
@@ -185,15 +188,28 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
         double squareSize = 4;
         return Stack(
           children: [
+
             Positioned.fill(
-              child: RukuReader(
-                key: ObjectKey(_ruku!.index),
-                ruku: _ruku!,
-                settings: settings.readerSettings,
-                scrollFooter: _buildScrollFooter(context, _ruku!, settings),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              ),
+              child: kIsAndroidTV ?
+
+                RukuReaderAndroidTV(
+                  key: ObjectKey(_ruku!.index),
+                  ruku: _ruku!,
+                  settings: settings.readerSettings,
+                  scrollFooter: _buildScrollFooter(context, _ruku!, settings),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                ):
+
+                RukuReader(
+                  key: ObjectKey(_ruku!.index),
+                  ruku: _ruku!,
+                  settings: settings.readerSettings,
+                  scrollFooter: _buildScrollFooter(context, _ruku!, settings),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                ),
+
             ),
+
             Positioned(
               child: Align(
                 alignment: Alignment.topCenter,
@@ -247,48 +263,44 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           const SizedBox(height: 50),
 
           Expanded(
-            child: FocusTraversalOrder(
-              order: const GroupFocusOrder(GroupFocusOrder.groupReaderCommands, 10),
-              child: ButtonDialogAction(
-                isDefault: false,
-                onAction: (close) {
-
-                  if (_isReady) {
-                    _isReady = false;
-                    context.readerBloc.add(ViewRukuBlocEvent(index: ruku.index - 1));
-                  }
-
-                },
-                builder: (_,__) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.navigate_before),
-                      Text(
-                        context.localizations.translate("page_reader_readprev"),
-                        textScaler: const TextScaler.linear(.9),
-                      ),
-                    ],
+            child: ButtonDialogAction(
+              isDefault: false,
+              onAction: (close) {
+                if (_isReady) {
+                  _isReady = false;
+                  context.readerBloc.add(ViewRukuBlocEvent(index: ruku.index - 1));
+                }
+              },
+              builder: (_,__) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.navigate_before),
+                  Text(
+                    context.localizations.translate("page_reader_readprev"),
+                    semanticsLabel: context.localizations.translate("page_reader_readprev"),
+                    textScaler: const TextScaler.linear(.9),
                   ),
+                ],
               ),
             ),
           ),
 
           const SizedBox(width: 2),
           Expanded(
-            child: FocusTraversalOrder(
-              order: const GroupFocusOrder(GroupFocusOrder.groupReaderCommands, 11),
-              child: ButtonDialogAction(
-                isDefault: false,
-                onAction: (close) {
+            child: ButtonDialogAction(
+              isDefault: false,
+              onAction: (close) {
 
-                  if (_isReady) {
-                    _isReady = false;
+                AlertsService().confirmSetRuku(context, rukuId: ruku.index).then((selection) {
+
+                  if ((selection ?? false)) {
+
                     context.readerBloc.add(SetDailyRukuBlocEvent(index: ruku.index));
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: scheme.text,
                         content: Text(
-                          "Ruku#${ruku.index} is now your current ruku.",
+                          context.localizations.translate("page_reader_current_set", placeholders: { "index": ruku.index }),
                           style: TextStyle(
                             color: scheme.background,
                             fontWeight: FontWeight.bold
@@ -298,57 +310,56 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                     );
                   }
 
-                },
-                onLongPressAction: (close) async {
+                });
+              },
+              onLongPressAction: (close) {
 
-                  final selection = await AlertsService().rukuPicker(context, sura: ruku.sura.index, ruku: ruku.relativeIndex);
+                AlertsService().rukuPicker(context, sura: ruku.sura.index, ruku: ruku.relativeIndex).then((selection) {
                   if ((selection ?? ruku.index) != ruku.index) {
                     log("$selection");
                     context!.readerBloc.add(ViewRukuBlocEvent(index: selection!));
                   }
-                },
-                builder: (_,__) {
-                  return const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        " ",
-                        textScaler: TextScaler.linear(.9),
-                      ),
-                      Icon(Icons.bookmark),
-                    ],
-                  );
-                },
-              ),
+                });
+              },
+              builder: (_,__) {
+                return const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      " ",
+                      textScaler: TextScaler.linear(.9),
+                    ),
+                    Icon(Icons.bookmark),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(width: 2),
 
           Expanded(
-            child: FocusTraversalOrder(
-              order: const GroupFocusOrder(GroupFocusOrder.groupReaderCommands, 12),
-              child: ButtonDialogAction(
-                isDefault: true,
-                onAction: (close) {
+            child: ButtonDialogAction(
+              isDefault: true,
+              onAction: (close) {
 
-                  if (_isReady) {
-                    _isReady = false;
-                    final event = _isDailyRuku ? GetNextDailyRukuBlocEvent():ViewRukuBlocEvent(index: ruku.index + 1);
-                    context.readerBloc.add(event);
-                  }
+                if (_isReady) {
+                  _isReady = false;
+                  final event = _isDailyRuku ? GetNextDailyRukuBlocEvent():ViewRukuBlocEvent(index: ruku.index + 1);
+                  context.readerBloc.add(event);
+                }
 
-                },
-                builder: (_,__) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        context.localizations.translate("page_reader_readnext"),
-                        textScaler: const TextScaler.linear(.9),
-                      ),
-                      const Icon(Icons.navigate_next),
-                    ],
-                  ),
-              ),
+              },
+              builder: (_,__) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      context.localizations.translate("page_reader_readnext"),
+                      semanticsLabel: context.localizations.translate("page_reader_readnext"),
+                      textScaler: const TextScaler.linear(.9),
+                    ),
+                    const Icon(Icons.navigate_next),
+                  ],
+                ),
             ),
           ),
         ],

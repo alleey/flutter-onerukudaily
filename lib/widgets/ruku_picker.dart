@@ -160,13 +160,13 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                               color: buttonScheme.text
                             ),
                             dropdownColor: scheme.background,
-                            items: Iterable<int>.generate(totalRuku).map((int v) {
+                            items: Iterable<int>.generate(totalRuku).map((int rukuId) {
 
                               return DropdownMenuItem<int>(
                                 alignment: AlignmentDirectional.center,
-                                value: v,
+                                value: rukuId,
                                 child: Text(
-                                  "${v + 1}",
+                                  "${rukuId + 1}",
                                 ),
                               );
 
@@ -227,7 +227,6 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
       selectedRuku = ruku.toString();
       widget.onSelect(ruku);
     });
-
   }
 
   void _handleDailyRukuSelection(StateSetter setstate) {

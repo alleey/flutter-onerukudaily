@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -52,8 +50,8 @@ class AlertsService {
   Future<bool?> yesNoDialog(BuildContext context, {
     required ContentBuilder title,
     required ContentBuilder contents,
-    String yesLabel = "Yes",
-    String noLabel = "No",
+    String yesLabelId = "dlg_cmd_yes",
+    String noLabelId = "dlg_cmd_no",
     VoidCallback? onAccept,
     VoidCallback? onReject,
   }) {
@@ -69,7 +67,10 @@ class AlertsService {
               onAccept?.call();
             },
             builder: (_,__) {
-              return Text(yesLabel, textAlign: TextAlign.center);
+              return Text(
+                context.localizations.translate(yesLabelId),
+                textAlign: TextAlign.center
+              );
             }
           ),
         ),
@@ -81,7 +82,12 @@ class AlertsService {
               close(null);
               onReject?.call();
             },
-            builder: (_,__) => Text(noLabel, textAlign: TextAlign.center)
+            builder: (_,__) {
+              return Text(
+                context.localizations.translate(noLabelId),
+                textAlign: TextAlign.center
+              );
+            }
           ),
         )
       ],
@@ -91,7 +97,7 @@ class AlertsService {
   Future<dynamic> okDialog(BuildContext context, {
     required ContentBuilder title,
     required ContentBuilder contents,
-    required ContentBuilder okLabel,
+    String okLabelId = "dlg_cmd_ok",
     VoidCallback? callback
   }) {
     return actionDialog(
@@ -106,7 +112,12 @@ class AlertsService {
               close(null);
               callback?.call();
             },
-            builder: okLabel
+            builder: (_,__) {
+              return Text(
+                context.localizations.translate(okLabelId),
+                textAlign: TextAlign.center
+              );
+            }
         ),
         )
       ],
@@ -159,6 +170,67 @@ class AlertsService {
     );
   }
 
+
+  Future<bool?> confirmSetRuku(BuildContext context, {
+    required int rukuId
+  }) {
+
+    return actionDialog<bool>(
+      context,
+      width: MediaQuery.of(context).size.width * .5,
+      height: MediaQuery.of(context).size.height * .5,
+      title: (_,__) => DefaultDialogTitle(
+        builder: (context, settingsProvider) => Text(
+          context.localizations.translate("dlg_setdaily_title"),
+          style: TextStyle(
+            fontSize: context.layout.get<double>(AppLayoutConstants.titleFontSizeKey)
+          ),
+        )
+      ),
+      actions: (_,__) => [
+        Expanded(
+          child: ButtonDialogAction(
+            onAction: (close) {
+              close(true);
+            },
+            builder: (_,__) {
+              return Text(
+                context.localizations.translate("dlg_cmd_yes"),
+                textAlign: TextAlign.center
+              );
+            }
+          ),
+        ),
+        Expanded(
+          child: ButtonDialogAction(
+            autofocus: true,
+            isDefault: true,
+            onAction: (close) {
+              close(false);
+            },
+            builder: (_,__) {
+              return Text(
+                context.localizations.translate("dlg_cmd_no"),
+                textAlign: TextAlign.center
+              );
+            }
+          ),
+        )
+      ],
+      contents: (_,__) =>  Semantics(
+        container: true,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              context.localizations.translate("dlg_setdaily_intro", placeholders: { "rukuId": rukuId }),
+            ),
+          ),
+        ),
+      )
+    );
+  }
+
   Future<dynamic> completionDialog(BuildContext context, {
     required Statistics statistics,
     required VoidCallback onClose
@@ -203,8 +275,8 @@ class AlertsService {
 
     return actionDialog<int>(
       context,
-      width: MediaQuery.of(context).size.width * .5,
-      height: MediaQuery.of(context).size.height * .5,
+      width: MediaQuery.of(context).size.width * .7,
+      height: MediaQuery.of(context).size.height * .7,
       title: (_, settingsProvider) => DefaultDialogTitle(
         builder: (context, settingsProvider) => Text(
           context.localizations.translate("dlg_pickruku_title"),

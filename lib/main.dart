@@ -11,6 +11,7 @@ import 'blocs/reader_bloc.dart';
 import 'blocs/settings_bloc.dart';
 import 'common/constants.dart';
 import 'common/layout_constants.dart';
+import 'common/native.dart';
 import 'localizations/app_localizations.dart';
 import 'models/app_settings.dart';
 import 'navigation/reader_navigation_observer.dart';
@@ -160,7 +161,7 @@ class InitialRouteHandler extends StatelessWidget {
   Widget _buildContents(BuildContext context, AppSettings settings) {
     final scheme = settings.currentScheme;
     return BlocListener<NotificationBloc, NotificationBlocState>(
-      listener: (context, state) {
+      listener: (context, state) async {
 
         if (state is NotificationInitializedState) {
 
@@ -176,7 +177,11 @@ class InitialRouteHandler extends StatelessWidget {
             }
           }
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Hack neded on Android TV for autofocus effects
+          await setTraditionalFocusHighlightStrategy();
+
+          WidgetsBinding.instance.addPostFrameCallback((_)  {
+
             Navigator.of(context, rootNavigator: true).pushReplacementNamed(_getInitialRoute(state.appLaunchInfo));
           });
         }
