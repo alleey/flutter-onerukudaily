@@ -203,7 +203,7 @@ class AlertsService {
 
     return actionDialog<int>(
       context,
-      width: MediaQuery.of(context).size.width * .8,
+      width: MediaQuery.of(context).size.width * .5,
       height: MediaQuery.of(context).size.height * .5,
       title: (_, settingsProvider) => DefaultDialogTitle(
         builder: (context, settingsProvider) => Text(
