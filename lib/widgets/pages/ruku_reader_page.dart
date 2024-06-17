@@ -115,7 +115,10 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                       Icons.settings,
                     ),
                     onPressed: () {
-                      Navigator.pushNamed(context, KnownRouteNames.settings);
+                      // This page could be reached directly from IntialRouteHandler
+                      // but it always goes back to main
+                      //
+                      Navigator.of(context, rootNavigator: true).pushReplacementNamed(KnownRouteNames.main);
                     },
                   ),
                 ),
@@ -123,6 +126,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
             ],
           ),
         ),
+
       body: Container(
         color: scheme.page.background,
         child: Center(
@@ -152,12 +156,13 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     return ReaderListenerBuilder(
       onStateAvailable: (state) => setState(() {
 
-        log("onStateAvailable ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
+        //log("onStateAvailable ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
         _ruku = state.ruku;
         _isDailyRuku = state.isDailyRuku;
       }),
       onStateChange: (state) => setState(() {
-        log("onStateChange ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
+
+        //log("onStateChange ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
         _ruku = state.ruku;
         _isDailyRuku = state.isDailyRuku;
         _isReady = true;
@@ -230,6 +235,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                 ),
               )
             ),
+
           ],
         );
       },
