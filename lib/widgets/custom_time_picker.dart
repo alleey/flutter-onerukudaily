@@ -72,6 +72,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
       overlayColor: StateDependentColor(scheme.button.overlay)
     );
 
+    final labelAM = context.localizations.translate("dlg_picktime_am");
+    final labelPM = context.localizations.translate("dlg_picktime_pm");
+    final labelMinute = context.localizations.translate("dlg_picktime_minute");
+
     return DefaultTextStyle.merge(
       style: TextStyle(
         fontSize: bodyFontSize,
@@ -81,15 +85,16 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+
             SegmentedButton(
               showSelectedIcon: false,
               segments: [
                 ButtonSegment<bool>(
-                  label: Text(context.localizations.translate("dlg_picktime_am")),
+                  label: Text(labelAM),
                   value: true,
                 ),
                 ButtonSegment<bool>(
-                  label: Text(context.localizations.translate("dlg_picktime_pm")),
+                  label: Text(labelPM),
                   value: false,
                 )
               ],
@@ -103,10 +108,18 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               selected: <bool>{isAm},
               style: buttonStle,
             ),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text(context.localizations.translate("dlg_picktime_hour")),
+              child: Semantics(
+                container: true,
+                child: Text(
+                  semanticsLabel: context.localizations.translate("dlg_picktime_hour"),
+                  context.localizations.translate("dlg_picktime_hour")
+                ),
+              ),
             ),
+
             Column(
               children:
               [
@@ -117,7 +130,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                     ButtonSegment<int>(
                       label: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text('$index')
+                        child: Text(
+                          '$index',
+                          semanticsLabel: "$index ${isAm ? labelAM : labelPM}",
+                        )
                       ),
                       value: index,
                     )
@@ -139,7 +155,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                     ButtonSegment<int>(
                       label: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text('${index + 6}')
+                        child: Text(
+                          '${index + 6}',
+                          semanticsLabel: "${index + 6} ${isAm ? labelAM : labelPM}",
+                        )
                       ),
                       value: index + 6,
                     )
@@ -155,17 +174,25 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 ),
               ],
             ),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text(context.localizations.translate("dlg_picktime_minute")),
+              child: Semantics(
+                container: true,
+                child: Text(labelMinute)
+              ),
             ),
+
             SegmentedButton(
               showSelectedIcon: false,
               segments: List.generate(6, (index) =>
                 ButtonSegment<int>(
                   label: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text('${index * 10}')
+                    child: Text(
+                      '${index * 10}',
+                      semanticsLabel: "${index * 10} $labelMinute",
+                    )
                   ),
                   value: index * 10,
                 )
@@ -179,9 +206,22 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               selected: <int>{selectedMinute},
               style: buttonStle,
             ),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text("${formatTime(_getSelectedTime())} - ${formatTime24Hour(_getSelectedTime())}"),
+              child: Semantics(
+                label: context.localizations.translate(
+                  "dlg_picktime_semantic_selected",
+                  placeholders: {
+                    "time": formatTime(_getSelectedTime())
+                  }
+                ),
+                container: true,
+                excludeSemantics: true,
+                child: Text(
+                  "${formatTime(_getSelectedTime())} - ${formatTime24Hour(_getSelectedTime())}"
+                )
+              ),
             ),
 
             if (!isTimeValid)

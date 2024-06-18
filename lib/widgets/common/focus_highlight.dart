@@ -10,6 +10,7 @@ class FocusHighlight extends StatefulWidget {
   final FocusNode? focusNode;
   final FocusOnKeyEventCallback? onKeyEvent;
   final bool overlayMode;
+  final AlignmentGeometry? alignment;
 
   const FocusHighlight({
     super.key,
@@ -22,6 +23,7 @@ class FocusHighlight extends StatefulWidget {
     this.focusNode,
     this.onKeyEvent,
     this.overlayMode = false,
+    this.alignment,
   });
 
   @override
@@ -44,6 +46,7 @@ class _FocusHighlightState extends State<FocusHighlight> {
       autofocus: widget.autofocus,
       canRequestFocus: widget.canRequestFocus,
       child: AnimatedContainer(
+        alignment: widget.alignment,
         duration: widget.duration,
         color: widget.overlayMode ? Colors.transparent : (_isFocused ? widget.focusColor : widget.normalColor),
         child: Stack(

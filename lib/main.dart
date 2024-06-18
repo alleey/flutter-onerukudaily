@@ -181,7 +181,6 @@ class InitialRouteHandler extends StatelessWidget {
           await setTraditionalFocusHighlightStrategy();
 
           WidgetsBinding.instance.addPostFrameCallback((_)  {
-
             Navigator.of(context, rootNavigator: true).pushReplacementNamed(_getInitialRoute(state.appLaunchInfo));
           });
         }

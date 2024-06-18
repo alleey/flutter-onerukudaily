@@ -328,14 +328,15 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                 });
               },
               builder: (_,__) {
-                return const Row(
+                return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       " ",
-                      textScaler: TextScaler.linear(.9),
+                      semanticsLabel: context.localizations.translate("page_reader_readset"),
+                      textScaler: const TextScaler.linear(.9),
                     ),
-                    Icon(Icons.bookmark),
+                    const Icon(Icons.bookmark),
                   ],
                 );
               },

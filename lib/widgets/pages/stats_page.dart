@@ -5,7 +5,9 @@ import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
+import '../../models/ruku.dart';
 import '../common/focus_highlight.dart';
+import '../common/percentage_bar.dart';
 import '../completion_stats.dart';
 import '../daily_stats_bar_chart.dart';
 import '../reader_aware_builder.dart';
@@ -105,10 +107,63 @@ class StatisticsPage extends StatelessWidget {
           }
 
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+
+              MergeSemantics(
+                child: Column(
+                  children: [
+
+                    FocusHighlight(
+                      canRequestFocus: true,
+                      focusColor: Colors.transparent,
+                      alignment: AlignmentDirectional.center,
+                      child: Semantics(
+                        child: Text.rich(
+                          textAlign: TextAlign.center,
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: context.localizations.translate("page_statistics_current"),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ReaderListenerBuilder(
+                      builder: (context, readerStateNotifier) {
+
+                        final readerState = readerStateNotifier.value;
+                        final percentageComplete = readerState.rukuNumber.toDouble()/Ruku.lastRukuIndex.toDouble();
+
+                        return Semantics(
+                          label: context.localizations.translate(
+                            "page_statistics_semantic_progress",
+                            placeholders: {
+                              "rukuNumber": readerState.rukuNumber,
+                              "lastRukuIndex": Ruku.lastRukuIndex,
+                              "percent": "${(percentageComplete * 100).toStringAsFixed(1)}%",
+                            }
+                          ),
+                          excludeSemantics: true,
+                          child: PercentageBar(
+                            direction: TextDirection.rtl,
+                            height: 25,
+                            value: percentageComplete,
+                            foregroundColor: scheme.defaultButton.text,
+                            backgroundColor: scheme.defaultButton.background,
+                          ),
+                        );
+                      }),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
 
               FocusHighlight(
                 canRequestFocus: true,
@@ -128,13 +183,13 @@ class StatisticsPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               CompletionStats(statistics: stats),
 
               if (stats.dailyStats.isNotEmpty)
               ...[
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Semantics(
                   container: true,
                   child: Text.rich(
@@ -151,18 +206,21 @@ class StatisticsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                FocusHighlight(
-                  canRequestFocus: true,
-                  focusColor: settings.currentScheme.page.text.withOpacity(0.5),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: DailyStatsBarChart(dailyStats: stats.dailyStats, colorScheme: settings.currentScheme),
+                const SizedBox(height: 10),
+
+                ExcludeSemantics(
+                  child: FocusHighlight(
+                    canRequestFocus: true,
+                    focusColor: settings.currentScheme.page.text.withOpacity(0.5),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: DailyStatsBarChart(dailyStats: stats.dailyStats, colorScheme: settings.currentScheme),
+                    ),
                   ),
                 )
               ],
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
           ]);
         },
       ),
