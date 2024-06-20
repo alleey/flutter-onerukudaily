@@ -20,12 +20,19 @@
   "app_prompt_9": "Embrace your daily Ruku reading.",
   "app_prompt_10": "Immerse in today's Ruku from the Quran.",
 
+  "app_cmd_goback": "Go back",
+
+  "dlg_cmd_ok": "OK",
+  "dlg_cmd_yes": "Yes",
+  "dlg_cmd_no": "No",
+
   "dlg_picktime_title": "Set Reminder",
   "dlg_picktime_am": "AM",
   "dlg_picktime_pm": "PM",
   "dlg_picktime_hour": "Hour",
   "dlg_picktime_minute": "Minute",
   "dlg_picktime_reminder_already_set": "A reminder for {time} is already set!",
+  "dlg_picktime_semantic_selected": "Selected time: {time}",
   "dlg_picktime_ok": "OK",
   "dlg_picktime_cancel": "Cancel",
 
@@ -35,9 +42,12 @@
 
   "dlg_pickruku_title": "Jump to Ruku",
   "dlg_pickruku_sura": "Sura",
+  "dlg_pickruku_semantic_sura": "Select a Sura from the list",
   "dlg_pickruku_ruku": "Ruku",
-  "dlg_pickruku_dailyruku": "Select My Daily Ruku",
+  "dlg_pickruku_semantic_ruku": "Select a Ruku from the list",
+  "dlg_pickruku_dailyruku": "Go to Daily Ruku",
   "dlg_pickruku_selected": "Ruku# {selectedRuku}",
+  "dlg_pickruku_semantic_selected": "Ruku# {selectedRuku} is selected",
   "dlg_pickruku_ok": "OK",
   "dlg_pickruku_cancel": "Cancel",
 
@@ -49,6 +59,9 @@
   "dlg_completion_intro3": "May Allah's blessings surround you as you have completed the noble task of reading the Quran. May the wisdom and guidance from its verses illuminate your heart and life. May Allah accept your efforts and grant you steadfastness in faith.",
   "dlg_completion_intro2": "تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ",
 
+  "dlg_setdaily_title": "Set Daily Ruku",
+  "dlg_setdaily_intro": "Are you sure you want the current ruku #{rukuId} to be your daily Ruku?",
+
   "page_about_title": "About",
   "page_about_version": "ver. {version}",
   "page_about_intro": "Read as little as one Ruku from the Quran daily.",
@@ -59,18 +72,24 @@
   "page_about_ok": "Close",
 
   "page_main_intro": "The Messenger of Allah (ﷺ) said, 'Recite the Quran, for it will come as an intercessor for its reciters on the Day of Resurrection'",
+  "page_main_semantic_progress": "You have read {rukuNumber} ruku out of {lastRukuIndex}",
 
   "page_reminders_title": "Reminders",
   "page_reminders_add": "Add Reminder",
   "page_reminders_limitreached": "Reminder limit reached",
   "page_reminders_multipleperday": "Multiple Ruku per day?",
   "page_reminders_noreminders": "Use the Add reminder button to set up to {maxReminders} daily reminders.",
+  "page_reminders_already_set": "A reminder for ${schedule} is already set!",
   "page_reminders_remindersintro": "You'll receive a daily reminder to read a Ruku at the following times.",
+  "page_reminders_semantic_reminder": "Reminder# {index}, set for {schedule}",
+  "page_reminders_semantic_delete": "Delete Reminder# {index}",
 
   "page_reader_title": "Read Ruku",
   "page_reader_readnext": "Next",
   "page_reader_readprev": "Prev",
-  "page_reader_readsetcurrent": "Set Current",
+  "page_reader_readset": "Set Daily Ruku. Long press for Jump to Ruku.",
+  "page_reader_current_set": "Ruku#${index} is now your current ruku.",
+  "page_reader_current_set": "Ruku#${index} is now your current ruku.",
 
   "page_settings_title": "Settings",
   "page_settings_tab_general": "General",
@@ -79,17 +98,21 @@
   "page_settings_theme": "Application Theme",
 
   "page_settings_textsize": "Text Size",
-  "page_settings_numberstyle": "Numbers Arabic",
-  "page_settings_numberplacement": "Numbers before Ayat",
-  "page_settings_ayaperline": "Aya/Line",
+  "page_settings_numberstyle": "Arabic Numbers",
+  "page_settings_numberplacement": "Number before Verse",
+  "page_settings_ayaperline": "Verse per Line",
   "page_settings_font": "Font",
   "page_settings_clr_background": "Background",
-  "page_settings_clr_ayaeven": "Aya (even)",
-  "page_settings_clr_ayaodd": "Aya (odd)",
-  "page_settings_clr_ayasajda": "Aya (sajda)",
-  "page_settings_clr_markers": "Aya Numbers",
+  "page_settings_clr_ayaeven": "Verse (even)",
+  "page_settings_clr_ayaodd": "Verse (odd)",
+  "page_settings_clr_ayasajda": "Verse (sajda)",
+  "page_settings_clr_markers": "Verse Numbers",
+  "page_settings_semantic_pickfg": "Customize {item} text color",
+  "page_settings_semantic_pickbg": "Customize {item} background color",
 
   "page_statistics_title": "Statistics",
-  "page_statistics_intro": "These are your overall reading metrics:",
-  "page_statistics_intro2": "Displaying trends from the past {maxDailyStatsDays} days."
+  "page_statistics_current": "Current Progress:",
+  "page_statistics_intro": "Following are your all time reading metrics:",
+  "page_statistics_intro2": "Displaying trends from the past {maxDailyStatsDays} days.",
+  "page_statistics_semantic_progress": "{rukuNumber} ruku read out of {lastRukuIndex}. {percent} complete"
 }

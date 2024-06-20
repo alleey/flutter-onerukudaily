@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -73,14 +74,19 @@ class _SettingsPageState extends State<SettingsPage> {
               fontSize: titleFontSize,
             ),
           ),
-          leading: FocusHighlight(
-            focusColor: scheme.page.text.withOpacity(0.5),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              color: scheme.page.text,
+          leading: Semantics(
+            label: context.localizations.translate("app_cmd_goback"),
+            button: true,
+            excludeSemantics: true,
+            child: FocusHighlight(
+              focusColor: scheme.page.text.withOpacity(0.5),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                color: scheme.page.text,
+              ),
             ),
           ),
         ),
@@ -173,9 +179,11 @@ class _SettingsPageState extends State<SettingsPage> {
           if (_sampleRuku != null)
             Expanded(
               flex: 1,
-              child: RukuReader(
-                ruku: _sampleRuku!,
-                settings: settings.readerSettings,
+              child: ExcludeSemantics(
+                child: RukuReader(
+                  ruku: _sampleRuku!,
+                  settings: settings.readerSettings,
+                ),
               )
             ),
         ],
@@ -224,121 +232,132 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         children: [
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.localizations.translate("page_settings_textsize"),
-              ),
-              FocusHighlight(
-                focusColor: scheme.page.button.text.withOpacity(0.5),
-                child: Slider(
-                  activeColor: scheme.page.text,
-                  divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
-                  value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
-                  min: Constants.minReaderFontSize,
-                  max: Constants.maxReaderFontSize,
-                  onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
-                  }
+          MergeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.localizations.translate("page_settings_textsize"),
                 ),
-              )
-            ]
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.localizations.translate("page_settings_numberstyle"),
-              ),
-              FocusHighlight(
-                focusColor: scheme.page.button.text.withOpacity(0.5),
-                child: Switch(
-                  activeColor: scheme.page.text,
-                  value: readerSettings.showArabicNumerals,
-                  onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
-                  }
-                ),
-              )
-            ]
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.localizations.translate("page_settings_numberplacement"),
-              ),
-              FocusHighlight(
-                focusColor: scheme.page.button.text.withOpacity(0.5),
-                child: Switch(
-                  activeColor: scheme.page.text,
-                  value: readerSettings.numberBeforeAya,
-                  onChanged: (value) {
-                    context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
-                  }
-                ),
-              )
-            ]
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children:
-            [
-              Text(
-                context.localizations.translate("page_settings_ayaperline"),
-              ),
-              FocusHighlight(
-                focusColor: scheme.page.button.text.withOpacity(0.5),
-                child: Switch(
-                    activeColor: scheme.page.text,
-                    value: readerSettings.ayaPerLine,
-                    onChanged: (value) {
-                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
-                  }),
-              )
-            ]
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.localizations.translate("page_settings_font"),
-              ),
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: FocusHighlight(
+                FocusHighlight(
                   focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: DropdownButton<String>(
-                      value: readerSettings.font,
-                      style: TextStyle(
-                        color: buttonScheme.text
-                      ),
-                      dropdownColor: scheme.page.background,
-                      items: fonts.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          alignment: AlignmentDirectional.centerStart,
-                          value: value,
-                          child: Text(
-                            "قُلْ هُوَ اللَّهُ أَحَدٌ",
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              fontFamily: value,
-                              fontSize: titleFontSize,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (String? value) {
-                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
-                      }),
+                  child: Slider(
+                    activeColor: scheme.page.text,
+                    divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
+                    value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
+                    min: Constants.minReaderFontSize,
+                    max: Constants.maxReaderFontSize,
+                    onChanged: (value) {
+                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
+                    }
+                  ),
+                )
+              ]
+            ),
+          ),
+
+          MergeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.localizations.translate("page_settings_numberstyle"),
                 ),
-              )
-            ]
+                FocusHighlight(
+                  focusColor: scheme.page.button.text.withOpacity(0.5),
+                  child: Switch(
+                    activeColor: scheme.page.text,
+                    value: readerSettings.showArabicNumerals,
+                    onChanged: (value) {
+                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
+                    }
+                  ),
+                )
+              ]
+            ),
+          ),
+
+          MergeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.localizations.translate("page_settings_numberplacement"),
+                ),
+                FocusHighlight(
+                  focusColor: scheme.page.button.text.withOpacity(0.5),
+                  child: Switch(
+                    activeColor: scheme.page.text,
+                    value: readerSettings.numberBeforeAya,
+                    onChanged: (value) {
+                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
+                    }
+                  ),
+                )
+              ]
+            ),
+          ),
+
+          MergeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children:
+              [
+                Text(
+                  context.localizations.translate("page_settings_ayaperline"),
+                ),
+                FocusHighlight(
+                  focusColor: scheme.page.button.text.withOpacity(0.5),
+                  child: Switch(
+                      activeColor: scheme.page.text,
+                      value: readerSettings.ayaPerLine,
+                      onChanged: (value) {
+                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
+                    }),
+                )
+              ]
+            ),
+          ),
+
+          MergeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.localizations.translate("page_settings_font"),
+                ),
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: FocusHighlight(
+                    focusColor: scheme.page.button.text.withOpacity(0.5),
+                    child: DropdownButton<String>(
+                        value: readerSettings.font,
+                        style: TextStyle(
+                          color: buttonScheme.text
+                        ),
+                        dropdownColor: scheme.page.background,
+                        items: fonts.mapIndexed<DropdownMenuItem<String>>((index, String value) {
+                          return DropdownMenuItem<String>(
+                            alignment: AlignmentDirectional.centerStart,
+                            value: value,
+                            child: Text(
+                              "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                              semanticsLabel: "${context.localizations.translate("page_settings_font")}# ${index+1}",
+                              textDirection: TextDirection.rtl,
+                              style: TextStyle(
+                                fontFamily: value,
+                                fontSize: titleFontSize,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? value) {
+                          context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
+                        }),
+                  ),
+                )
+              ]
+            ),
           ),
 
           Divider(color: scheme.page.text, indent: 50, endIndent: 50),
@@ -346,12 +365,20 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             children:
             [
-              Text(context.localizations.translate("page_settings_clr_background")),
+              ExcludeSemantics(
+                child: Text(context.localizations.translate("page_settings_clr_background"))
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.background,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickbg",
+                    placeholders: {
+                      "item": ""
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(background: newColor)
                 ),
               ),
@@ -362,12 +389,20 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              Text(context.localizations.translate("page_settings_clr_ayaeven")),
+              ExcludeSemantics(
+                child: Text(context.localizations.translate("page_settings_clr_ayaeven"))
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.aya.text,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickfg",
+                    placeholders: {
+                      "item": context.localizations.translate("page_settings_clr_ayaeven")
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(text: newColor))
                 ),
               ),
@@ -375,6 +410,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.aya.background,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickbg",
+                    placeholders: {
+                      "item": context.localizations.translate("page_settings_clr_ayaeven")
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(background: newColor))
                 ),
               ),
@@ -385,12 +426,20 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              Text(context.localizations.translate("page_settings_clr_ayaodd")),
+              ExcludeSemantics(
+                child: Text(context.localizations.translate("page_settings_clr_ayaodd"))
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.ayaOdd.text,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickfg",
+                    placeholders: {
+                      "item": context.localizations.translate("page_settings_clr_ayaodd")
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(text: newColor))
                 ),
               ),
@@ -398,6 +447,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.ayaOdd.background,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickbg",
+                    placeholders: {
+                      "item": context.localizations.translate("page_settings_clr_ayaodd")
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(background: newColor))
                 ),
               ),
@@ -408,12 +463,20 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
             [
-              Text(context.localizations.translate("page_settings_clr_ayasajda")),
+              ExcludeSemantics(
+                child: Text(context.localizations.translate("page_settings_clr_ayasajda"))
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.ayaSajda.text,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickfg",
+                    placeholders: {
+                      "item": context.localizations.translate("page_settings_clr_ayasajda")
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(text: newColor))
                 ),
               ),
@@ -421,6 +484,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.ayaSajda.background,
+                  context.localizations.translate(
+                    "page_settings_semantic_pickbg",
+                    placeholders: {
+                      "item": context.localizations.translate("page_settings_clr_ayasajda")
+                    }
+                  ),
                   (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(background: newColor))
                 ),
               ),
@@ -430,12 +499,15 @@ class _SettingsPageState extends State<SettingsPage> {
           Row(
             children:
             [
-              Text(context.localizations.translate("page_settings_clr_markers")),
+              ExcludeSemantics(
+                child: Text(context.localizations.translate("page_settings_clr_markers"))
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: _buildColorPicker(context, settings,
                   readerSettings.colorScheme.markers,
+                  context.localizations.translate("page_settings_semantic_pickfg"),
                   (scheme, newColor) => scheme.copyWith(markers: newColor)
                 ),
               ),
@@ -451,6 +523,7 @@ class _SettingsPageState extends State<SettingsPage> {
     BuildContext context,
     AppSettings settings,
     Color initialColor,
+    String semanticLabel,
     ReaderColorScheme Function(ReaderColorScheme scheme, Color newColor) updateFunction)
   {
     return FocusHighlight(
@@ -477,7 +550,11 @@ class _SettingsPageState extends State<SettingsPage> {
             }
           }
         },
-        child: const Text(" ")
+        child: Semantics(
+          label: semanticLabel,
+          excludeSemantics: true,
+          child: const Text(" ")
+        )
       ),
     );
   }

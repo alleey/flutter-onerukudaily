@@ -49,14 +49,19 @@ class AboutPage extends StatelessWidget {
               fontSize: titleFontSize,
             ),
           ),
-          leading: FocusHighlight(
-            focusColor: scheme.page.text.withOpacity(0.5),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              color: scheme.page.text,
+          leading: Semantics(
+            label: context.localizations.translate("app_cmd_goback"),
+            button: true,
+            excludeSemantics: true,
+            child: FocusHighlight(
+              focusColor: scheme.page.text.withOpacity(0.5),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                color: scheme.page.text,
+              ),
             ),
           ),
         ),
@@ -109,7 +114,7 @@ class AboutPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text.rich(
                   textAlign: TextAlign.center,
-                  textScaler: const TextScaler.linear(0.9),
+                  textScaler: const TextScaler.linear(0.95),
                   TextSpan(
                     children: [
                       TextSpan(
@@ -132,7 +137,7 @@ class AboutPage extends StatelessWidget {
           container: true,
           child: Text.rich(
             textAlign: TextAlign.center,
-            textScaler: const TextScaler.linear(.9),
+            textScaler: const TextScaler.linear(.95),
             TextSpan(
               children: [
                 TextSpan(
@@ -143,27 +148,34 @@ class AboutPage extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         Semantics(
           container: true,
-          child: Text.rich(
-            textAlign: TextAlign.center,
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: context.localizations.translate("page_about_hadith"),
-                ),
-              ],
+          child: Container(
+            color: scheme.defaultButton.background.withOpacity(0.7),
+            padding: const EdgeInsets.all(10),
+            child: Text.rich(
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: scheme.defaultButton.text
+              ),
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: context.localizations.translate("page_about_hadith"),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         Semantics(
           container: true,
           child: Text.rich(
             textAlign: TextAlign.center,
-            textScaler: const TextScaler.linear(.9),
+            textScaler: const TextScaler.linear(.95),
             TextSpan(
               children: [
                 TextSpan(
@@ -217,7 +229,7 @@ class AboutPage extends StatelessWidget {
           container: true,
           child: Text.rich(
             textAlign: TextAlign.center,
-            textScaler: const TextScaler.linear(.9),
+            textScaler: const TextScaler.linear(.95),
             TextSpan(
               children: [
                 TextSpan(

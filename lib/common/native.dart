@@ -18,11 +18,12 @@ class NativeChannel {
 }
 
 bool _highlightModeSet = kIsWeb || !Platform.isAndroid;
+bool kIsAndroidTV = false;
 
 Future<void> setTraditionalFocusHighlightStrategy() async {
   if (!_highlightModeSet) {
-    final isAndroidTV = await NativeChannel.isAndroidTV();
-    if (isAndroidTV) {
+    kIsAndroidTV = await NativeChannel.isAndroidTV();
+    if (kIsAndroidTV) {
       FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
     }
   }

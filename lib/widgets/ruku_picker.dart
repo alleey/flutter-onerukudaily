@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../blocs/reader_bloc.dart';
@@ -118,28 +119,34 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(context.localizations.translate("dlg_pickruku_sura")),
-                      DropdownButton<String>(
-                        value: suraList[suraId],
-                        style: TextStyle(
-                          color: buttonScheme.text
-                        ),
-                        dropdownColor: scheme.background,
-                        items: suraList.map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            alignment: AlignmentDirectional.center,
-                            value: value,
-                            child: Text(
-                              value,
-                              textDirection: TextDirection.rtl,
+                      ExcludeSemantics(child: Text(context.localizations.translate("dlg_pickruku_sura"))),
+
+                      Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Semantics(
+                          label: context.localizations.translate("dlg_pickruku_semantic_sura"),
+                          child: DropdownButton<String>(
+                            value: suraList[suraId],
+                            style: TextStyle(
+                              color: buttonScheme.text
                             ),
-                          );
-                        }).toList(),
-                        onChanged: (String? value) {
-                          suraSelectionNotifier.value = suraList.indexOf(value!);
-                          rukuSelectionNotifier.value = 0;
-                          _handleSuraRukuSelection(setstate);
-                        }
+                            dropdownColor: scheme.background,
+                            items: suraList.mapIndexed<DropdownMenuItem<String>>((index, String value) {
+                              return DropdownMenuItem<String>(
+                                alignment: AlignmentDirectional.centerStart,
+                                value: value,
+                                child: Text(
+                                  "${index+1} - $value",
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              suraSelectionNotifier.value = suraList.indexOf(value!);
+                              rukuSelectionNotifier.value = 0;
+                              _handleSuraRukuSelection(setstate);
+                            }
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -147,34 +154,37 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(context.localizations.translate("dlg_pickruku_ruku")),
+                      ExcludeSemantics(child: Text(context.localizations.translate("dlg_pickruku_ruku"))),
                       ValueListenableBuilder(
                         valueListenable: rukuSelectionNotifier,
                         builder: (context, rukuId, child) {
 
                           //log("selected rukuId $rukuId");
 
-                          return DropdownButton<int>(
-                            value: rukuId,
-                            style: TextStyle(
-                              color: buttonScheme.text
+                          return Semantics(
+                            label: context.localizations.translate("dlg_pickruku_semantic_ruku"),
+                            child: DropdownButton<int>(
+                              value: rukuId,
+                              style: TextStyle(
+                                color: buttonScheme.text
+                              ),
+                              dropdownColor: scheme.background,
+                              items: Iterable<int>.generate(totalRuku).map((int rukuId) {
+
+                                return DropdownMenuItem<int>(
+                                  alignment: AlignmentDirectional.center,
+                                  value: rukuId,
+                                  child: Text(
+                                    "${rukuId + 1}",
+                                  ),
+                                );
+
+                              }).toList(),
+                              onChanged: (int? value) {
+                                rukuSelectionNotifier.value = value!;
+                                _handleSuraRukuSelection(setstate);
+                              }
                             ),
-                            dropdownColor: scheme.background,
-                            items: Iterable<int>.generate(totalRuku).map((int v) {
-
-                              return DropdownMenuItem<int>(
-                                alignment: AlignmentDirectional.center,
-                                value: v,
-                                child: Text(
-                                  "${v + 1}",
-                                ),
-                              );
-
-                            }).toList(),
-                            onChanged: (int? value) {
-                              rukuSelectionNotifier.value = value!;
-                              _handleSuraRukuSelection(setstate);
-                            }
                           );
                         },
                       ),
@@ -197,15 +207,22 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
 
                   Divider(color: scheme.text, indent: 5, endIndent: 5),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                    Text(
-                      context.localizations.translate("dlg_pickruku_selected", placeholders: {
-                        "selectedRuku": selectedRuku
-                      })
-                    ),
-                  ])
+                  Semantics(
+                    container: true,
+                    excludeSemantics: true,
+                    label: context.localizations.translate("dlg_pickruku_semantic_selected", placeholders: {
+                      "selectedRuku": selectedRuku
+                    }),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                      Text(
+                        context.localizations.translate("dlg_pickruku_selected", placeholders: {
+                          "selectedRuku": selectedRuku
+                        })
+                      ),
+                    ]),
+                  )
 
                 ]
               );

@@ -11,6 +11,7 @@ import '../../models/app_settings.dart';
 import '../../services/alerts_service.dart';
 import '../../services/prompt_serivce.dart';
 import '../../utils/utils.dart';
+import '../common/blink_effect.dart';
 import '../common/focus_highlight.dart';
 import '../common/responsive_layout.dart';
 import '../dialogs/app_dialog.dart';
@@ -67,14 +68,19 @@ class _RemindersPageState extends State<RemindersPage> {
           ),
           backgroundColor: scheme.page.defaultButton.background,
           foregroundColor: scheme.page.defaultButton.text,
-          leading: FocusHighlight(
-            focusColor: scheme.page.text.withOpacity(0.5),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              color: scheme.page.text,
+          leading: Semantics(
+            label: context.localizations.translate("app_cmd_goback"),
+            button: true,
+            excludeSemantics: true,
+            child: FocusHighlight(
+              focusColor: scheme.page.text.withOpacity(0.5),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                color: scheme.page.text,
+              ),
             ),
           ),
         ),
@@ -195,21 +201,44 @@ class _RemindersPageState extends State<RemindersPage> {
               final schedule = _reminders![index];
 
               return ListTile(
-                title: Text(schedule.toAmPmFormat()),
-                subtitle: Text(schedule.to24HourFormat()),
+
+                title: Semantics(
+                  container: true,
+                  child: Text(
+                    semanticsLabel: context.localizations.translate("page_reminders_semantic_reminder", placeholders: {
+                      "index": index + 1,
+                      "schedule": schedule.toAmPmFormat(),
+                    }),
+                    schedule.toAmPmFormat()
+                  ),
+                ),
+
+                subtitle: ExcludeSemantics(
+                  child: Text(schedule.to24HourFormat())
+                ),
+
                 leading: Icon(
                   Icons.alarm,
                   size: iconSize,
                   color: scheme.defaultButton.background,
                 ),
+
                 trailing: FocusHighlight(
                   focusColor: scheme.defaultButton.text.withOpacity(0.5),
-                  child: IconButton(
-                    color: scheme.defaultButton.text,
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      context.notificationBloc.add(RemoveReminderEvent(schedule));
-                    },
+                  child: Semantics(
+                    container: true,
+                    button: true,
+                    excludeSemantics: true,
+                    label: context.localizations.translate("page_reminders_semantic_delete", placeholders: {
+                      "index": index + 1
+                    }),
+                    child: IconButton(
+                      color: scheme.defaultButton.text,
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        context.notificationBloc.add(RemoveReminderEvent(schedule));
+                      },
+                    ),
                   ),
                 ),
                 textColor: scheme.text,
@@ -251,10 +280,12 @@ class _RemindersPageState extends State<RemindersPage> {
             child: _buildAddReminderButton(context, settings),
           ),
         if (_reminders!.length >= Constants.maxReminders)
-          Text(
-            context.localizations.translate("page_reminders_limitreached"),
-            style: TextStyle(
-              color: scheme.defaultButton.text
+          BlinkEffect(
+            child: Text(
+              context.localizations.translate("page_reminders_limitreached"),
+              style: TextStyle(
+                color: scheme.defaultButton.text
+              ),
             ),
           ),
       ],
@@ -307,7 +338,12 @@ class _RemindersPageState extends State<RemindersPage> {
         SnackBar(
           backgroundColor: scheme.page.text,
           content: Text(
-            "A reminder for ${formatTime(selectedTime)}/${formatTime24Hour(selectedTime)} is already set!",
+            context.localizations.translate(
+              "page_reminders_already_set",
+              placeholders: {
+                "schedule": "${formatTime(selectedTime)}/${formatTime24Hour(selectedTime)}"
+              }
+            ),
             style: TextStyle(
               color: scheme.page.background
             ),

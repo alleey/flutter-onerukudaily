@@ -9,9 +9,15 @@ import '../models/ruku.dart';
 import '../utils/conversion.dart';
 import 'common/focus_highlight.dart';
 
+enum ReaderTextSpanType {
+  bismillah,
+  aya,
+  ayaMarker
+}
+
 class RukuReader extends StatelessWidget {
 
-  const RukuReader({
+  RukuReader({
     super.key,
     required this.ruku,
     required this.settings,
@@ -36,56 +42,56 @@ class RukuReader extends StatelessWidget {
     return Container(
       color: settings.colorScheme.background,
       padding: padding ?? const EdgeInsets.all(5.0),
-      child: FocusTraversalOrder(
-        order: const GroupFocusOrder(GroupFocusOrder.groupReaderCommands, 5),
-        child: CustomHorizontalScrollView(
+      child: SingleChildScrollView(
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
 
-              if (scrollHeader != null)
-                scrollHeader!,
+            if (scrollHeader != null)
+              scrollHeader!,
 
-              if (ruku.hasBismillah)
-                _buildBismillah(context, settings),
+            if (ruku.hasBismillah)
+              _buildBismillah(context, settings),
 
-              _buildAyat(context, ruku, settings),
+            _buildAyat(context, ruku, settings),
 
-              if (scrollFooter != null)
-                scrollFooter!,
-            ],
-          ),
+            if (scrollFooter != null)
+              scrollFooter!,
+          ],
         ),
       ),
     );
   }
-
 
   Widget _buildBismillah(BuildContext context, ReaderSettings settings) {
 
     final fontSize = settings.fontSize;
     return Container(
       color: settings.colorScheme.aya.text,
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-              style: TextStyle(
-                fontSize: fontSize,
-                fontFamily: settings.font,
-                color: settings.colorScheme.aya.background,
+      child: Semantics(
+        container: true,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontFamily: settings.font,
+                  color: settings.colorScheme.aya.background,
+                ),
               )
-            )
-          ]
+            ]
+          ),
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.rtl
         ),
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.rtl
       ),
     );
   }
 
+  @protected
   Widget _buildAyat(BuildContext context, Ruku ruku, ReaderSettings settings) {
 
     var ayaNumber = ruku.firstAya;
@@ -118,15 +124,14 @@ class RukuReader extends StatelessWidget {
       }
 
       ayatList.add(TextSpan(
-          text: " $aya ",
-          style: TextStyle(
-            fontSize: fontSize,
-            fontFamily: settings.font,
-            color: ayaColorScheme.text,
-            backgroundColor: ayaColorScheme.background,
-          ),
-        )
-      );
+        text: " $aya ",
+        style: TextStyle(
+          fontSize: fontSize,
+          fontFamily: settings.font,
+          color: ayaColorScheme.text,
+          backgroundColor: ayaColorScheme.background,
+        ),
+      ));
 
       if (!settings.numberBeforeAya) {
         ayatList.addAll(
@@ -154,7 +159,7 @@ class RukuReader extends StatelessWidget {
           fontSize: settings.fontSize,
           fontFamily: settings.font,
           fontWeight: FontWeight.bold,
-        )
+        ),
       ),
 
       TextSpan(
@@ -164,7 +169,7 @@ class RukuReader extends StatelessWidget {
           fontSize: settings.fontSize - 2,
           fontFamily: settings.font,
           fontWeight: FontWeight.bold,
-        )
+        ),
       ),
 
       TextSpan(
@@ -174,75 +179,138 @@ class RukuReader extends StatelessWidget {
           fontSize: settings.fontSize,
           fontFamily: settings.font,
           fontWeight: FontWeight.bold,
-        )
+        ),
       ),
     ];
   }
 }
 
+class RukuReaderAndroidTV extends RukuReader {
 
-class CustomHorizontalScrollView extends StatefulWidget {
-  final Widget child;
-  final double scrollAmount;
-
-  const CustomHorizontalScrollView({super.key,
-    required this.child,
-    this.scrollAmount = 50.0, // default scroll amount
+  RukuReaderAndroidTV({
+    super.key,
+    required super.ruku,
+    required super.settings,
+    super.scrollHeader,
+    super.scrollFooter,
+    super.padding,
   });
 
   @override
-  _CustomHorizontalScrollViewState createState() => _CustomHorizontalScrollViewState();
-}
+  Widget _buildAyat(BuildContext context, Ruku ruku, ReaderSettings settings) {
 
-class _CustomHorizontalScrollViewState extends State<CustomHorizontalScrollView> {
-  final ScrollController _scrollController = ScrollController();
+    var ayaNumber = ruku.firstAya;
+    final fontSize = settings.fontSize;
+    List<Widget> ayatList = [];
 
-  @override
-  Widget build(BuildContext context) {
+    ruku.ayat.forEachIndexed((index, aya) {
 
-    return FocusHighlight(
-      canRequestFocus: true,
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-            if (_scrollController.offset <= 0) {
-              return KeyEventResult.ignored;
-            } else {
-              _scrollDown();
-              return KeyEventResult.handled;
-            }
-          } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-            if (_scrollController.offset >= _scrollController.position.maxScrollExtent) {
-              return KeyEventResult.ignored;
-            } else {
-              _scrollUp();
-              return KeyEventResult.handled;
-            }
-          }
-        }
-        return KeyEventResult.ignored;
-      },
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        child: widget.child,
+      final ayaColorScheme = switch(ayaNumber) {
+        _ when(ayaNumber == ruku.sajdaAya) => settings.colorScheme.ayaSajda,
+        _ when(ayaNumber % 2 == 1) => settings.colorScheme.ayaOdd,
+        _ => settings.colorScheme.aya,
+      };
+
+      if (settings.numberBeforeAya) {
+        ayatList.add(
+          _buildAyaNumberTV(context, settings, ayaNumber)
+        );
+      }
+
+      ayatList.add(
+        _createTextSpan(
+          text: " $aya ",
+          style: TextStyle(
+            fontSize: fontSize,
+            fontFamily: settings.font,
+            color: ayaColorScheme.text,
+            backgroundColor: ayaColorScheme.background,
+          ),
+          focusable: true,
+          focusColor: ayaColorScheme.text.withOpacity(.1)
+        ));
+
+      if (!settings.numberBeforeAya) {
+        ayatList.add(
+          _buildAyaNumberTV(context, settings, ayaNumber)
+        );
+      }
+
+      ayaNumber++;
+    });
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: ayatList
       ),
     );
   }
 
-  void _scrollUp() {
-    _scrollController.animateTo(
-      _scrollController.offset - widget.scrollAmount,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.ease,
+  Widget _buildAyaNumberTV(BuildContext context, ReaderSettings settings, int ayaNumber) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+
+        _createTextSpan(
+          text: "\uFD3F",
+          style: TextStyle(
+            color: settings.colorScheme.markers,
+            fontSize: settings.fontSize,
+            fontFamily: settings.font,
+            fontWeight: FontWeight.bold,
+          ),
+          focusable: false
+        ),
+
+        _createTextSpan(
+          text: settings.showArabicNumerals ? ConversionUtils.toArabicNumeral(ayaNumber) : ayaNumber.toString(),
+          style: TextStyle(
+            color: settings.colorScheme.markers,
+            fontSize: settings.fontSize - 2,
+            fontFamily: settings.font,
+            fontWeight: FontWeight.bold,
+          ),
+          focusable: false
+        ),
+
+        _createTextSpan(
+          text: "\uFD3E",
+          style: TextStyle(
+            color: settings.colorScheme.markers,
+            fontSize: settings.fontSize,
+            fontFamily: settings.font,
+            fontWeight: FontWeight.bold,
+          ),
+          focusable: false
+        ),
+      ]
     );
   }
 
-  void _scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.offset + widget.scrollAmount,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.ease,
+  Widget _createTextSpan({
+    required String text,
+    TextStyle? style,
+    bool focusable = true,
+    Color focusColor = Colors.transparent,
+  }) {
+
+    final child = Text(
+      text,
+      semanticsLabel: text,
+      style: style,
+      textAlign: TextAlign.justify,
     );
+
+    final canRequestFocus = focusable;
+
+    return canRequestFocus ? FocusHighlight(
+      focusColor: focusColor,
+      canRequestFocus: true,
+      overlayMode: true,
+      child: child,
+    ):
+    child;
   }
 }
