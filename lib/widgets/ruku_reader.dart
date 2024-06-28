@@ -1,8 +1,10 @@
 
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:one_ruku_daily/common/native.dart';
 
+import '../common/native.dart';
 import '../models/reader_settings.dart';
 import '../models/ruku.dart';
 import '../utils/conversion.dart';
@@ -32,18 +34,42 @@ class RukuReader extends StatefulWidget {
 class _RukuReaderState extends State<RukuReader> {
 
   late ScrollController _controller;
-  final int _scrollDistance = 100;
+  double _scrollDistance = 25;
 
   @override
   void initState() {
     super.initState();
     _controller = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateLineHeight();
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant RukuReader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateLineHeight();
+    });
+  }
+
+  void _calculateLineHeight() {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+        style: TextStyle(fontSize: widget._settings.fontSize),
+      ),
+      textDirection: TextDirection.rtl,
+    );
+    textPainter.layout();
+    _scrollDistance = textPainter.height;
+    log("_scrollDistance = $_scrollDistance");
   }
 
   @override
@@ -73,7 +99,8 @@ class _RukuReaderState extends State<RukuReader> {
                   if (widget.scrollHeader != null)
                     widget.scrollHeader!,
 
-                  if (ruku.hasBismillah)
+                  // TV has bismillah in scroll buttons
+                  if (!kIsAndroidTV && ruku.hasBismillah)
                     _buildBismillah(context, settings),
 
                   _buildAyat(context, ruku, settings),
@@ -90,37 +117,40 @@ class _RukuReaderState extends State<RukuReader> {
   }
 
   Widget _buildScrollButtons(BuildContext context, ReaderSettings settings) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_downward),
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            _controller.animateTo(
-              _controller.offset + _scrollDistance,
-              curve: Curves.easeIn,
-              duration: const Duration (milliseconds: 250)
-            );
-          },
-          color: settings.colorScheme.markers,
-        ),
-        const Spacer(),
-        IconButton(
-          style: IconButton.styleFrom(
-            padding: EdgeInsets.zero
+    return Container(
+      color: settings.colorScheme.aya.text,
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_downward),
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              _controller.animateTo(
+                _controller.offset + _scrollDistance,
+                curve: Curves.easeIn,
+                duration: const Duration (milliseconds: 250)
+              );
+            },
+            color: settings.colorScheme.aya.background,
           ),
-          icon: const Icon(Icons.arrow_upward),
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            _controller.animateTo(
-              _controller.offset -_scrollDistance,
-              curve: Curves.easeIn,
-              duration: const Duration (milliseconds: 250)
-            );
-          },
-          color: settings.colorScheme.markers,
-        )
-      ],
+          Expanded(child: _buildBismillah(context, settings)),
+          IconButton(
+            style: IconButton.styleFrom(
+              padding: EdgeInsets.zero
+            ),
+            icon: const Icon(Icons.arrow_upward),
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              _controller.animateTo(
+                _controller.offset - _scrollDistance,
+                curve: Curves.easeIn,
+                duration: const Duration (milliseconds: 250)
+              );
+            },
+            color: settings.colorScheme.aya.background,
+          )
+        ],
+      ),
     );
   }
 
