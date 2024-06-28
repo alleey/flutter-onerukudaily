@@ -11,10 +11,10 @@ class CompletionStats extends StatelessWidget {
 
   const CompletionStats({
     super.key,
-    required this.statistics,
-  });
+    required Statistics statistics,
+  }) : _statistics = statistics;
 
-  final Statistics statistics;
+  final Statistics _statistics;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,6 @@ class CompletionStats extends StatelessWidget {
   Widget _buildContents(BuildContext context, AppSettings settings) {
 
     final layout = context.layout;
-    final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
     final scheme = settings.currentScheme;
 
@@ -59,7 +58,7 @@ class CompletionStats extends StatelessWidget {
                      ),
                    ),
                    Text(
-                     "${statistics.completions}",
+                     "${_statistics.completions}",
                      textAlign: TextAlign.center,
                    ),
                  ],
@@ -77,7 +76,7 @@ class CompletionStats extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "${statistics.reads}",
+                      "${_statistics.reads}",
                       textAlign: TextAlign.center,
                     ),
                   ],

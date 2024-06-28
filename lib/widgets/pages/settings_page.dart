@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
 import '../../common/layout_constants.dart';
+import '../../common/native.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/reader_color_scheme.dart';
@@ -131,13 +134,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   focusColor: scheme.page.button.text.withOpacity(0.5),
                   child: Tab(
                     icon: const Icon(Icons.book_online),
-                    text: context.localizations.translate("page_settings_tab_reader")
+                    iconMargin: EdgeInsets.zero,
+                    child: FocusHighlight(
+                      child: Text(context.localizations.translate("page_settings_tab_reader"))
+                    )
                   ),
                 ),
                 FocusHighlight(
                   focusColor: scheme.page.button.text.withOpacity(0.5),
                   child: Tab(
                     icon: const Icon(Icons.settings),
+                    iconMargin: EdgeInsets.zero,
                     text: context.localizations.translate("page_settings_tab_general")
                   ),
                 ),
@@ -179,14 +186,18 @@ class _SettingsPageState extends State<SettingsPage> {
           if (_sampleRuku != null)
             Expanded(
               flex: 1,
-              child: ExcludeSemantics(
-                child: RukuReader(
-                  ruku: _sampleRuku!,
-                  settings: settings.readerSettings,
-                ),
-              )
+              child: _buildPreview(context, settings)
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPreview(BuildContext context, AppSettings settings) {
+    return ExcludeSemantics(
+      child: RukuReader(
+        ruku: _sampleRuku!,
+        settings: settings.readerSettings,
       ),
     );
   }
@@ -196,6 +207,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final scheme = settings.currentScheme;
     final layout = context.layout;
     final titleFontSize = layout.get<double>(AppLayoutConstants.titleFontSizeKey);
+
+    log("_buildGeneralSettings");
 
     return SingleChildScrollView(
       child: Column(

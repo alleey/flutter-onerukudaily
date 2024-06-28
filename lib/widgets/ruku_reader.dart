@@ -1,66 +1,126 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:one_ruku_daily/common/native.dart';
 
-import '../common/custom_traversal_policy.dart';
 import '../models/reader_settings.dart';
 import '../models/ruku.dart';
 import '../utils/conversion.dart';
 import 'common/focus_highlight.dart';
 
-enum ReaderTextSpanType {
-  bismillah,
-  aya,
-  ayaMarker
-}
+class RukuReader extends StatefulWidget {
 
-class RukuReader extends StatelessWidget {
-
-  RukuReader({
+  const RukuReader({
     super.key,
-    required this.ruku,
-    required this.settings,
+    required Ruku ruku,
+    required ReaderSettings settings,
     this.scrollHeader,
     this.scrollFooter,
     this.padding,
-  });
+  }) : _ruku = ruku, _settings = settings;
 
-  final Ruku ruku;
-  final ReaderSettings settings;
+  final Ruku _ruku;
+  final ReaderSettings _settings;
   final Widget? scrollHeader;
   final Widget? scrollFooter;
   final EdgeInsets? padding;
 
   @override
+  State<RukuReader> createState() => _RukuReaderState();
+}
+
+class _RukuReaderState extends State<RukuReader> {
+
+  late ScrollController _controller;
+  final int _scrollDistance = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return _buildLayout(context, ruku, settings);
+    return _buildLayout(context, widget._ruku, widget._settings);
   }
 
   Widget _buildLayout(BuildContext context, Ruku ruku, ReaderSettings settings) {
 
     return Container(
       color: settings.colorScheme.background,
-      padding: padding ?? const EdgeInsets.all(5.0),
-      child: SingleChildScrollView(
+      padding: widget.padding ?? const EdgeInsets.all(5.0),
+      child: Column(
+        children: [
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+          // Only needed on TV
+          if (kIsAndroidTV)
+            _buildScrollButtons(context, settings),
 
-            if (scrollHeader != null)
-              scrollHeader!,
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _controller,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
 
-            if (ruku.hasBismillah)
-              _buildBismillah(context, settings),
+                  if (widget.scrollHeader != null)
+                    widget.scrollHeader!,
 
-            _buildAyat(context, ruku, settings),
+                  if (ruku.hasBismillah)
+                    _buildBismillah(context, settings),
 
-            if (scrollFooter != null)
-              scrollFooter!,
-          ],
-        ),
+                  _buildAyat(context, ruku, settings),
+
+                  if (widget.scrollFooter != null)
+                    widget.scrollFooter!,
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildScrollButtons(BuildContext context, ReaderSettings settings) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_downward),
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            _controller.animateTo(
+              _controller.offset + _scrollDistance,
+              curve: Curves.easeIn,
+              duration: const Duration (milliseconds: 250)
+            );
+          },
+          color: settings.colorScheme.markers,
+        ),
+        const Spacer(),
+        IconButton(
+          style: IconButton.styleFrom(
+            padding: EdgeInsets.zero
+          ),
+          icon: const Icon(Icons.arrow_upward),
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            _controller.animateTo(
+              _controller.offset -_scrollDistance,
+              curve: Curves.easeIn,
+              duration: const Duration (milliseconds: 250)
+            );
+          },
+          color: settings.colorScheme.markers,
+        )
+      ],
     );
   }
 
@@ -187,7 +247,7 @@ class RukuReader extends StatelessWidget {
 
 class RukuReaderAndroidTV extends RukuReader {
 
-  RukuReaderAndroidTV({
+  const RukuReaderAndroidTV({
     super.key,
     required super.ruku,
     required super.settings,
@@ -303,9 +363,7 @@ class RukuReaderAndroidTV extends RukuReader {
       textAlign: TextAlign.justify,
     );
 
-    final canRequestFocus = focusable;
-
-    return canRequestFocus ? FocusHighlight(
+    return focusable ? FocusHighlight(
       focusColor: focusColor,
       canRequestFocus: true,
       overlayMode: true,

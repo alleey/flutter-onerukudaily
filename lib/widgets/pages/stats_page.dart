@@ -93,7 +93,6 @@ class StatisticsPage extends StatelessWidget {
   SingleChildScrollView _buildPage(BuildContext context, AppSettings settings) {
 
     final scheme = settings.currentScheme.page;
-    final layout = context.layout;
 
     return SingleChildScrollView(
       child: ReaderListenerBuilder(

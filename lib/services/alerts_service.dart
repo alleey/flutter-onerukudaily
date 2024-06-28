@@ -292,7 +292,6 @@ class AlertsService {
           selectedRuku: selectedRuku,
           onSelect: (value) {
             selectedRuku = value;
-
           }
         ),
       ),
@@ -300,7 +299,6 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            isDefault: false,
             builder: (_,__) => Text(context.localizations.translate("dlg_pickruku_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(selectedRuku!);
@@ -351,7 +349,6 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            isDefault: false,
             builder: (_,__) => Text(context.localizations.translate("dlg_picktime_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(selectedTime);
@@ -412,7 +409,6 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            isDefault: false,
             builder: (_,__) => Text(context.localizations.translate("dlg_pickcolor_ok"), textAlign: TextAlign.center),
             onAction: (close) {
               close(selected);

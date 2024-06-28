@@ -16,7 +16,7 @@ class LocalizedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        context.localizations.translate(textId, placeholders: placeholders),
-        style: style,
-    );
+    context.localizations.translate(textId, placeholders: placeholders),
+    style: style,
+  );
 }

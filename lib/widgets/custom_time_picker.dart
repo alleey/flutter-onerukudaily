@@ -25,17 +25,18 @@ class CustomTimePickerDialog extends StatefulWidget {
 }
 
 class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
-  late int selectedHour;
-  late int selectedMinute;
-  bool isAm = true;
-  bool isTimeValid = true;
+
+  late int _selectedHour;
+  late int _selectedMinute;
+  bool _isAm = true;
+  bool _isTimeValid = true;
 
   @override
   void initState() {
     super.initState();
-    selectedHour = widget.initialTime.hourOfPeriod;
-    selectedMinute = widget.initialTime.minute - widget.initialTime.minute % 10;
-    isAm = widget.initialTime.period == DayPeriod.am;
+    _selectedHour = widget.initialTime.hourOfPeriod;
+    _selectedMinute = widget.initialTime.minute - widget.initialTime.minute % 10;
+    _isAm = widget.initialTime.period == DayPeriod.am;
   }
 
   @override
@@ -101,11 +102,11 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               onSelectionChanged: (Set<bool> newSelection) {
                 setState(() {
                   // item in the selected set.
-                  isAm = newSelection.first;
-                  isTimeValid = _handleTimeSelection();
+                  _isAm = newSelection.first;
+                  _isTimeValid = _handleTimeSelection();
                 });
               },
-              selected: <bool>{isAm},
+              selected: <bool>{_isAm},
               style: buttonStle,
             ),
 
@@ -132,7 +133,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                         fit: BoxFit.scaleDown,
                         child: Text(
                           '$index',
-                          semanticsLabel: "$index ${isAm ? labelAM : labelPM}",
+                          semanticsLabel: "$index ${_isAm ? labelAM : labelPM}",
                         )
                       ),
                       value: index,
@@ -140,11 +141,11 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   ),
                   onSelectionChanged: (Set<int> newSelection) {
                     setState(() {
-                      selectedHour = newSelection.first;
-                      isTimeValid = _handleTimeSelection();
+                      _selectedHour = newSelection.first;
+                      _isTimeValid = _handleTimeSelection();
                     });
                   },
-                  selected: <int>{selectedHour},
+                  selected: <int>{_selectedHour},
                   style: buttonStle,
                 ),
 
@@ -157,7 +158,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                         fit: BoxFit.scaleDown,
                         child: Text(
                           '${index + 6}',
-                          semanticsLabel: "${index + 6} ${isAm ? labelAM : labelPM}",
+                          semanticsLabel: "${index + 6} ${_isAm ? labelAM : labelPM}",
                         )
                       ),
                       value: index + 6,
@@ -165,11 +166,11 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   ),
                   onSelectionChanged: (Set<int> newSelection) {
                     setState(() {
-                      selectedHour = newSelection.first;
-                      isTimeValid = _handleTimeSelection();
+                      _selectedHour = newSelection.first;
+                      _isTimeValid = _handleTimeSelection();
                     });
                   },
-                  selected: <int>{selectedHour},
+                  selected: <int>{_selectedHour},
                   style: buttonStle,
                 ),
               ],
@@ -199,11 +200,11 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               ),
               onSelectionChanged: (Set<int> newSelection) {
                 setState(() {
-                  selectedMinute = newSelection.first;
-                  isTimeValid = _handleTimeSelection();
+                  _selectedMinute = newSelection.first;
+                  _isTimeValid = _handleTimeSelection();
                 });
               },
-              selected: <int>{selectedMinute},
+              selected: <int>{_selectedMinute},
               style: buttonStle,
             ),
 
@@ -224,7 +225,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               ),
             ),
 
-            if (!isTimeValid)
+            if (!_isTimeValid)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
@@ -252,6 +253,6 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   }
 
   TimeOfDay _getSelectedTime() {
-    return TimeOfDay(hour: selectedHour + (isAm ? 0 : 12), minute: selectedMinute);
+    return TimeOfDay(hour: _selectedHour + (_isAm ? 0 : 12), minute: _selectedMinute);
   }
 }

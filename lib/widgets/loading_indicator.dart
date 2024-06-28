@@ -9,12 +9,12 @@ class LoadingIndicator extends StatelessWidget {
 
   const LoadingIndicator({
     super.key,
-    this.message = "loading . . .",
-    this.direction = TextDirection.ltr,
-  });
+    String message = "loading . . .",
+    TextDirection direction = TextDirection.ltr,
+  }) : _direction = direction, _message = message;
 
-  final String message;
-  final TextDirection direction;
+  final String _message;
+  final TextDirection _direction;
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +35,13 @@ class LoadingIndicator extends StatelessWidget {
     final scheme = settings.currentScheme;
 
     return Directionality(
-      textDirection: direction,
+      textDirection: _direction,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             textAlign: TextAlign.center,
-            message,
+            _message,
             style: TextStyle(
               color: scheme.page.text,
               fontSize: titleFontSize,

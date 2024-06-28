@@ -9,6 +9,7 @@ class FocusHighlight extends StatefulWidget {
   final bool canRequestFocus;
   final FocusNode? focusNode;
   final FocusOnKeyEventCallback? onKeyEvent;
+  final ValueChanged<bool>? onFocusChange;
   final bool overlayMode;
   final AlignmentGeometry? alignment;
 
@@ -21,6 +22,7 @@ class FocusHighlight extends StatefulWidget {
     this.autofocus = false,
     this.canRequestFocus = false,
     this.focusNode,
+    this.onFocusChange,
     this.onKeyEvent,
     this.overlayMode = false,
     this.alignment,
@@ -40,6 +42,7 @@ class _FocusHighlightState extends State<FocusHighlight> {
         setState(() {
           _isFocused = focus;
         });
+        widget.onFocusChange?.call(focus);
       },
       onKeyEvent: widget.onKeyEvent,
       focusNode: widget.focusNode,

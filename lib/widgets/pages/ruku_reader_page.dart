@@ -114,12 +114,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                     icon: const Icon(
                       Icons.settings,
                     ),
-                    onPressed: () {
-                      // This page could be reached directly from IntialRouteHandler
-                      // but it always goes back to main
-                      //
-                      Navigator.of(context, rootNavigator: true).pushReplacementNamed(KnownRouteNames.main);
-                    },
+                    onPressed: () => Navigator.pushNamed(context, KnownRouteNames.settings),
                   ),
                 ),
               ),
@@ -195,24 +190,13 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           children: [
 
             Positioned.fill(
-              child: kIsAndroidTV ?
-
-                RukuReaderAndroidTV(
-                  key: ObjectKey(_ruku!.index),
-                  ruku: _ruku!,
-                  settings: settings.readerSettings,
-                  scrollFooter: _buildScrollFooter(context, _ruku!, settings),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                ):
-
-                RukuReader(
-                  key: ObjectKey(_ruku!.index),
-                  ruku: _ruku!,
-                  settings: settings.readerSettings,
-                  scrollFooter: _buildScrollFooter(context, _ruku!, settings),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                ),
-
+              child: RukuReader(
+                key: ObjectKey(_ruku!.index),
+                ruku: _ruku!,
+                settings: settings.readerSettings,
+                scrollFooter: _buildScrollFooter(context, _ruku!, settings),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              ),
             ),
 
             Positioned(
@@ -270,7 +254,6 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
 
           Expanded(
             child: ButtonDialogAction(
-              isDefault: false,
               onAction: (close) {
                 if (_isReady) {
                   _isReady = false;
@@ -294,7 +277,6 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           const SizedBox(width: 2),
           Expanded(
             child: ButtonDialogAction(
-              isDefault: false,
               onAction: (close) {
 
                 AlertsService().confirmSetRuku(context, rukuId: ruku.index).then((selection) {
@@ -323,7 +305,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                 AlertsService().rukuPicker(context, sura: ruku.sura.index, ruku: ruku.relativeIndex).then((selection) {
                   if ((selection ?? ruku.index) != ruku.index) {
                     log("$selection");
-                    context!.readerBloc.add(ViewRukuBlocEvent(index: selection!));
+                    context.readerBloc.add(ViewRukuBlocEvent(index: selection!));
                   }
                 });
               },

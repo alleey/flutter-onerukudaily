@@ -8,6 +8,7 @@ import '../../models/ruku.dart';
 import '../../services/notification_service.dart';
 import '../common/focus_highlight.dart';
 import '../common/percentage_bar.dart';
+import '../common/pulse_bounce_effect.dart';
 import '../common/responsive_layout.dart';
 import '../reader_aware_builder.dart';
 import '../settings_aware_builder.dart';
@@ -88,41 +89,44 @@ class MainPage extends StatelessWidget {
                 // Read Ruku Card
                 ReaderListenerBuilder(
                   builder: (context, stateProvider) {
-                    return _buildCard(context, settings,
-                      title: context.localizations.translate("page_reader_title"),
-                      icon: Icons.menu_book,
-                      onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
-                      isDefault: true,
-                      extra: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
 
-                        // Respond to Reader block changes
-                        child: ValueListenableBuilder(
-                          valueListenable: stateProvider,
-                          builder: (context, readerState, child) {
+                    return PulseBounceEffect(
+                      child: _buildCard(context, settings,
+                        title: context.localizations.translate("page_reader_title"),
+                        icon: Icons.menu_book,
+                        onTap: () => Navigator.pushNamed(context, KnownRouteNames.readruku),
+                        isDefault: true,
+                        extra: Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
 
-                            return Semantics(
-                              label: context.localizations.translate(
-                                "page_main_semantic_progress",
-                                placeholders: {
-                                  "rukuNumber": readerState.rukuNumber,
-                                  "lastRukuIndex": Ruku.lastRukuIndex,
-                                }
-                              ),
-                              container: false,
-                              excludeSemantics: true,
-                              child: PercentageBar(
-                                direction: TextDirection.rtl,
-                                height: 20,
-                                value: readerState.rukuNumber.toDouble()/Ruku.lastRukuIndex.toDouble(),
-                                foregroundColor: pageScheme.text,
-                                backgroundColor: pageScheme.background,
-                                onGenerateLabel: (value) => "${readerState.rukuNumber}/${Ruku.lastRukuIndex}",
-                              ),
-                            );
-                          },
-                        ),
-                      )
+                          // Respond to Reader block changes
+                          child: ValueListenableBuilder(
+                            valueListenable: stateProvider,
+                            builder: (context, readerState, child) {
+
+                              return Semantics(
+                                label: context.localizations.translate(
+                                  "page_main_semantic_progress",
+                                  placeholders: {
+                                    "rukuNumber": readerState.rukuNumber,
+                                    "lastRukuIndex": Ruku.lastRukuIndex,
+                                  }
+                                ),
+                                container: false,
+                                excludeSemantics: true,
+                                child: PercentageBar(
+                                  direction: TextDirection.rtl,
+                                  height: 20,
+                                  value: readerState.rukuNumber.toDouble()/Ruku.lastRukuIndex.toDouble(),
+                                  foregroundColor: pageScheme.text,
+                                  backgroundColor: pageScheme.background,
+                                  onGenerateLabel: (value) => "${readerState.rukuNumber}/${Ruku.lastRukuIndex}",
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      ),
                     );
                   },
                 ),

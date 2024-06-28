@@ -52,8 +52,7 @@ class RemindersLoadedState extends NotificationBlocState {
   RemindersLoadedState(this.reminders, { required this.dirty });
 }
 
-class NotificationsSchduledState extends NotificationBlocState {
-}
+class NotificationsSchduledState extends NotificationBlocState {}
 
 ////////////////////////////////////////////
 
@@ -126,9 +125,9 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
       log("notification: scheduled to fire on $when");
     });
 
-    for (var item in (await notificationService.pendingdNotifications())) {
-      log("notification: pending ${item.id}, ${item.title}");
-    }
+    // for (var item in (await notificationService.pendingdNotifications())) {
+    //   log("notification: pending ${item.id}, ${item.title}");
+    // }
 
     emit(NotificationsSchduledState());
   }

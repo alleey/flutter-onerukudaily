@@ -189,7 +189,6 @@ class AboutPage extends StatelessWidget {
 
         const SizedBox(height: 2),
         Semantics(
-          label: "Give Feedback",
           button: true,
           excludeSemantics: true,
           child: Row(
