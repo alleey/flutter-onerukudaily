@@ -17,6 +17,7 @@ import '../dialogs/app_dialog.dart';
 import '../loading_indicator.dart';
 import '../reader_aware_builder.dart';
 import '../ruku_reader.dart';
+import '../scroll_control_bar.dart';
 import '../settings_aware_builder.dart';
 
 class RukuReaderPage extends StatefulWidget {
@@ -33,7 +34,7 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
   bool _isReady = true;
 
   late ScrollController _controller;
-  double _scrollDistance = 25;
+  double _scrollDelta = 25;
 
   @override
   void initState() {
@@ -54,6 +55,11 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
   @override
   Widget build(BuildContext context) {
     return SettingsAwareBuilder(
+      onSettingsAvailable: (settings) => {
+        if (kIsAndroidTV) {
+          _scrollDelta = calculateReaderLineHeight(settings.readerSettings.fontSize)
+        }
+      },
       builder: (context, settingsNotifier) => ValueListenableBuilder(
         valueListenable: settingsNotifier,
         builder: (context, settings, child) =>  _buildContents(context, settings)
@@ -68,10 +74,6 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     final screenCoverPct = context.layout.get<Size>(AppLayoutConstants.screenCoverPctKey);
     final appBarHeight = layout.get<double>(AppLayoutConstants.appbarHeightKey);
     final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
-
-    if (kIsAndroidTV) {
-      _scrollDistance = calculateReaderLineHeight(settings.readerSettings.fontSize);
-    }
 
     return Scaffold(
       appBar: _ruku == null ? null :
@@ -118,48 +120,10 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               // ),
 
               if (kIsAndroidTV)
-                Semantics(
-                  label: context.localizations.translate("page_reader_scroll_down"),
-                  button: true,
-                  excludeSemantics: true,
-                  child: FocusHighlight(
-                    focusColor: scheme.page.text.withOpacity(0.5),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_downward),
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        _controller.animateTo(
-                          _controller.offset + _scrollDistance,
-                          curve: Curves.easeIn,
-                          duration: const Duration (milliseconds: 250)
-                        );
-                      },
-                    ),
-                  ),
-                ),
-
-              if (kIsAndroidTV)
-                Semantics(
-                  label: context.localizations.translate("page_reader_scroll_up"),
-                  button: true,
-                  excludeSemantics: true,
-                  child: FocusHighlight(
-                    focusColor: scheme.page.text.withOpacity(0.5),
-                    child: IconButton(
-                      style: IconButton.styleFrom(
-                        padding: EdgeInsets.zero
-                      ),
-                      icon: const Icon(Icons.arrow_upward),
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        _controller.animateTo(
-                          _controller.offset - _scrollDistance,
-                          curve: Curves.easeIn,
-                          duration: const Duration (milliseconds: 250)
-                        );
-                      },
-                    ),
-                  ),
+                ScrollControlBar(
+                  controller: _controller,
+                  scrollDelta: _scrollDelta,
+                  focusColor: scheme.page.text.withOpacity(.5),
                 ),
 
               Semantics(
@@ -265,7 +229,6 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                 ruku: _ruku!,
                 settings: settings.readerSettings,
                 scrollController: _controller,
-                scrollDistance: _scrollDistance,
                 scrollFooter: _buildScrollFooter(context, _ruku!, settings),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               ),

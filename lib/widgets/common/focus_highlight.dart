@@ -5,8 +5,8 @@ typedef FocusHighlightBuilder = Widget Function(bool focused);
 class FocusHighlight extends StatefulWidget {
   final Widget? child;
   final FocusHighlightBuilder? builder;
-  final Color focusColor;
-  final Color normalColor;
+  final Color? focusColor;
+  final Color? normalColor;
   final Duration duration;
   final bool autofocus;
   final bool canRequestFocus;

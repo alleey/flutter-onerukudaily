@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:one_ruku_daily/common/native.dart';
 
 import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
 import '../../common/custom_traversal_policy.dart';
 import '../../common/layout_constants.dart';
+import '../../common/native.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/reader_color_scheme.dart';
@@ -23,6 +23,7 @@ import '../common/responsive_layout.dart';
 import '../common/tv_compatible_slider.dart';
 import '../dialogs/app_dialog.dart';
 import '../ruku_reader.dart';
+import '../scroll_control_bar.dart';
 import '../settings_aware_builder.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -34,13 +35,16 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderStateMixin {
 
+  late TabController _tabController;
+  late ScrollController _scrollController;
+
   Ruku? _sampleRuku;
-  TabController? _tabController;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((d) async {
       final ruku = await AssetService().loadRuku(538); // 550
@@ -48,6 +52,13 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
         _sampleRuku = ruku;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+    _tabController.dispose();
   }
 
   @override
@@ -239,12 +250,33 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
   }
 
   Widget _buildPreview(BuildContext context, AppSettings settings) {
+
+    final scheme = settings.readerSettings.colorScheme.aya;
+    ScrollControlBar? scrollControlBar;
+
+    if (kIsAndroidTV) {
+      // Add keyboard based scroll controls for android TV
+      scrollControlBar = ScrollControlBar(
+          controller: _scrollController,
+          scrollDelta: calculateReaderLineHeight(settings.readerSettings.fontSize) / 2,
+          focusColor: scheme.text.withOpacity(.5),
+          textColor: scheme.text,
+          backgroundColor: scheme.background,
+          decorator: (direction, child) {
+            return FocusTraversalOrder(
+              order: GroupFocusOrder(GroupFocusOrder.groupDialog, 20 - direction.index),
+              child: child,
+            );
+          },
+        );
+    }
+
     return ExcludeSemantics(
       child: RukuReader(
         ruku: _sampleRuku!,
         settings: settings.readerSettings,
-        enableScrollControls: kIsAndroidTV,
-        scrollDistance: calculateReaderLineHeight(settings.readerSettings.fontSize) / 2,
+        scrollController: _scrollController,
+        fixedHeader: scrollControlBar,
       ),
     );
   }
@@ -448,7 +480,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 6),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.background,
                     context.localizations.translate(
@@ -475,7 +507,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 7),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.aya.text,
                     context.localizations.translate(
@@ -491,7 +523,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 8),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.aya.background,
                     context.localizations.translate(
@@ -518,7 +550,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 9),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.ayaOdd.text,
                     context.localizations.translate(
@@ -534,7 +566,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 10),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.ayaOdd.background,
                     context.localizations.translate(
@@ -561,7 +593,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 11),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.ayaSajda.text,
                     context.localizations.translate(
@@ -577,7 +609,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 12),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.ayaSajda.background,
                     context.localizations.translate(
@@ -603,7 +635,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               FocusTraversalOrder(
                 order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 13),
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   child: _buildColorPicker(context, settings,
                     readerSettings.colorScheme.markers,
                     context.localizations.translate("page_settings_semantic_pickfg"),
@@ -630,6 +662,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
       focusColor: settings.currentScheme.page.button.text.withOpacity(0.5),
       child: TextButton(
         style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
           backgroundColor: initialColor,
           side: BorderSide(
             color: initialColor.inverse(),
@@ -653,7 +686,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
         child: Semantics(
           label: semanticLabel,
           excludeSemantics: true,
-          child: const Text(" ")
+          child: const Text("")
         )
       ),
     );
