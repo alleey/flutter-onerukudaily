@@ -64,7 +64,7 @@ class PercentageBar extends StatelessWidget {
     return Align(
       alignment: direction == TextDirection.ltr ? AlignmentDirectional.centerEnd:AlignmentDirectional.centerStart,
       child: FractionallySizedBox(
-        widthFactor: value,
+        widthFactor: value.clamp(0, 1.0),
         child: Container(
           height: height,
           decoration: BoxDecoration(
@@ -81,7 +81,7 @@ class PercentageBar extends StatelessWidget {
     return Align(
       alignment: direction == TextDirection.ltr ? AlignmentDirectional.centerStart:AlignmentDirectional.centerEnd,
       child: FractionallySizedBox(
-        widthFactor: 1 - value,
+        widthFactor: (1 - value).clamp(0, 1.0),
         child: Container(
           height: height,
           decoration: BoxDecoration(

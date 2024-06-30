@@ -196,7 +196,7 @@ class ButtonDialogAction extends DialogAction {
           backgroundColor: buttonTheme.background,
           foregroundColor: buttonTheme.text,
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
+            borderRadius: BorderRadius.all(Radius.circular(0)),
           ),
           padding: EdgeInsets.zero,
         ).copyWith(
@@ -213,7 +213,10 @@ class ButtonDialogAction extends DialogAction {
             fontSize: bodyFontSize,
             color: buttonTheme.text,
           ),
-          child: builder(context, settingsProvider),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: builder(context, settingsProvider),
+          ),
         )
       ),
     );

@@ -9,12 +9,12 @@ class DailyStatsBarChart extends StatelessWidget {
 
   const DailyStatsBarChart({
     super.key,
-    required this.dailyStats,
-    required this.colorScheme,
-  });
+    required List<DailyStatistics> dailyStats,
+    required AppColorScheme colorScheme,
+  }) : _colorScheme = colorScheme, _dailyStats = dailyStats;
 
-  final List<DailyStatistics> dailyStats;
-  final AppColorScheme colorScheme;
+  final List<DailyStatistics> _dailyStats;
+  final AppColorScheme _colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class DailyStatsBarChart extends StatelessWidget {
       aspectRatio: 2,
       child: BarChart(
         BarChartData(
-          backgroundColor: colorScheme.page.defaultButton.text,
+          backgroundColor: _colorScheme.page.defaultButton.text,
           titlesData: FlTitlesData
           (
             leftTitles: AxisTitles(
@@ -33,7 +33,7 @@ class DailyStatsBarChart extends StatelessWidget {
                 showTitles: true,
                 getTitlesWidget: (value, tile) => Text(
                   "${value.toInt()}",
-                  style: TextStyle(color: colorScheme.page.text),
+                  style: TextStyle(color: _colorScheme.page.text),
                 ),
                 interval: _calculateInterval(maxY),
                 reservedSize: 25
@@ -51,11 +51,11 @@ class DailyStatsBarChart extends StatelessWidget {
             tooltipMargin: 8,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
 
-              final stats = dailyStats[groupIndex];
+              final stats = _dailyStats[groupIndex];
               return BarTooltipItem(
                 "${stats.reads} Ruku",
                 TextStyle(
-                  color: colorScheme.page.defaultButton.text,
+                  color: _colorScheme.page.defaultButton.text,
                   fontWeight: FontWeight.bold,
                 ),
               );
@@ -65,13 +65,13 @@ class DailyStatsBarChart extends StatelessWidget {
         ),
         alignment: BarChartAlignment.spaceAround,
         maxY: maxY,
-        barGroups: dailyStats.mapIndexed((index, stats) {
+        barGroups: _dailyStats.mapIndexed((index, stats) {
 
           return BarChartGroupData(
             x: index,
             barRods: [
               BarChartRodData(
-                color: stats.completions > 0 ?  colorScheme.page.button.background:colorScheme.page.defaultButton.background,
+                color: stats.completions > 0 ?  _colorScheme.page.button.background:_colorScheme.page.defaultButton.background,
                 width: 3.0,
                 toY: stats.reads.toDouble(),
               ),
@@ -91,7 +91,7 @@ double _calculateInterval(double maxY) {
 }
 
   double _calculateMaxY() {
-    final maxReads = dailyStats.map((e) => e.reads.toDouble()).reduce((a, b) => a > b ? a : b);
+    final maxReads = _dailyStats.map((e) => e.reads.toDouble()).reduce((a, b) => a > b ? a : b);
     return maxReads + 1; // Add 1 for padding
   }
 }

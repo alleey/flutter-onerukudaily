@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 
 String numberToOrdinal(int number) {
   if (number % 100 >= 11 && number % 100 <= 13) {
@@ -22,13 +22,13 @@ String numberToOrdinal(int number) {
 String formatTime(TimeOfDay time) {
   final now = DateTime.now();
   final DateTime dateTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-  return DateFormat.jm().format(dateTime);
+  return intl.DateFormat.jm().format(dateTime);
 }
 
 String formatTime24Hour(TimeOfDay time) {
   final now = DateTime.now();
   final DateTime dateTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-  return DateFormat.Hm().format(dateTime);
+  return intl.DateFormat.Hm().format(dateTime);
 }
 
 @immutable
@@ -53,4 +53,17 @@ class StateDependentColor extends WidgetStateProperty<Color?> {
     }
     return null;
   }
+}
+
+
+double calculateReaderLineHeight(double fontSize) {
+  final textPainter = TextPainter(
+    text: TextSpan(
+      text: "\uFD3Eبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\uFD3F",
+      style: TextStyle(fontSize: fontSize),
+    ),
+    textDirection: TextDirection.rtl,
+  );
+  textPainter.layout();
+  return textPainter.height;
 }

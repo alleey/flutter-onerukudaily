@@ -4,6 +4,7 @@ import '../../common/layout_constants.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/statistics.dart';
+import '../common/pulse_bounce_effect.dart';
 import '../common/responsive_layout.dart';
 import '../completion_stats.dart';
 import '../settings_aware_builder.dart';
@@ -42,10 +43,12 @@ class CompletionDialog extends StatelessWidget {
                 return SizedBox(
                   height: constraints.maxHeight,
                   width: constraints.maxWidth,
-                  child: Icon(
-                    Icons.workspace_premium,
-                    size: constraints.maxHeight,
-                    color: scheme.button.text,
+                  child: PulseBounceEffect(
+                    child: Icon(
+                      Icons.workspace_premium,
+                      size: constraints.maxHeight,
+                      color: scheme.button.text,
+                    ),
                   ),
                 );
               },

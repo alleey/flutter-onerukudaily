@@ -33,24 +33,24 @@ class RukuPickerDialog extends StatefulWidget {
 
 class _RukuPickerDialogState extends State<RukuPickerDialog> {
 
-  late ValueNotifier<int> suraSelectionNotifier;
-  late ValueNotifier<int> rukuSelectionNotifier;
+  late ValueNotifier<int> _suraSelectionNotifier;
+  late ValueNotifier<int> _rukuSelectionNotifier;
 
-  String selectedRuku = "";
-  Map<String, Map<String, int>> suraMap = {};
+  String _selectedRuku = "";
+  Map<String, Map<String, int>> _suraMap = {};
   bool _fireInitial = false;
 
   @override
   void initState() {
     super.initState();
-    suraSelectionNotifier = ValueNotifier((widget.selectedSura ?? 1) - 1);
-    rukuSelectionNotifier = ValueNotifier((widget.selectedRuku ?? 1) - 1);
+    _suraSelectionNotifier = ValueNotifier((widget.selectedSura ?? 1) - 1);
+    _rukuSelectionNotifier = ValueNotifier((widget.selectedRuku ?? 1) - 1);
   }
 
   @override
   void dispose() {
-    rukuSelectionNotifier.dispose();
-    suraSelectionNotifier.dispose();
+    _rukuSelectionNotifier.dispose();
+    _suraSelectionNotifier.dispose();
     super.dispose();
   }
 
@@ -68,7 +68,7 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
               builder: (context, snapshot) {
 
                 if (snapshot.hasData) {
-                  suraMap = snapshot.data!;
+                  _suraMap = snapshot.data!;
 
                   if (!_fireInitial) {
                     _fireInitial = true;
@@ -94,7 +94,7 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
     final scheme = settings.currentScheme.dialog;
     final buttonScheme = scheme.button;
 
-    final suraList = suraMap.keys.toList();
+    final suraList = _suraMap.keys.toList();
 
     return DefaultTextStyle.merge(
       style: TextStyle(
@@ -103,10 +103,10 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
       ),
 
       child: ValueListenableBuilder(
-        valueListenable: suraSelectionNotifier,
+        valueListenable: _suraSelectionNotifier,
         builder: (context, suraId, child) {
 
-          final rukuInfo = suraMap[suraList[suraId]]!;
+          final rukuInfo = _suraMap[suraList[suraId]]!;
           final totalRuku = rukuInfo["total"] as int;
 
           return StatefulBuilder(
@@ -120,7 +120,6 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ExcludeSemantics(child: Text(context.localizations.translate("dlg_pickruku_sura"))),
-
                       Directionality(
                         textDirection: TextDirection.rtl,
                         child: Semantics(
@@ -141,8 +140,8 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                               );
                             }).toList(),
                             onChanged: (String? value) {
-                              suraSelectionNotifier.value = suraList.indexOf(value!);
-                              rukuSelectionNotifier.value = 0;
+                              _suraSelectionNotifier.value = suraList.indexOf(value!);
+                              _rukuSelectionNotifier.value = 0;
                               _handleSuraRukuSelection(setstate);
                             }
                           ),
@@ -156,7 +155,7 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                     children: [
                       ExcludeSemantics(child: Text(context.localizations.translate("dlg_pickruku_ruku"))),
                       ValueListenableBuilder(
-                        valueListenable: rukuSelectionNotifier,
+                        valueListenable: _rukuSelectionNotifier,
                         builder: (context, rukuId, child) {
 
                           //log("selected rukuId $rukuId");
@@ -181,7 +180,7 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
 
                               }).toList(),
                               onChanged: (int? value) {
-                                rukuSelectionNotifier.value = value!;
+                                _rukuSelectionNotifier.value = value!;
                                 _handleSuraRukuSelection(setstate);
                               }
                             ),
@@ -211,14 +210,14 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
                     container: true,
                     excludeSemantics: true,
                     label: context.localizations.translate("dlg_pickruku_semantic_selected", placeholders: {
-                      "selectedRuku": selectedRuku
+                      "selectedRuku": _selectedRuku
                     }),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                       Text(
                         context.localizations.translate("dlg_pickruku_selected", placeholders: {
-                          "selectedRuku": selectedRuku
+                          "selectedRuku": _selectedRuku
                         })
                       ),
                     ]),
@@ -235,13 +234,13 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
 
   void _handleSuraRukuSelection(StateSetter setstate) {
 
-    final suraList = suraMap.keys.toList();
-    final rukuInfo = suraMap[suraList[suraSelectionNotifier.value]]!;
+    final suraList = _suraMap.keys.toList();
+    final rukuInfo = _suraMap[suraList[_suraSelectionNotifier.value]]!;
     final firstRuku = rukuInfo["first"] as int;
-    final ruku = firstRuku + rukuSelectionNotifier.value;
+    final ruku = firstRuku + _rukuSelectionNotifier.value;
 
     setstate(() {
-      selectedRuku = ruku.toString();
+      _selectedRuku = ruku.toString();
       widget.onSelect(ruku);
     });
 
@@ -252,7 +251,7 @@ class _RukuPickerDialogState extends State<RukuPickerDialog> {
     final ruku = context.readerBloc.dailyRukuNumber;
 
     setstate(() {
-      selectedRuku = ruku.toString();
+      _selectedRuku = ruku.toString();
       widget.onSelect(ruku);
     });
   }

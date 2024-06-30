@@ -9,14 +9,17 @@ import '../utils/collection_utils.dart';
 class GroupFocusOrder extends FocusOrder {
 
   static const int groupAppCommands = 1;
-  static const int groupReaderCommands = 2;
-  static const int groupKeys = 3;
+  static const int groupPageCommands = 2;
+  static const int groupReaderCommands = 3;
   static const int groupDialog = 4;
 
   final int groupId;
   final int order;
 
   const GroupFocusOrder(this.groupId, this.order);
+
+  GroupFocusOrder get next => GroupFocusOrder(groupId, order + 1);
+  GroupFocusOrder get previous => GroupFocusOrder(groupId, order - 1);
 
   @override
   int doCompare(GroupFocusOrder other) {

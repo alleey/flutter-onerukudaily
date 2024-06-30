@@ -51,6 +51,12 @@ class NoMoreRukuBlocState extends ReaderBlocState {
   final Statistics statistics;
 }
 
+
+class SetDailyRukuBlocState extends ReaderBlocState {
+  SetDailyRukuBlocState({ required this.index  });
+  final int index;
+}
+
 class RukuErrorState extends ReaderBlocState {}
 
 ////////////////////////////////////////////
@@ -86,6 +92,8 @@ class ReaderBloc extends Bloc<ReaderBlocEvent, ReaderBlocState>
 
       log("SetDailyRukuBlocEvent index ${event.index}");
       _appDataService.setDailyRukuNumber(event.index);
+
+      emit(SetDailyRukuBlocState(index: event.index));
       add(ViewRukuBlocEvent(index: event.index));
     });
 

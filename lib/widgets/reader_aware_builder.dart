@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,12 +29,14 @@ class ReaderListenerBuilder extends StatefulWidget {
     this.onStateChange,
     this.onStateAvailable,
     this.onQuranCompleted,
+    this.onBlocState,
   });
 
   final Widget Function(BuildContext context, ValueNotifier<ReaderState> stateProvider) builder;
   final void Function(ReaderState newState)? onStateChange;
   final void Function(ReaderState state)? onStateAvailable;
   final void Function(ReaderState state)? onQuranCompleted;
+  final void Function(ReaderBlocState state)? onBlocState;
 
   @override
   State<ReaderListenerBuilder> createState() => _ReaderListenerBuilderState();
@@ -71,6 +74,10 @@ class _ReaderListenerBuilderState extends State<ReaderListenerBuilder> {
     return BlocListener<ReaderBloc, ReaderBlocState>(
       listener: (BuildContext context, state) {
 
+        if(state is NoMoreRukuBlocState) {
+          widget.onQuranCompleted?.call(_changeNotifier.value);
+        }
+
         if(state is RukuLoadedBlocState) {
 
           _changeNotifier.value = ReaderState(
@@ -82,9 +89,7 @@ class _ReaderListenerBuilderState extends State<ReaderListenerBuilder> {
           widget.onStateChange?.call(_changeNotifier.value);
         }
 
-        if(state is NoMoreRukuBlocState) {
-          widget.onQuranCompleted?.call(_changeNotifier.value);
-        }
+        widget.onBlocState?.call(state);
 
       },
       child: widget.builder(context, _changeNotifier),

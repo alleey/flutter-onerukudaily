@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 import '../../blocs/reader_bloc.dart';
@@ -11,6 +9,7 @@ import '../../models/app_settings.dart';
 import '../../models/ruku.dart';
 import '../../services/alerts_service.dart';
 import '../../utils/conversion.dart';
+import '../../utils/utils.dart';
 import '../common/alternating_color_squares.dart';
 import '../common/focus_highlight.dart';
 import '../common/responsive_layout.dart';
@@ -18,6 +17,7 @@ import '../dialogs/app_dialog.dart';
 import '../loading_indicator.dart';
 import '../reader_aware_builder.dart';
 import '../ruku_reader.dart';
+import '../scroll_control_bar.dart';
 import '../settings_aware_builder.dart';
 
 class RukuReaderPage extends StatefulWidget {
@@ -33,17 +33,33 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
   bool _isDailyRuku = false;
   bool _isReady = true;
 
+  late ScrollController _controller;
+  double _scrollDelta = 25;
+
   @override
   void initState() {
     super.initState();
+    _controller = ScrollController();
     Future.delayed(const Duration(milliseconds: Constants.readerOpenDelay), () {
       context.readerBloc.add(GetNextDailyRukuBlocEvent());
     });
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return SettingsAwareBuilder(
+      onSettingsAvailable: (settings) => {
+        if (kIsAndroidTV) {
+          _scrollDelta = calculateReaderLineHeight(settings.readerSettings.fontSize)
+        }
+      },
       builder: (context, settingsNotifier) => ValueListenableBuilder(
         valueListenable: settingsNotifier,
         builder: (context, settings, child) =>  _buildContents(context, settings)
@@ -103,6 +119,13 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               //   ],
               // ),
 
+              if (kIsAndroidTV)
+                ScrollControlBar(
+                  controller: _controller,
+                  scrollDelta: _scrollDelta,
+                  focusColor: scheme.page.text.withOpacity(.5),
+                ),
+
               Semantics(
                 label: context.localizations.translate("page_settings_title"),
                 button: true,
@@ -114,15 +137,11 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
                     icon: const Icon(
                       Icons.settings,
                     ),
-                    onPressed: () {
-                      // This page could be reached directly from IntialRouteHandler
-                      // but it always goes back to main
-                      //
-                      Navigator.of(context, rootNavigator: true).pushReplacementNamed(KnownRouteNames.main);
-                    },
+                    onPressed: () => Navigator.pushNamed(context, KnownRouteNames.settings),
                   ),
                 ),
               ),
+
             ],
           ),
         ),
@@ -154,6 +173,16 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
     final scheme = settings.currentScheme.page;
 
     return ReaderListenerBuilder(
+      onBlocState: (state) => {
+        if (state is SetDailyRukuBlocState) {
+          AlertsService().snackBar(
+            context,
+              backgroundColor: scheme.text,
+              textColor: scheme.background,
+              text: context.localizations.translate("page_reader_on_setdaily", placeholders: { "index": state.index })
+          )
+        }
+      },
       onStateAvailable: (state) => setState(() {
 
         //log("onStateAvailable ruku ${state.ruku?.index}, isDailyRuku: ${state.isDailyRuku}");
@@ -195,24 +224,14 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           children: [
 
             Positioned.fill(
-              child: kIsAndroidTV ?
-
-                RukuReaderAndroidTV(
-                  key: ObjectKey(_ruku!.index),
-                  ruku: _ruku!,
-                  settings: settings.readerSettings,
-                  scrollFooter: _buildScrollFooter(context, _ruku!, settings),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                ):
-
-                RukuReader(
-                  key: ObjectKey(_ruku!.index),
-                  ruku: _ruku!,
-                  settings: settings.readerSettings,
-                  scrollFooter: _buildScrollFooter(context, _ruku!, settings),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                ),
-
+              child: RukuReader(
+                key: ObjectKey(_ruku!.index),
+                ruku: _ruku!,
+                settings: settings.readerSettings,
+                scrollController: _controller,
+                scrollFooter: _buildScrollFooter(context, _ruku!, settings),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              ),
             ),
 
             Positioned(
@@ -257,11 +276,8 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
 
   Widget _buildScrollFooter(BuildContext context, Ruku ruku, AppSettings settings) {
 
-    final scheme = settings.currentScheme.page.defaultButton;
-
     return Directionality(
       textDirection: TextDirection.rtl,
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -269,8 +285,8 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           const SizedBox(height: 50),
 
           Expanded(
+            flex: 2,
             child: ButtonDialogAction(
-              isDefault: false,
               onAction: (close) {
                 if (_isReady) {
                   _isReady = false;
@@ -290,61 +306,34 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
               ),
             ),
           ),
-
           const SizedBox(width: 2),
+
           Expanded(
             child: ButtonDialogAction(
-              isDefault: false,
-              onAction: (close) {
-
-                AlertsService().confirmSetRuku(context, rukuId: ruku.index).then((selection) {
-
-                  if ((selection ?? false)) {
-
-                    context.readerBloc.add(SetDailyRukuBlocEvent(index: ruku.index));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: scheme.text,
-                        content: Text(
-                          context.localizations.translate("page_reader_current_set", placeholders: { "index": ruku.index }),
-                          style: TextStyle(
-                            color: scheme.background,
-                            fontWeight: FontWeight.bold
-                          ),
-                        )
-                      ),
-                    );
-                  }
-
-                });
-              },
-              onLongPressAction: (close) {
-
-                AlertsService().rukuPicker(context, sura: ruku.sura.index, ruku: ruku.relativeIndex).then((selection) {
-                  if ((selection ?? ruku.index) != ruku.index) {
-                    log("$selection");
-                    context!.readerBloc.add(ViewRukuBlocEvent(index: selection!));
-                  }
-                });
-              },
-              builder: (_,__) {
-                return Row(
+              onAction: (close) => showModalBottomSheet<void>(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(0)),
+                  ),
+                  builder: (_) => _buildBottomSheet(context, ruku, settings),
+                ),
+              builder: (_,__) => Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       " ",
-                      semanticsLabel: context.localizations.translate("page_reader_readset"),
+                      semanticsLabel: context.localizations.translate("page_reader_menu"),
                       textScaler: const TextScaler.linear(.9),
                     ),
-                    const Icon(Icons.bookmark),
+                    const Icon(Icons.menu),
                   ],
-                );
-              },
+                ),
             ),
           ),
-          const SizedBox(width: 2),
 
+          const SizedBox(width: 2),
           Expanded(
+            flex: 2,
             child: ButtonDialogAction(
               isDefault: true,
               onAction: (close) {
@@ -371,6 +360,62 @@ class _RukuReaderPageState extends State<RukuReaderPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBottomSheet(BuildContext context, Ruku ruku, AppSettings settings) {
+
+    final scheme = settings.currentScheme.page.defaultButton;
+    final layout = context.layout;
+    final bodyFontSize = layout.get<double>(AppLayoutConstants.bodyFontSizeKey);
+
+    return ListView(
+        shrinkWrap: true,
+        children: [
+          ListTile(
+            autofocus: true,
+            tileColor: scheme.background,
+            focusColor: scheme.text.withOpacity(.5),
+            title: Text(
+              context.localizations.translate("page_reader_menu_setdaily"),
+              style: TextStyle(
+                color: scheme.text,
+                fontSize: bodyFontSize,
+              ),
+            ),
+            leading: Icon(Icons.bookmark, color: scheme.text),
+            onTap: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              AlertsService().confirmSetRuku(context, rukuId: ruku.index).then((selection) {
+                if ((selection ?? false)) {
+                  context.readerBloc.add(SetDailyRukuBlocEvent(index: ruku.index));
+                }
+              });
+            },
+          ),
+          ListTile(
+            tileColor: scheme.background,
+            focusColor: scheme.text.withOpacity(.5),
+            title: Text(
+              context.localizations.translate("page_reader_menu_jump"),
+              style: TextStyle(
+                color: scheme.text,
+                fontSize: bodyFontSize,
+              ),
+            ),
+            leading: Icon(Icons.directions_run, color: scheme.text),
+            onTap: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              AlertsService().rukuPicker(context, sura: ruku.sura.index, ruku: ruku.relativeIndex).then((selection) {
+
+                if ((selection ?? ruku.index) != ruku.index) {
+                  context.readerBloc.add(ViewRukuBlocEvent(index: selection!));
+                }
+
+              });
+            },
+          ),
+        ],
     );
   }
 }

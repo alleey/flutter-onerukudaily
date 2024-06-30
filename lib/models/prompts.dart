@@ -35,13 +35,13 @@ class HtmlPrompt {
 
   HtmlPrompt copyWith({
     String? header,
-    String? summary,
+    String? title,
     String? body,
     SimplePrompt? fallback,
   }) {
     return HtmlPrompt(
       header: header ?? this.header,
-      title: summary ?? this.title,
+      title: title ?? this.title,
       body: body ?? this.body,
       fallback: fallback ?? this.fallback,
     );

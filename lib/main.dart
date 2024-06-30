@@ -128,7 +128,6 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const InitialRouteHandler(),
       navigatorObservers: [ReaderNavigationObserver(context: context)],
       routes: {
         KnownRouteNames.about: (context) => const AboutPage(),
@@ -138,6 +137,7 @@ class _MyAppState extends State<MyApp> {
         KnownRouteNames.settings: (context) => const SettingsPage(),
         KnownRouteNames.statistics: (context) => const StatisticsPage(),
       },
+      home: const InitialRouteHandler(),
     );
   }
 
@@ -165,17 +165,9 @@ class InitialRouteHandler extends StatelessWidget {
 
         if (state is NotificationInitializedState) {
 
-          // User tapped a notification to launch app.
-          // Unless they opted for multiple reads per day, reschedule any prending notifications for the day
-          //
-          if (state.appLaunchInfo.isNotificationLaunch) {
-            if (!settings.allowMultipleReminders) {
-              context.notificationBloc.add(ScheduleNotifications(
-                PromptSerivce(localizations: context.localizations),
-                reschduleForTomorrow: true
-              ));
-            }
-          }
+          context.notificationBloc.add(ScheduleNotifications(
+            PromptSerivce(localizations: context.localizations)
+          ));
 
           // Hack neded on Android TV for autofocus effects
           await setTraditionalFocusHighlightStrategy();

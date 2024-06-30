@@ -30,10 +30,9 @@ class RemoveReminderEvent extends NotificationBlocEvent {
 }
 
 class ScheduleNotifications extends NotificationBlocEvent {
-  final bool reschduleForTomorrow;
   final PromptSerivce promptSerivce;
 
-  ScheduleNotifications(this.promptSerivce, { this.reschduleForTomorrow = false });
+  ScheduleNotifications(this.promptSerivce);
 }
 
 ////////////////////////////////////////////
@@ -52,8 +51,7 @@ class RemindersLoadedState extends NotificationBlocState {
   RemindersLoadedState(this.reminders, { required this.dirty });
 }
 
-class NotificationsSchduledState extends NotificationBlocState {
-}
+class NotificationsSchduledState extends NotificationBlocState {}
 
 ////////////////////////////////////////////
 
@@ -95,30 +93,28 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
   }
 
   void _onAddSchedule(AddReminderEvent event, Emitter<NotificationBlocState> emit) {
-
     final copy = reminders.copyWith();
     reminders.add(event.reminder);
     appDataService.put(settingSchedules, reminders.toJson());
-
     emit(RemindersLoadedState(reminders.list, dirty: reminders.compareTo(copy) != 0));
   }
 
   void _onRemoveSchedule(RemoveReminderEvent event, Emitter<NotificationBlocState> emit) {
-
     final copy = reminders.copyWith();
     reminders.remove(event.schedule);
     appDataService.put(settingSchedules, reminders.toJson());
-
     emit(RemindersLoadedState(reminders.list, dirty: reminders.compareTo(copy) != 0));
   }
 
   void _onScheduleNotifications(ScheduleNotifications event, Emitter<NotificationBlocState> emit) async {
 
-    notificationService.cancelAllNotifications();
-    reminders.list.forEachIndexed((index, timeOfDay) {
+    final loaded = RemindersList.fromJson(appDataService.get(settingSchedules, "[]"));
 
-      final when = timeService.nextInstanceOfTime(timeOfDay, tomorrow: event.reschduleForTomorrow);
-      final prompt = event.promptSerivce.reminderPrompt(index: index, totatReminders: reminders.list.length);
+    notificationService.cancelAllNotifications();
+    loaded.list.forEachIndexed((index, timeOfDay) {
+
+      final when = timeService.nextInstanceOfTime(timeOfDay);
+      final prompt = event.promptSerivce.reminderPrompt(index: index, totatReminders: loaded.list.length);
       //final when = timeService.timeAfter(Duration(seconds: 5 * index));
 
       notificationService.scheduleNotification(id: index, prompt: prompt, scheduledDate: when);
@@ -126,9 +122,9 @@ class NotificationBloc extends Bloc<NotificationBlocEvent, NotificationBlocState
       log("notification: scheduled to fire on $when");
     });
 
-    for (var item in (await notificationService.pendingdNotifications())) {
-      log("notification: pending ${item.id}, ${item.title}");
-    }
+    // for (var item in (await notificationService.pendingdNotifications())) {
+    //   log("notification: pending ${item.id}, ${item.title}");
+    // }
 
     emit(NotificationsSchduledState());
   }
