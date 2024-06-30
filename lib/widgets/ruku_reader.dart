@@ -1,10 +1,8 @@
 
-import 'dart:developer';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../common/native.dart';
+import '../../localizations/app_localizations.dart';
 import '../models/reader_settings.dart';
 import '../models/ruku.dart';
 import '../utils/conversion.dart';
@@ -19,13 +17,19 @@ class RukuReader extends StatefulWidget {
     this.scrollHeader,
     this.scrollFooter,
     this.padding,
+    this.scrollController,
+    this.enableScrollControls = false,
+    this.scrollDistance = 25,
   }) : _ruku = ruku, _settings = settings;
 
   final Ruku _ruku;
   final ReaderSettings _settings;
+  final ScrollController? scrollController;
   final Widget? scrollHeader;
   final Widget? scrollFooter;
   final EdgeInsets? padding;
+  final bool enableScrollControls;
+  final double scrollDistance;
 
   @override
   State<RukuReader> createState() => _RukuReaderState();
@@ -34,42 +38,11 @@ class RukuReader extends StatefulWidget {
 class _RukuReaderState extends State<RukuReader> {
 
   late ScrollController _controller;
-  double _scrollDistance = 25;
 
   @override
   void initState() {
     super.initState();
-    _controller = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateLineHeight();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant RukuReader oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateLineHeight();
-    });
-  }
-
-  void _calculateLineHeight() {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-        style: TextStyle(fontSize: widget._settings.fontSize),
-      ),
-      textDirection: TextDirection.rtl,
-    );
-    textPainter.layout();
-    _scrollDistance = textPainter.height;
-    log("_scrollDistance = $_scrollDistance");
+    _controller = widget.scrollController ?? ScrollController();
   }
 
   @override
@@ -85,9 +58,8 @@ class _RukuReaderState extends State<RukuReader> {
       child: Column(
         children: [
 
-          // Only needed on TV
-          if (kIsAndroidTV)
-            _buildScrollButtons(context, settings),
+          if (widget.enableScrollControls)
+            _buildScrollControls(context, settings),
 
           Expanded(
             child: SingleChildScrollView(
@@ -100,7 +72,7 @@ class _RukuReaderState extends State<RukuReader> {
                     widget.scrollHeader!,
 
                   // TV has bismillah in scroll buttons
-                  if (!kIsAndroidTV && ruku.hasBismillah)
+                  if (ruku.hasBismillah)
                     _buildBismillah(context, settings),
 
                   _buildAyat(context, ruku, settings),
@@ -111,46 +83,60 @@ class _RukuReaderState extends State<RukuReader> {
               ),
             ),
           ),
+
         ],
       ),
     );
   }
 
-  Widget _buildScrollButtons(BuildContext context, ReaderSettings settings) {
-    return Container(
-      color: settings.colorScheme.aya.text,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_downward),
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              _controller.animateTo(
-                _controller.offset + _scrollDistance,
-                curve: Curves.easeIn,
-                duration: const Duration (milliseconds: 250)
-              );
-            },
-            color: settings.colorScheme.aya.background,
-          ),
-          Expanded(child: _buildBismillah(context, settings)),
-          IconButton(
-            style: IconButton.styleFrom(
-              padding: EdgeInsets.zero
+  Widget _buildScrollControls(BuildContext context, ReaderSettings settings) {
+    return Row(
+      children: [
+        Semantics(
+          label: context.localizations.translate("page_reader_scroll_down"),
+          button: true,
+          excludeSemantics: true,
+          child: FocusHighlight(
+            focusColor: settings.colorScheme.aya.background.withOpacity(.5),
+            child: IconButton(
+              icon: Icon(Icons.arrow_downward, color: settings.colorScheme.aya.text),
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                _controller.animateTo(
+                  _controller.offset + widget.scrollDistance,
+                  curve: Curves.easeIn,
+                  duration: const Duration (milliseconds: 250)
+                );
+              },
+              color: settings.colorScheme.aya.background,
             ),
-            icon: const Icon(Icons.arrow_upward),
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              _controller.animateTo(
-                _controller.offset - _scrollDistance,
-                curve: Curves.easeIn,
-                duration: const Duration (milliseconds: 250)
-              );
-            },
-            color: settings.colorScheme.aya.background,
-          )
-        ],
-      ),
+          ),
+        ),
+        const Spacer(),
+        Semantics(
+          label: context.localizations.translate("page_reader_scroll_up"),
+          button: true,
+          excludeSemantics: true,
+          child: FocusHighlight(
+            focusColor: settings.colorScheme.aya.background.withOpacity(.5),
+            child: IconButton(
+              style: IconButton.styleFrom(
+                padding: EdgeInsets.zero
+              ),
+              icon: Icon(Icons.arrow_upward, color: settings.colorScheme.aya.text),
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                _controller.animateTo(
+                  _controller.offset - widget.scrollDistance,
+                  curve: Curves.easeIn,
+                  duration: const Duration (milliseconds: 250)
+                );
+              },
+              color: settings.colorScheme.aya.background,
+            ),
+          ),
+        )
+      ],
     );
   }
 

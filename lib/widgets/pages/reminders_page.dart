@@ -249,30 +249,30 @@ class _RemindersPageState extends State<RemindersPage> {
           ),
         ),
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: FittedBox(
-                alignment: AlignmentDirectional.centerStart,
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  context.localizations.translate("page_reminders_multipleperday"),
-                ),
-              ),
-            ),
-            FocusHighlight(
-              focusColor: scheme.text.withOpacity(0.5),
-              child: Switch(
-                activeColor: scheme.defaultButton.background,
-                value: settings.allowMultipleReminders,
-                onChanged: (value) {
-                  context.settingsBloc.save(settings: settings.copyWith(allowMultipleReminders: value));
-                }
-              ),
-            )
-          ]
-        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Expanded(
+        //       child: FittedBox(
+        //         alignment: AlignmentDirectional.centerStart,
+        //         fit: BoxFit.scaleDown,
+        //         child: Text(
+        //           context.localizations.translate("page_reminders_multipleperday"),
+        //         ),
+        //       ),
+        //     ),
+        //     FocusHighlight(
+        //       focusColor: scheme.text.withOpacity(0.5),
+        //       child: Switch(
+        //         activeColor: scheme.defaultButton.background,
+        //         value: settings.allowMultipleReminders,
+        //         onChanged: (value) {
+        //           context.settingsBloc.save(settings: settings.copyWith(allowMultipleReminders: value));
+        //         }
+        //       ),
+        //     )
+        //   ]
+        // ),
 
         if (_reminders!.length < Constants.maxReminders)
           Padding(
@@ -333,22 +333,16 @@ class _RemindersPageState extends State<RemindersPage> {
     final selectedTimes = _reminders!;
     if (selectedTimes.contains(selectedTime)) {
 
-      final scheme = settings.currentScheme;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: scheme.page.text,
-          content: Text(
-            context.localizations.translate(
-              "page_reminders_already_set",
-              placeholders: {
-                "schedule": "${formatTime(selectedTime)}/${formatTime24Hour(selectedTime)}"
-              }
-            ),
-            style: TextStyle(
-              color: scheme.page.background
-            ),
+      final scheme = settings.currentScheme.page;
+      AlertsService().snackBar(
+        context,
+          backgroundColor: scheme.text,
+          textColor: scheme.background,
+          text: context.localizations.translate("page_reminders_already_set",
+            placeholders: {
+              "schedule": "${formatTime(selectedTime)}/${formatTime24Hour(selectedTime)}"
+            }
           )
-        ),
       );
       return;
     }

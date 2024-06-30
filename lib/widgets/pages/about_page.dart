@@ -187,7 +187,7 @@ class AboutPage extends StatelessWidget {
         ),
 
 
-        const SizedBox(height: 2),
+        const SizedBox(height: 5),
         Semantics(
           button: true,
           excludeSemantics: true,
@@ -207,11 +207,12 @@ class AboutPage extends StatelessWidget {
                       }
                     },
                     builder: (_,__) => const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 50),
+                      padding: EdgeInsets.symmetric(horizontal: 50),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.rate_review),
+                          SizedBox(width: 5),
                           LocalizedText(textId: "page_about_feedback"),
                         ],
                       ),
@@ -223,7 +224,7 @@ class AboutPage extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 2),
+        const SizedBox(height: 5),
         Semantics(
           container: true,
           child: Text.rich(

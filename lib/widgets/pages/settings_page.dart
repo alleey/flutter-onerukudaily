@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:one_ruku_daily/common/native.dart';
 
 import '../../blocs/settings_bloc.dart';
 import '../../common/constants.dart';
+import '../../common/custom_traversal_policy.dart';
 import '../../common/layout_constants.dart';
-import '../../common/native.dart';
 import '../../localizations/app_localizations.dart';
 import '../../models/app_settings.dart';
 import '../../models/reader_color_scheme.dart';
@@ -16,9 +16,11 @@ import '../../models/ruku.dart';
 import '../../services/alerts_service.dart';
 import '../../services/asset_service.dart';
 import '../../utils/conversion.dart';
+import '../../utils/utils.dart';
 import '../color_scheme_picker.dart';
 import '../common/focus_highlight.dart';
 import '../common/responsive_layout.dart';
+import '../common/tv_compatible_slider.dart';
 import '../dialogs/app_dialog.dart';
 import '../ruku_reader.dart';
 import '../settings_aware_builder.dart';
@@ -30,13 +32,16 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderStateMixin {
 
   Ruku? _sampleRuku;
+  TabController? _tabController;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((d) async {
       final ruku = await AssetService().loadRuku(538); // 550
       setState(() {
@@ -50,7 +55,10 @@ class _SettingsPageState extends State<SettingsPage> {
     return  SettingsAwareBuilder(
       builder: (context, settingsNotifier) => ValueListenableBuilder(
         valueListenable: settingsNotifier,
-        builder: (context, settings, child) =>  _buildContents(context, settings)
+        builder: (context, settings, child) =>  FocusTraversalGroup(
+          policy: const DebugCustomOrderedTraversalPolicy(),
+          child: _buildContents(context, settings)
+        )
       ),
     );
   }
@@ -83,12 +91,15 @@ class _SettingsPageState extends State<SettingsPage> {
             excludeSemantics: true,
             child: FocusHighlight(
               focusColor: scheme.page.text.withOpacity(0.5),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                color: scheme.page.text,
+              child: FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupAppCommands, 1),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  color: scheme.page.text,
+                ),
               ),
             ),
           ),
@@ -116,60 +127,40 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _onTabTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    _tabController!.animateTo(index);
+  }
+
   Widget _buildBody(BuildContext context, AppSettings settings) {
-    final scheme = settings.currentScheme;
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          Container(
-            color: scheme.page.button.background,
-            child: TabBar(
-              labelColor: scheme.page.button.text,
-              dividerColor: scheme.page.button.text,
-              indicatorColor: scheme.page.button.text,
-              unselectedLabelColor: scheme.page.button.text.withOpacity(.5),
-              tabs: [
-                FocusHighlight(
-                  focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: Tab(
-                    icon: const Icon(Icons.book_online),
-                    iconMargin: EdgeInsets.zero,
-                    child: FocusHighlight(
-                      child: Text(context.localizations.translate("page_settings_tab_reader"))
-                    )
-                  ),
-                ),
-                FocusHighlight(
-                  focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: Tab(
-                    icon: const Icon(Icons.settings),
-                    iconMargin: EdgeInsets.zero,
-                    text: context.localizations.translate("page_settings_tab_general")
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return Column(
+      children: [
 
-          Expanded(
-            flex: 2,
-            child: TabBarView(
-              children: [
-                _buildReaderSettings(context, settings),
-                _buildGeneralSettings(context, settings),
-              ]
-            ),
-          ),
+        _buildTabBar(context, settings),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+        Expanded(
+          flex: 2,
+          child: TabBarView(
+            controller: _tabController,
             children: [
-              ButtonDialogAction(
+              _buildReaderSettings(context, settings),
+              _buildGeneralSettings(context, settings),
+            ]
+          ),
+        ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FocusTraversalOrder(
+              order: const GroupFocusOrder(GroupFocusOrder.groupDialog, 1),
+              child: ButtonDialogAction(
                 isDefault: true,
                 onAction: (close) => context.settingsBloc.save(settings: AppSettings()),
                 builder: (_,__) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -180,16 +171,70 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-            ],
-          ),
-
-          if (_sampleRuku != null)
-            Expanded(
-              flex: 1,
-              child: _buildPreview(context, settings)
             ),
-        ],
-      ),
+          ],
+        ),
+
+        if (_sampleRuku != null)
+          Expanded(
+            flex: 1,
+            child: _buildPreview(context, settings)
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTabBar(BuildContext context, AppSettings settings) {
+    final scheme = settings.currentScheme;
+    return Row(
+      children: [
+        Expanded(
+          child: FocusTraversalOrder(
+            order: const GroupFocusOrder(GroupFocusOrder.groupAppCommands, 2),
+            child: FocusHighlight(
+              overlayMode: true,
+              focusColor: scheme.page.text.withOpacity(.3),
+              child: InkWell(
+                onTap: () => _onTabTapped(0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  color: _selectedIndex == 0 ? scheme.page.defaultButton.background : scheme.page.button.background,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.book_online, color: scheme.page.text),
+                      Text(context.localizations.translate("page_settings_tab_reader"))
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: FocusTraversalOrder(
+            order: const GroupFocusOrder(GroupFocusOrder.groupAppCommands, 3),
+            child: FocusHighlight(
+              overlayMode: true,
+              focusColor: scheme.page.text.withOpacity(.3),
+              child: InkWell(
+                onTap: () => _onTabTapped(1),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  color: _selectedIndex == 1 ? scheme.page.defaultButton.background : scheme.page.button.background,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.settings, color: scheme.page.text),
+                      Text(context.localizations.translate("page_settings_tab_general"))
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -198,6 +243,8 @@ class _SettingsPageState extends State<SettingsPage> {
       child: RukuReader(
         ruku: _sampleRuku!,
         settings: settings.readerSettings,
+        enableScrollControls: kIsAndroidTV,
+        scrollDistance: calculateReaderLineHeight(settings.readerSettings.fontSize) / 2,
       ),
     );
   }
@@ -252,17 +299,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   context.localizations.translate("page_settings_textsize"),
                 ),
-                FocusHighlight(
-                  focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: Slider(
-                    activeColor: scheme.page.text,
-                    divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
-                    value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
-                    min: Constants.minReaderFontSize,
-                    max: Constants.maxReaderFontSize,
-                    onChanged: (value) {
-                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
-                    }
+                FocusTraversalOrder(
+                  order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 1),
+                  child: FocusHighlight(
+                    focusColor: scheme.page.button.text.withOpacity(0.5),
+                    canRequestFocus: true,
+                    child: TvCompatibleSlider(
+                      activeColor: scheme.page.text,
+                      divisions: (Constants.maxReaderFontSize - Constants.minReaderFontSize).truncate(),
+                      value: clampDouble(readerSettings.fontSize, Constants.minReaderFontSize, Constants.maxReaderFontSize),
+                      min: Constants.minReaderFontSize,
+                      max: Constants.maxReaderFontSize,
+                      onChanged: (value) {
+                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(fontSize: value)));
+                      }
+                    ),
                   ),
                 )
               ]
@@ -276,14 +327,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   context.localizations.translate("page_settings_numberstyle"),
                 ),
-                FocusHighlight(
-                  focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: Switch(
-                    activeColor: scheme.page.text,
-                    value: readerSettings.showArabicNumerals,
-                    onChanged: (value) {
-                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
-                    }
+                FocusTraversalOrder(
+                  order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 2),
+                  child: FocusHighlight(
+                    focusColor: scheme.page.button.text.withOpacity(0.5),
+                    child: Switch(
+                      activeColor: scheme.page.text,
+                      value: readerSettings.showArabicNumerals,
+                      onChanged: (value) {
+                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(showArabicNumerals: value)));
+                      }
+                    ),
                   ),
                 )
               ]
@@ -297,14 +351,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   context.localizations.translate("page_settings_numberplacement"),
                 ),
-                FocusHighlight(
-                  focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: Switch(
-                    activeColor: scheme.page.text,
-                    value: readerSettings.numberBeforeAya,
-                    onChanged: (value) {
-                      context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
-                    }
+                FocusTraversalOrder(
+                  order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 3),
+                  child: FocusHighlight(
+                    focusColor: scheme.page.button.text.withOpacity(0.5),
+                    child: Switch(
+                      activeColor: scheme.page.text,
+                      value: readerSettings.numberBeforeAya,
+                      onChanged: (value) {
+                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(numberBeforeAya: value)));
+                      }
+                    ),
                   ),
                 )
               ]
@@ -319,14 +376,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   context.localizations.translate("page_settings_ayaperline"),
                 ),
-                FocusHighlight(
-                  focusColor: scheme.page.button.text.withOpacity(0.5),
-                  child: Switch(
-                      activeColor: scheme.page.text,
-                      value: readerSettings.ayaPerLine,
-                      onChanged: (value) {
-                        context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
-                    }),
+                FocusTraversalOrder(
+                  order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 4),
+                  child: FocusHighlight(
+                    focusColor: scheme.page.button.text.withOpacity(0.5),
+                    child: Switch(
+                        activeColor: scheme.page.text,
+                        value: readerSettings.ayaPerLine,
+                        onChanged: (value) {
+                          context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(ayaPerLine: value)));
+                      }),
+                  ),
                 )
               ]
             ),
@@ -341,32 +401,35 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 Directionality(
                   textDirection: TextDirection.rtl,
-                  child: FocusHighlight(
-                    focusColor: scheme.page.button.text.withOpacity(0.5),
-                    child: DropdownButton<String>(
-                        value: readerSettings.font,
-                        style: TextStyle(
-                          color: buttonScheme.text
-                        ),
-                        dropdownColor: scheme.page.background,
-                        items: fonts.mapIndexed<DropdownMenuItem<String>>((index, String value) {
-                          return DropdownMenuItem<String>(
-                            alignment: AlignmentDirectional.centerStart,
-                            value: value,
-                            child: Text(
-                              "قُلْ هُوَ اللَّهُ أَحَدٌ",
-                              semanticsLabel: "${context.localizations.translate("page_settings_font")}# ${index+1}",
-                              textDirection: TextDirection.rtl,
-                              style: TextStyle(
-                                fontFamily: value,
-                                fontSize: titleFontSize,
+                  child: FocusTraversalOrder(
+                    order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 5),
+                    child: FocusHighlight(
+                      focusColor: scheme.page.button.text.withOpacity(0.5),
+                      child: DropdownButton<String>(
+                          value: readerSettings.font,
+                          style: TextStyle(
+                            color: buttonScheme.text
+                          ),
+                          dropdownColor: scheme.page.background,
+                          items: fonts.mapIndexed<DropdownMenuItem<String>>((index, String value) {
+                            return DropdownMenuItem<String>(
+                              alignment: AlignmentDirectional.centerStart,
+                              value: value,
+                              child: Text(
+                                "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                                semanticsLabel: "${context.localizations.translate("page_settings_font")}# ${index+1}",
+                                textDirection: TextDirection.rtl,
+                                style: TextStyle(
+                                  fontFamily: value,
+                                  fontSize: titleFontSize,
+                                ),
                               ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? value) {
-                          context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
-                        }),
+                            );
+                          }).toList(),
+                          onChanged: (String? value) {
+                            context.settingsBloc.save(settings: settings.copyWith(readerSettings: readerSettings.copyWith(font: value)));
+                          }),
+                    ),
                   ),
                 )
               ]
@@ -382,17 +445,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Text(context.localizations.translate("page_settings_clr_background"))
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.background,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickbg",
-                    placeholders: {
-                      "item": ""
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 6),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.background,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickbg",
+                      placeholders: {
+                        "item": ""
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(background: newColor)
                   ),
-                  (scheme, newColor) => scheme.copyWith(background: newColor)
                 ),
               ),
             ]
@@ -406,30 +472,36 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Text(context.localizations.translate("page_settings_clr_ayaeven"))
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.aya.text,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickfg",
-                    placeholders: {
-                      "item": context.localizations.translate("page_settings_clr_ayaeven")
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 7),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.aya.text,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickfg",
+                      placeholders: {
+                        "item": context.localizations.translate("page_settings_clr_ayaeven")
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(text: newColor))
                   ),
-                  (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(text: newColor))
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.aya.background,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickbg",
-                    placeholders: {
-                      "item": context.localizations.translate("page_settings_clr_ayaeven")
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.aya.background,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickbg",
+                      placeholders: {
+                        "item": context.localizations.translate("page_settings_clr_ayaeven")
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(background: newColor))
                   ),
-                  (scheme, newColor) => scheme.copyWith(aya: scheme.aya.copyWith(background: newColor))
                 ),
               ),
             ]
@@ -443,30 +515,36 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Text(context.localizations.translate("page_settings_clr_ayaodd"))
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.ayaOdd.text,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickfg",
-                    placeholders: {
-                      "item": context.localizations.translate("page_settings_clr_ayaodd")
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 9),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.ayaOdd.text,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickfg",
+                      placeholders: {
+                        "item": context.localizations.translate("page_settings_clr_ayaodd")
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(text: newColor))
                   ),
-                  (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(text: newColor))
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.ayaOdd.background,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickbg",
-                    placeholders: {
-                      "item": context.localizations.translate("page_settings_clr_ayaodd")
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.ayaOdd.background,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickbg",
+                      placeholders: {
+                        "item": context.localizations.translate("page_settings_clr_ayaodd")
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(background: newColor))
                   ),
-                  (scheme, newColor) => scheme.copyWith(ayaOdd: scheme.ayaOdd.copyWith(background: newColor))
                 ),
               ),
             ]
@@ -480,30 +558,36 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Text(context.localizations.translate("page_settings_clr_ayasajda"))
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.ayaSajda.text,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickfg",
-                    placeholders: {
-                      "item": context.localizations.translate("page_settings_clr_ayasajda")
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 11),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.ayaSajda.text,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickfg",
+                      placeholders: {
+                        "item": context.localizations.translate("page_settings_clr_ayasajda")
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(text: newColor))
                   ),
-                  (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(text: newColor))
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.ayaSajda.background,
-                  context.localizations.translate(
-                    "page_settings_semantic_pickbg",
-                    placeholders: {
-                      "item": context.localizations.translate("page_settings_clr_ayasajda")
-                    }
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.ayaSajda.background,
+                    context.localizations.translate(
+                      "page_settings_semantic_pickbg",
+                      placeholders: {
+                        "item": context.localizations.translate("page_settings_clr_ayasajda")
+                      }
+                    ),
+                    (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(background: newColor))
                   ),
-                  (scheme, newColor) => scheme.copyWith(ayaSajda: scheme.ayaSajda.copyWith(background: newColor))
                 ),
               ),
             ]
@@ -516,12 +600,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Text(context.localizations.translate("page_settings_clr_markers"))
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(3),
-                child: _buildColorPicker(context, settings,
-                  readerSettings.colorScheme.markers,
-                  context.localizations.translate("page_settings_semantic_pickfg"),
-                  (scheme, newColor) => scheme.copyWith(markers: newColor)
+              FocusTraversalOrder(
+                order: const GroupFocusOrder(GroupFocusOrder.groupPageCommands, 13),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _buildColorPicker(context, settings,
+                    readerSettings.colorScheme.markers,
+                    context.localizations.translate("page_settings_semantic_pickfg"),
+                    (scheme, newColor) => scheme.copyWith(markers: newColor)
+                  ),
                 ),
               ),
             ]
@@ -572,4 +659,3 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
-

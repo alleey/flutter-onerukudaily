@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:one_ruku_daily/common/custom_traversal_policy.dart';
 
 import '../common/app_color_scheme.dart';
 import '../common/layout_constants.dart';
@@ -97,24 +98,27 @@ class _ColorSchemePickerState extends State<ColorSchemePicker> {
               return Semantics(
                 label: selectedIndex == index ? "Theme ${index + 1} is active!" : "Apply theme ${index + 1}.",
                 button: true,
-                child: FocusHighlight(
-                  focusColor: e.value.dialog.text.withOpacity(0.5),
-                  child: InkWell(
-                    focusNode: _focusNodes[index],
-                    canRequestFocus: true,
-                    onTap: () {
-                      _changeNotifier.value = (index, e.key);
-                      widget.onSelect(e.key);
-                    },
-                    child: SizedBox(
-                      height: itemSize.height,
-                      width: itemSize.width,
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: _buildThemeBar(e.value, itemSize),
+                child: FocusTraversalOrder(
+                  order: GroupFocusOrder(GroupFocusOrder.groupPageCommands, index),
+                  child: FocusHighlight(
+                    focusColor: e.value.dialog.text.withOpacity(0.5),
+                    child: InkWell(
+                      focusNode: _focusNodes[index],
+                      canRequestFocus: true,
+                      onTap: () {
+                        _changeNotifier.value = (index, e.key);
+                        widget.onSelect(e.key);
+                      },
+                      child: SizedBox(
+                        height: itemSize.height,
+                        width: itemSize.width,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: _buildThemeBar(e.value, itemSize),
+                        ),
                       ),
-                    ),
-                  )
+                    )
+                  ),
                 )
               );
             }).toList()

@@ -165,18 +165,9 @@ class InitialRouteHandler extends StatelessWidget {
 
         if (state is NotificationInitializedState) {
 
-          // User tapped a notification to launch app.
-          // Unless they opted for multiple reads per day, reschedule any prending notifications for the day
-          //
-          // bool reschduleForTomorrow = state.appLaunchInfo.isNotificationLaunch && settings.allowMultipleReminders;
-          if (state.appLaunchInfo.isNotificationLaunch) {
-            if (!settings.allowMultipleReminders) {
-              context.notificationBloc.add(ScheduleNotifications(
-                PromptSerivce(localizations: context.localizations),
-                reschduleForTomorrow: true
-              ));
-            }
-          }
+          context.notificationBloc.add(ScheduleNotifications(
+            PromptSerivce(localizations: context.localizations)
+          ));
 
           // Hack neded on Android TV for autofocus effects
           await setTraditionalFocusHighlightStrategy();

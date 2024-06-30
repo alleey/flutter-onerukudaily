@@ -37,7 +37,7 @@
   "dlg_picktime_cancel": "Cancel",
 
   "dlg_pickcolor_title": "Select Color",
-  "dlg_pickcolor_ok": "OK",
+  "dlg_pickcolor_ok": "Select",
   "dlg_pickcolor_cancel": "Cancel",
 
   "dlg_pickruku_title": "Jump to Ruku",
@@ -48,7 +48,7 @@
   "dlg_pickruku_dailyruku": "Go to Daily Ruku",
   "dlg_pickruku_selected": "Ruku# {selectedRuku}",
   "dlg_pickruku_semantic_selected": "Ruku# {selectedRuku} is selected",
-  "dlg_pickruku_ok": "OK",
+  "dlg_pickruku_ok": "Jump",
   "dlg_pickruku_cancel": "Cancel",
 
   "dlg_completion_title": "ٱلْحَمْدُ لِلَّٰهِ",
@@ -87,9 +87,12 @@
   "page_reader_title": "Read Ruku",
   "page_reader_readnext": "Next",
   "page_reader_readprev": "Prev",
-  "page_reader_readset": "Set Daily Ruku. Long press for Jump to Ruku.",
-  "page_reader_current_set": "Ruku#${index} is now your current ruku.",
-  "page_reader_current_set": "Ruku#${index} is now your current ruku.",
+  "page_reader_menu": "Options",
+  "page_reader_menu_setdaily": "Set Daily Ruku",
+  "page_reader_menu_jump": "Jump to Ruku",
+  "page_reader_on_setdaily": "Ruku#${index} is now your current ruku.",
+  "page_reader_scroll_up": "Scroll down",
+  "page_reader_scroll_down": "Scroll up",
 
   "page_settings_title": "Settings",
   "page_settings_tab_general": "General",

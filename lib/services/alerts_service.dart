@@ -170,6 +170,20 @@ class AlertsService {
     );
   }
 
+  void snackBar(BuildContext context, { required String text, Color? textColor, Color? backgroundColor }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: backgroundColor,
+        content: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontWeight: FontWeight.bold
+          ),
+        )
+      ),
+    );
+  }
 
   Future<bool?> confirmSetRuku(BuildContext context, {
     required int rukuId
@@ -177,8 +191,8 @@ class AlertsService {
 
     return actionDialog<bool>(
       context,
-      width: MediaQuery.of(context).size.width * .5,
-      height: MediaQuery.of(context).size.height * .5,
+      width: MediaQuery.of(context).size.width * .7,
+      height: MediaQuery.of(context).size.height * .3,
       title: (_,__) => DefaultDialogTitle(
         builder: (context, settingsProvider) => Text(
           context.localizations.translate("dlg_setdaily_title"),
@@ -193,12 +207,14 @@ class AlertsService {
             onAction: (close) {
               close(true);
             },
-            builder: (_,__) {
-              return Text(
-                context.localizations.translate("dlg_cmd_yes"),
-                textAlign: TextAlign.center
-              );
-            }
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_cmd_yes"), textAlign: TextAlign.center),
+              ],
+            ),
           ),
         ),
         Expanded(
@@ -208,12 +224,14 @@ class AlertsService {
             onAction: (close) {
               close(false);
             },
-            builder: (_,__) {
-              return Text(
-                context.localizations.translate("dlg_cmd_no"),
-                textAlign: TextAlign.center
-              );
-            }
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.cancel),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_cmd_no"), textAlign: TextAlign.center),
+              ],
+            ),
           ),
         )
       ],
@@ -252,7 +270,14 @@ class AlertsService {
           child: ButtonDialogAction(
             autofocus: true,
             isDefault: true,
-            builder: (_,__) => Text(context.localizations.translate("dlg_completion_ok"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.close_fullscreen),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_completion_ok"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) {
               close(null);
               onClose();
@@ -299,7 +324,14 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            builder: (_,__) => Text(context.localizations.translate("dlg_pickruku_ok"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_pickruku_ok"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) {
               close(selectedRuku!);
             },
@@ -310,7 +342,14 @@ class AlertsService {
           child: ButtonDialogAction(
             autofocus: true,
             isDefault: true,
-            builder: (_,__) => Text(context.localizations.translate("dlg_pickruku_cancel"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.close_fullscreen),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_pickruku_cancel"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) => close(null),
           ),
         ),
@@ -349,7 +388,14 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            builder: (_,__) => Text(context.localizations.translate("dlg_picktime_ok"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_picktime_ok"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) {
               close(selectedTime);
             },
@@ -360,7 +406,14 @@ class AlertsService {
           child: ButtonDialogAction(
             autofocus: true,
             isDefault: true,
-            builder: (_,__) => Text(context.localizations.translate("dlg_picktime_cancel"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.close_fullscreen),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_picktime_cancel"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) => close(null),
           ),
         ),
@@ -409,7 +462,14 @@ class AlertsService {
 
         Expanded(
           child: ButtonDialogAction(
-            builder: (_,__) => Text(context.localizations.translate("dlg_pickcolor_ok"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_pickcolor_ok"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) {
               close(selected);
             },
@@ -420,7 +480,14 @@ class AlertsService {
           child: ButtonDialogAction(
             autofocus: true,
             isDefault: true,
-            builder: (_,__) => Text(context.localizations.translate("dlg_pickcolor_cancel"), textAlign: TextAlign.center),
+            builder: (_,__) => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.close_fullscreen),
+                const SizedBox(width: 5),
+                Text(context.localizations.translate("dlg_pickcolor_cancel"), textAlign: TextAlign.center),
+              ],
+            ),
             onAction: (close) => close(null),
           ),
         ),
