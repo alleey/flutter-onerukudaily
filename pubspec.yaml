@@ -55,15 +55,15 @@ flutter:
     - family: Amiri
       fonts:
         - asset: assets/fonts/Amiri/Amiri-Regular.ttf
-    - family: Baloo_Bhaijaan
-      fonts:
-        - asset: assets/fonts/Baloo_Bhaijaan/BalooBhaijaan-Regular.ttf
-    - family: Cairo
-      fonts:
-        - asset: assets/fonts/Cairo/Cairo-Regular.ttf
-    - family: Changa
-      fonts:
-        - asset: assets/fonts/Changa/Changa-Regular.ttf
+    # - family: Baloo_Bhaijaan
+    #   fonts:
+    #     - asset: assets/fonts/Baloo_Bhaijaan/BalooBhaijaan-Regular.ttf
+    # - family: Cairo
+    #   fonts:
+    #     - asset: assets/fonts/Cairo/Cairo-Regular.ttf
+    # - family: Changa
+    #   fonts:
+    #     - asset: assets/fonts/Changa/Changa-Regular.ttf
     - family: El_Messiri
       fonts:
         - asset: assets/fonts/El_Messiri/ElMessiri-Regular.ttf
@@ -76,33 +76,33 @@ flutter:
     - family: Katibeh
       fonts:
         - asset: assets/fonts/Katibeh/Katibeh-Regular.ttf
-    - family: Lalezar
-      fonts:
-        - asset: assets/fonts/Lalezar/Lalezar-Regular.ttf
+    # - family: Lalezar
+    #   fonts:
+    #     - asset: assets/fonts/Lalezar/Lalezar-Regular.ttf
     - family: Lateef
       fonts:
         - asset: assets/fonts/Lateef/LateefRegOT.ttf
-    - family: Lemonada
-      fonts:
-        - asset: assets/fonts/Lemonada/Lemonada-Regular.ttf
+    # - family: Lemonada
+    #   fonts:
+    #     - asset: assets/fonts/Lemonada/Lemonada-Regular.ttf
     - family: Mirza
       fonts:
         - asset: assets/fonts/Mirza/Mirza-Regular.ttf
-    - family: Mada
-      fonts:
-        - asset: assets/fonts/Mada/Mada-Regular.ttf
-    - family: Markazi_Text
-      fonts:
-        - asset: assets/fonts/Markazi_Text/MarkaziText-Regular.ttf
-    - family: Rakkas
-      fonts:
-        - asset: assets/fonts/Rakkas/Rakkas-Regular.ttf
-    - family: Reem_Kufi
-      fonts:
-        - asset: assets/fonts/Reem_Kufi/ReemKufi-Regular.ttf
+    # - family: Mada
+    #   fonts:
+    #     - asset: assets/fonts/Mada/Mada-Regular.ttf
+    # - family: Markazi_Text
+    #   fonts:
+    #     - asset: assets/fonts/Markazi_Text/MarkaziText-Regular.ttf
+    # - family: Rakkas
+    #   fonts:
+    #     - asset: assets/fonts/Rakkas/Rakkas-Regular.ttf
+    # - family: Reem_Kufi
+    #   fonts:
+    #     - asset: assets/fonts/Reem_Kufi/ReemKufi-Regular.ttf
     - family: Scheherazade
       fonts:
         - asset: assets/fonts/Scheherazade/Scheherazade-Regular.ttf
-    - family: Tajawal
+    - family: p117
       fonts:
-        - asset: assets/fonts/Tajawal/Tajawal-Regular.ttf
+        - asset: assets/fonts/p117/p117.woff2

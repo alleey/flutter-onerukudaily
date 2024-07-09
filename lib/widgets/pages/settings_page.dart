@@ -318,7 +318,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
     final titleFontSize = context.layout.get<double>(AppLayoutConstants.titleFontSizeKey);
 
     final fonts = Constants.fonts.toList();
-    fonts.sort();
+    //fonts.sort();
 
     return SingleChildScrollView(
       child: Column(
@@ -438,7 +438,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
                     child: FocusHighlight(
                       focusColor: scheme.page.button.text.withOpacity(0.5),
                       child: DropdownButton<String>(
-                          value: readerSettings.font,
+                          value: fonts.contains(readerSettings.font) ? readerSettings.font : fonts.first,
                           style: TextStyle(
                             color: buttonScheme.text
                           ),
@@ -448,6 +448,7 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
                               alignment: AlignmentDirectional.centerStart,
                               value: value,
                               child: Text(
+                                //value,
                                 "قُلْ هُوَ اللَّهُ أَحَدٌ",
                                 semanticsLabel: "${context.localizations.translate("page_settings_font")}# ${index+1}",
                                 textDirection: TextDirection.rtl,

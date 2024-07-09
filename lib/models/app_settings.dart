@@ -13,7 +13,7 @@ class AppSettings {
     this.theme = "default",
     this.locale = "en",
     ReaderSettings? readerSettings,
-  }) : readerSettings = readerSettings ?? const ReaderSettings();
+  }) : readerSettings = readerSettings ?? ReaderSettings();
 
   AppSettings copyWith({
     String? theme,

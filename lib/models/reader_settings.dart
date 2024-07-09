@@ -1,4 +1,5 @@
 // dart pub run build_runner build
+import '../common/constants.dart';
 import 'reader_color_scheme.dart';
 
 class ReaderSettings {
@@ -9,14 +10,14 @@ class ReaderSettings {
   final String font;
   final ReaderColorScheme colorScheme;
 
-  const ReaderSettings({
+  ReaderSettings({
     this.showArabicNumerals = false,
     this.numberBeforeAya = false,
     this.ayaPerLine = false,
     this.fontSize = 24,
-    this.font = "Lateef",
+    String font = "Lateef",
     this.colorScheme = const ReaderColorScheme()
-  });
+  }) : font = Constants.fonts.contains(font) ? font : Constants.fonts.first;
 
   ReaderSettings copyWith({
     bool? showArabicNumerals,
