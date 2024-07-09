@@ -84,7 +84,7 @@
   "page_reminders_semantic_reminder": "Reminder# {index}, set for {schedule}",
   "page_reminders_semantic_delete": "Delete Reminder# {index}",
 
-  "page_reader_title": "Read Ruku",
+  "page_reader_title": "Read a Ruku",
   "page_reader_readnext": "Next",
   "page_reader_readprev": "Prev",
   "page_reader_menu": "Options",
